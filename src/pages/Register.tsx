@@ -4,7 +4,7 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 import { toast } from 'react-hot-toast';
-import { UserPlus, Mail, Lock, User, Phone } from 'lucide-react';
+import { UserPlus, Mail, Lock, User, Phone, AlertCircle } from 'lucide-react';
 import { handleFirestoreError, OperationType } from '../utils/firestoreErrorHandler';
 
 const Register = () => {
@@ -15,10 +15,12 @@ const Register = () => {
     password: '',
   });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     setLoading(true);
     try {
       const { user } = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
@@ -42,7 +44,21 @@ const Register = () => {
       toast.success('Account created successfully!');
       navigate('/home');
     } catch (error: any) {
-      toast.error(error.message || 'Failed to register');
+      let errorMessage = error.message || 'Failed to register';
+      
+      // Provide helpful messages for common errors
+      if (error.code === 'auth/operation-not-allowed') {
+        errorMessage = 'Email/Password authentication is not enabled. Contact admin to enable it in Firebase.';
+      } else if (error.code === 'auth/email-already-in-use') {
+        errorMessage = 'This email is already registered.';
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage = 'Password is too weak. Use at least 6 characters.';
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = 'Invalid email address.';
+      }
+      
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -58,6 +74,20 @@ const Register = () => {
           <h1 className="text-3xl font-bold text-slate-900">Create Account</h1>
           <p className="text-slate-500 mt-2">Join our community of food lovers</p>
         </div>
+
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm text-red-700 font-medium">{error}</p>
+              {error.includes('not enabled') && (
+                <p className="text-xs text-red-600 mt-2">
+                  📄 See FIREBASE_SETUP_GUIDE.md for how to enable Email/Password authentication
+                </p>
+              )}
+            </div>
+          </div>
+        )}
 
         <form onSubmit={handleRegister} className="space-y-4">
           <div className="space-y-1">
