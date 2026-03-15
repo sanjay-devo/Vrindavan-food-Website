@@ -1,0 +1,78 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile with role and contact info",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Full name" },
+        "email": { "type": "string", "format": "email", "description": "Email address" },
+        "phone": { "type": "string", "description": "Mobile number" },
+        "role": { "type": "string", "enum": ["consumer", "delivery", "admin"], "description": "User role" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Account creation timestamp" }
+      },
+      "required": ["name", "email", "phone", "role", "createdAt"]
+    },
+    "MenuItem": {
+      "title": "MenuItem",
+      "description": "Food item in the menu",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "price": { "type": "number" },
+        "category": { "type": "string" },
+        "image": { "type": "string", "description": "Image URL" },
+        "available": { "type": "boolean" }
+      },
+      "required": ["name", "price", "category", "available"]
+    },
+    "Category": {
+      "title": "Category",
+      "description": "Food category",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "icon": { "type": "string" }
+      },
+      "required": ["name"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Customer order",
+      "type": "object",
+      "properties": {
+        "customerId": { "type": "string" },
+        "customerName": { "type": "string" },
+        "phone": { "type": "string" },
+        "items": { "type": "array", "items": { "type": "object" } },
+        "totalPrice": { "type": "number" },
+        "orderType": { "type": "string", "enum": ["delivery", "pickup", "dine-in"] },
+        "tableNumber": { "type": "string" },
+        "address": { "type": "string" },
+        "status": { "type": "string", "enum": ["received", "preparing", "ready", "out-for-delivery", "delivered"] },
+        "paymentStatus": { "type": "string", "enum": ["pending", "paid"] },
+        "deliveryPartnerId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["customerId", "items", "totalPrice", "orderType", "status", "paymentStatus", "createdAt"]
+    },
+    "Table": {
+      "title": "Table",
+      "description": "Restaurant table",
+      "type": "object",
+      "properties": {
+        "number": { "type": "string" },
+        "qrCode": { "type": "string" }
+      },
+      "required": ["number"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": { "schema": "User", "description": "User profiles" },
+    "menu/{itemId}": { "schema": "MenuItem", "description": "Menu items" },
+    "categories/{categoryId}": { "schema": "Category", "description": "Menu categories" },
+    "orders/{orderId}": { "schema": "Order", "description": "Customer orders" },
+    "tables/{tableId}": { "schema": "Table", "description": "Restaurant tables" }
+  }
+}

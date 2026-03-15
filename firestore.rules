@@ -1,0 +1,101 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    // User: { name, email, phone, role, createdAt }
+    // MenuItem: { name, description, price, category, image, available }
+    // Category: { name, icon }
+    // Order: { customerId, customerName, phone, items, totalPrice, orderType, tableNumber, address, status, paymentStatus, deliveryPartnerId, createdAt }
+    // Table: { number, qrCode }
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && (
+        getUserData().role == 'admin' || 
+        (request.auth.token.email == "indiacybercafe.com@gmail.com" && request.auth.token.email_verified == true)
+      );
+    }
+    
+    function isDelivery() {
+      return isAuthenticated() && getUserData().role == 'delivery';
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidString(val, maxLen) {
+      return val is string && val.size() <= maxLen;
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    // Domain Validators
+    function isValidUser(data) {
+      return data.keys().hasAll(['name', 'email', 'role']) &&
+             isValidString(data.name, 100) &&
+             isValidEmail(data.email) &&
+             data.role in ['admin', 'delivery', 'consumer'];
+    }
+
+    function isValidOrder(data) {
+      return data.keys().hasAll(['customerId', 'totalPrice', 'status']) &&
+             data.customerId == request.auth.uid &&
+             data.totalPrice is number && data.totalPrice >= 0 &&
+             data.status in ['pending', 'confirmed', 'preparing', 'ready', 'out-for-delivery', 'delivered', 'cancelled'];
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (isOwner(userId) || isAdmin());
+      allow create: if isAuthenticated() && isOwner(userId) && isValidUser(request.resource.data) && request.resource.data.role == 'consumer';
+      allow update: if isAdmin() || (isOwner(userId) && isValidUser(request.resource.data) && request.resource.data.role == resource.data.role);
+    }
+
+    // Menu Collection
+    match /menu/{itemId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Categories Collection
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Orders Collection
+    match /orders/{orderId} {
+      allow read: if isAuthenticated() && (
+        isOwner(resource.data.customerId) || 
+        isAdmin() || 
+        (isDelivery() && (resource.data.deliveryPartnerId == request.auth.uid || resource.data.status == 'ready'))
+      );
+      allow create: if isAuthenticated() && isValidOrder(request.resource.data);
+      allow update: if isAuthenticated() && (
+        isAdmin() || 
+        (isDelivery() && resource.data.deliveryPartnerId == request.auth.uid) ||
+        (isOwner(resource.data.customerId) && request.resource.data.status == resource.data.status && isValidOrder(request.resource.data))
+      );
+    }
+
+    // Tables Collection
+    match /tables/{tableId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}
