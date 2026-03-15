@@ -37,12 +37,13 @@ const Register = () => {
       const path = `users/${user.uid}`;
       try {
         await setDoc(doc(db, 'users', user.uid), userProfile);
+        toast.success('Account created successfully!');
+        navigate('/home');
       } catch (error) {
+        console.error('Firestore Error:', error);
         handleFirestoreError(error, OperationType.CREATE, path);
+        throw new Error('Failed to save user profile to database');
       }
-      
-      toast.success('Account created successfully!');
-      navigate('/home');
     } catch (error: any) {
       let errorMessage = error.message || 'Failed to register';
       
