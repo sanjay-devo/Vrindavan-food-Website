@@ -9,7 +9,7 @@
  */
 
 import { ref, set, get } from 'firebase/database';
-import { rtdb } from './firebase';
+import { rtdb } from '../firebase';
 
 export const initializeDatabase = async () => {
   try {
