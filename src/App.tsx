@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { testConnection } from './services/orderService';
+import { initializeDatabase } from './utils/dbInitialize';
 
 // Pages
 import Login from './pages/Login';
@@ -57,6 +58,7 @@ const RoleRedirect = () => {
 function App() {
   useEffect(() => {
     testConnection();
+    initializeDatabase(); // Initialize database structure on first load
   }, []);
 
   return (

@@ -1,0 +1,84 @@
+{
+  "rules": {
+    // ===================================================
+    // Realtime Database Rules - Vrindavan Bargawan
+    // ===================================================
+    
+    "users": {
+      // Users collection - each user has their own data
+      "$uid": {
+        // Owner can read/write their own data
+        ".read": "auth.uid === $uid || root.child('users').child(auth.uid).child('role').val() === 'admin'",
+        ".write": "auth.uid === $uid || root.child('users').child(auth.uid).child('role').val() === 'admin'",
+        
+        // Validate required fields
+        ".validate": "newData.hasChildren(['name', 'email', 'role']) && newData.child('email').isString() && newData.child('role').val() in ['admin', 'delivery', 'consumer']"
+      }
+    },
+
+    "menu": {
+      // Menu items - public read, admin write
+      "$category": {
+        "$itemId": {
+          ".read": true,
+          ".write": "root.child('users').child(auth.uid).child('role').val() === 'admin'",
+          ".validate": "newData.hasChildren(['name', 'price']) && newData.child('price').isNumber()"
+        }
+      }
+    },
+
+    "categories": {
+      // Categories - public read, admin write
+      "$categoryId": {
+        ".read": true,
+        ".write": "root.child('users').child(auth.uid).child('role').val() === 'admin'"
+      }
+    },
+
+    "dishes": {
+      // Dishes - public read, admin write
+      "$dishId": {
+        ".read": true,
+        ".write": "root.child('users').child(auth.uid).child('role').val() === 'admin'",
+        ".validate": "newData.hasChildren(['name', 'price', 'category']) && newData.child('price').isNumber()"
+      }
+    },
+
+    "orders": {
+      // Orders - users can create/read their own, admin can read all
+      "$orderId": {
+        ".read": "auth.uid === root.child('orders').child($orderId).child('customerId').val() || root.child('users').child(auth.uid).child('role').val() === 'admin'",
+        ".write": "auth.uid === root.child('orders').child($orderId).child('customerId').val() || root.child('users').child(auth.uid).child('role').val() === 'admin'",
+        ".validate": "newData.hasChildren(['customerId', 'totalPrice', 'status']) && newData.child('totalPrice').isNumber() && newData.child('status').val() in ['pending', 'confirmed', 'preparing', 'ready', 'out-for-delivery', 'delivered', 'cancelled']"
+      }
+    },
+
+    "tables": {
+      // Tables - public read, admin write
+      "$tableId": {
+        ".read": true,
+        ".write": "root.child('users').child(auth.uid).child('role').val() === 'admin'"
+      }
+    },
+
+    "deliveryPartners": {
+      // Delivery partners - public read, admin write, partner can read/write their own
+      "$partnerId": {
+        ".read": "auth.uid === $partnerId || root.child('users').child(auth.uid).child('role').val() === 'admin'",
+        ".write": "auth.uid === $partnerId || root.child('users').child(auth.uid).child('role').val() === 'admin'"
+      }
+    },
+
+    "adminSettings": {
+      // Admin settings - public read, admin write
+      ".read": true,
+      ".write": "root.child('users').child(auth.uid).child('role').val() === 'admin'"
+    },
+
+    // Deny everything else
+    ".default": {
+      ".read": false,
+      ".write": false
+    }
+  }
+}

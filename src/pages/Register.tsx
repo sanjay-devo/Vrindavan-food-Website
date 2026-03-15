@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
-import { auth, db } from '../firebase';
+import { ref, set } from 'firebase/database';
+import { auth, db, rtdb } from '../firebase';
 import { toast } from 'react-hot-toast';
 import { UserPlus, Mail, Lock, User, Phone, AlertCircle } from 'lucide-react';
 import { handleFirestoreError, OperationType } from '../utils/firestoreErrorHandler';
@@ -34,16 +35,26 @@ const Register = () => {
         createdAt: new Date().toISOString(),
       };
 
-      const path = `users/${user.uid}`;
+      // Save to Firestore
+      const fsPath = `users/${user.uid}`;
       try {
         await setDoc(doc(db, 'users', user.uid), userProfile);
-        toast.success('Account created successfully!');
-        navigate('/home');
       } catch (error) {
         console.error('Firestore Error:', error);
-        handleFirestoreError(error, OperationType.CREATE, path);
-        throw new Error('Failed to save user profile to database');
+        handleFirestoreError(error, OperationType.CREATE, fsPath);
       }
+
+      // Save to Realtime Database
+      const rtdbPath = `users/${user.uid}`;
+      try {
+        await set(ref(rtdb, rtdbPath), userProfile);
+        console.log('✅ User saved to Realtime Database:', rtdbPath);
+      } catch (error) {
+        console.error('Realtime DB Error:', error);
+      }
+      
+      toast.success('Account created successfully!');
+      navigate('/home');
     } catch (error: any) {
       let errorMessage = error.message || 'Failed to register';
       
