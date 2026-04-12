@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Menu - Vrindavan</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Work+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#c8c6c5",
+                        "surface": "#f8f9fc",
+                        "secondary-fixed-dim": "#ffba30",
+                        "error-container": "#ffdad6",
+                        "primary-fixed": "#ffdad5",
+                        "secondary-fixed": "#ffdeab",
+                        "background": "#f8f9fc",
+                        "secondary": "#7d5700",
+                        "on-surface": "#191c1e",
+                        "surface-container-low": "#f2f3f6",
+                        "inverse-surface": "#2e3133",
+                        "secondary-container": "#fdb303",
+                        "primary": "#bc0008",
+                        "on-tertiary-fixed-variant": "#474646",
+                        "on-surface-variant": "#5d3f3b",
+                        "on-tertiary-container": "#f7feff",
+                        "on-error": "#ffffff",
+                        "tertiary": "#5d5c5b",
+                        "surface-dim": "#d9dadd",
+                        "surface-tint": "#c00008",
+                        "tertiary-container": "#767474",
+                        "outline": "#926f6a",
+                        "on-error-container": "#93000a",
+                        "error": "#ba1a1a",
+                        "on-background": "#191c1e",
+                        "on-secondary-fixed-variant": "#5f4100",
+                        "surface-variant": "#e1e2e5",
+                        "surface-bright": "#f8f9fc",
+                        "on-primary-fixed-variant": "#930004",
+                        "surface-container-high": "#e7e8eb",
+                        "on-tertiary": "#ffffff",
+                        "inverse-on-surface": "#f0f1f4",
+                        "on-secondary-fixed": "#271900",
+                        "on-secondary-container": "#694900",
+                        "on-primary-container": "#fffbff",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-fixed": "#1c1b1b",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed-dim": "#ffb4a9",
+                        "tertiary-fixed": "#e5e2e1",
+                        "primary-container": "#e3231d",
+                        "surface-container-highest": "#e1e2e5",
+                        "on-primary-fixed": "#410001",
+                        "outline-variant": "#e7bdb7",
+                        "surface-container": "#edeef1",
+                        "on-secondary": "#ffffff",
+                        "inverse-primary": "#ffb4a9"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Work Sans"],
+                        "label": ["Work Sans"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+        }
+        .organic-curve {
+            border-radius: 0 0 50% 50% / 0 0 40px 40px;
+        }
+        body { font-family: 'Work Sans', sans-serif; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .cart-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 240ms ease;
+            z-index: 45;
+        }
+        .cart-backdrop.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .cart-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: min(420px, 100%);
+            height: 100vh;
+            transform: translateX(120%);
+            transition: transform 280ms ease;
+            z-index: 50;
+            background: white;
+            box-shadow: -24px 0 60px rgba(0, 0, 0, 0.15);
+            overflow-y: auto;
+        }
+        .cart-panel.open {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface selection:bg-primary/20 selection:text-primary overflow-x-hidden">
+<div id="toastRoot"></div>
+<div id="cartBackdrop" class="cart-backdrop" onclick="toggleCart(false)"></div>
+<div id="cartPanel" class="cart-panel p-8 overflow-y-auto">
+<div class="flex items-center justify-between mb-8">
+<h2 class="text-2xl font-bold">Your Cart</h2>
+<button id="closeCartButton" class="text-zinc-500 hover:text-zinc-900">Close</button>
+</div>
+<div id="cartSidebarAuth" class="mb-6"></div>
+<div id="cartItems" class="space-y-4"></div>
+<div class="mt-8 border-t border-zinc-200 pt-6">
+<div class="flex justify-between items-center mb-4">
+<span class="font-semibold text-zinc-700">Total</span>
+<span id="cartTotal" class="text-2xl font-black text-primary">$0.00</span>
+</div>
+<button id="checkoutButton" class="w-full bg-primary text-white py-4 rounded-full font-bold hover:bg-red-700 transition-all">Place Order</button>
+</div>
+</div>
+<nav class="fixed top-0 w-full z-50 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl shadow-xl shadow-black/5 dark:shadow-none">
+<div class="flex justify-between items-center max-w-7xl mx-auto px-6 h-20">
+<div class="text-2xl font-extrabold tracking-tighter text-red-700 dark:text-red-500">Vrindavan</div>
+<div class="hidden md:flex space-x-8">
+<a class="text-zinc-600 dark:text-zinc-400 font-medium hover:text-red-700 transition-colors" href="index.html">Home</a>
+<a class="text-red-700 dark:text-red-500 border-b-2 border-red-700 font-bold pb-1 transition-colors" href="menu.html">Menu</a>
+<a class="text-zinc-600 dark:text-zinc-400 font-medium hover:text-red-700 transition-colors" href="cart.html">Cart</a>
+<a id="loginNavLink" class="text-zinc-600 dark:text-zinc-400 font-medium hover:text-red-700 transition-colors" href="login.html">Login</a>
+<a id="registerNavLink" class="text-zinc-600 dark:text-zinc-400 font-medium hover:text-red-700 transition-colors" href="register.html">Register</a>
+<a id="logoutNavLink" class="hidden text-zinc-600 dark:text-zinc-400 font-medium hover:text-red-700 transition-colors" href="#">Logout</a>
+<a class="text-zinc-600 dark:text-zinc-400 font-medium hover:text-red-700 transition-colors" href="orders.html">Orders</a>
+</div>
+<div class="flex items-center space-x-4">
+<button class="text-zinc-600 hover:scale-105 transition-all"><span class="material-symbols-outlined">search</span></button>
+<div class="relative">
+<button id="openCartButton" class="text-zinc-600 hover:scale-105 transition-all"><span class="material-symbols-outlined">shopping_basket</span></button>
+<span id="cartCount" class="absolute -top-2 -right-2 bg-primary text-white text-[10px] rounded-full h-4 w-4 flex items-center justify-center">0</span>
+</div>
+<button id="orderOnlineButton" type="button" onclick="location.href='menu.html'" class="hidden lg:flex items-center bg-primary text-white px-6 py-2 rounded-full font-bold hover:scale-105 active:scale-95 transition-all">
+<span class="material-symbols-outlined mr-2">phone_in_talk</span>
+Order Online
+</button>
+</div>
+</div>
+</nav>
+<main class="pt-24">
+<!-- Page Hero -->
+<section class="relative bg-surface-container-low py-20 px-8 organic-curve overflow-hidden">
+<div class="max-w-7xl mx-auto flex flex-col items-center text-center relative z-10">
+<nav class="flex items-center gap-2 mb-4 text-sm font-medium text-zinc-500">
+<a class="hover:text-primary transition-colors" href="index.html">Home</a>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span class="text-primary">Menu</span>
+</nav>
+<h1 class="text-5xl md:text-6xl font-extrabold text-zinc-900 mb-4 tracking-tight">Our Delicious Menu</h1>
+<p class="text-xl text-zinc-600 max-w-2xl">Fresh &amp; Tasty Food Selection crafted with passion by our master chefs.</p>
+</div>
+<!-- Floating Ingredients -->
+<img alt="" class="absolute top-10 left-[10%] w-24 h-24 object-contain opacity-20 blur-[1px] rotate-12" data-alt="close up of a single fresh green basil leaf with water droplets on a white background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBaBbbQJjfDqHFYguKs-7ppxS4ovYOhwhLKQmLubTAxK1oWt_JUsD8DmRi4hqwZRU_hm-9xtiTt1joafz_3YgK1CKrtqXU4UFNe8bdpsC-RpfbfkJjAbMoIY1SlERsOXQ7n48oWHxhY-OVX0yaVyL5FouFoN5_OXlpmEbAcCdesiQ4B3Yf6cZz7YHw0jakeuzFH5o3yrpZAOO5dHJLSHnG7Vc6V_4BSCXspPaMLkf84IXHW1kPr7y9POC_FVYdtd86KQnQt6nW2KZ1j"/>
+<img alt="" class="absolute bottom-10 right-[15%] w-32 h-32 object-contain opacity-20 blur-[2px] -rotate-45" data-alt="a few vibrant red cherry tomatoes with green stems scattered on a light grey surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMFpBoe5N6LuP4T6w43smYriJfNOaHWvdCut2yof4ahC9fTKGvvK4rlR7XoAFwKJiNGuBrWS7h61wpsU_LcOjEeqL0Ks4PwRiLKcuLe6BosXzNvbLuTnKnFFs7VGBGi1UdHXp952yLjA1p-B2A-d_6dtLT6NV3YJrJQn8ppWRLwbOHr0V1AGg_cZuwMx8EYVRUkiQOUPASCurfihpz0fUlYEL6Ib8Md_kQitIsYLLUWlcR-3H4nziIHfVMReQnSVCvJNG5Uv337Zqf"/>
+</section>
+<!-- Main Content Area -->
+<section class="max-w-7xl mx-auto px-8 py-20 flex flex-col lg:flex-row gap-12">
+<!-- Left Sidebar: SideNavBar -->
+<aside class="lg:block hidden">
+<div class="flex flex-col gap-4 p-6 w-72 rounded-3xl h-fit sticky top-24 bg-zinc-50 dark:bg-zinc-900 shadow-2xl shadow-black/5">
+<div class="mb-6">
+<div class="flex items-center gap-3 mb-1">
+<span class="material-symbols-outlined text-red-700">tune</span>
+<h3 class="text-lg font-bold text-zinc-800 dark:text-zinc-100">Refine Menu</h3>
+</div>
+<p class="text-xs text-zinc-500">Search and Price Range</p>
+</div>
+<div class="space-y-8">
+<!-- Search -->
+<div class="relative">
+<input id="searchInput" class="w-full bg-surface-container-high border-none rounded-full px-5 py-3 text-sm focus:ring-2 focus:ring-primary/30" placeholder="Search dish..." type="text"/>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400">search</span>
+</div>
+<!-- Price Range -->
+<div>
+<label class="block text-[10px] uppercase tracking-widest font-bold text-zinc-400 mb-4">Price Range</label>
+<input id="priceRange" class="w-full accent-red-700" type="range" min="0" max="100" value="100"/>
+<div class="flex justify-between text-xs mt-2 font-medium text-zinc-600">
+<span>$0</span>
+<span>$100</span>
+</div>
+</div>
+<!-- Navigation Categories -->
+<nav class="flex flex-col gap-1">
+<label class="block text-[10px] uppercase tracking-widest font-bold text-zinc-400 mb-4">Categories</label>
+<button data-category="all" class="flex items-center gap-3 bg-red-700 text-white rounded-full px-4 py-3 font-bold transition-transform hover:translate-x-2">
+<span class="material-symbols-outlined" data-icon="restaurant_menu">restaurant_menu</span>
+<span class="text-sm">All</span>
+</button>
+<button data-category="Pizza" class="flex items-center gap-3 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-full px-4 py-3 transition-transform hover:translate-x-2">
+<span class="material-symbols-outlined" data-icon="local_pizza">local_pizza</span>
+<span class="text-sm">Pizza</span>
+</button>
+<button data-category="Burger" class="flex items-center gap-3 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-full px-4 py-3 transition-transform hover:translate-x-2">
+<span class="material-symbols-outlined" data-icon="lunch_dining">lunch_dining</span>
+<span class="text-sm">Burger</span>
+</button>
+<button data-category="Drinks" class="flex items-center gap-3 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-full px-4 py-3 transition-transform hover:translate-x-2">
+<span class="material-symbols-outlined" data-icon="local_drink">local_drink</span>
+<span class="text-sm">Drinks</span>
+</button>
+<button data-category="Bakery" class="flex items-center gap-3 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-full px-4 py-3 transition-transform hover:translate-x-2">
+<span class="material-symbols-outlined" data-icon="bakery_dining">bakery_dining</span>
+<span class="text-sm">Bakery</span>
+</button>
+</nav>
+<!-- Dietary -->
+<div>
+<label class="block text-[10px] uppercase tracking-widest font-bold text-zinc-400 mb-4">Dietary Type</label>
+<div class="flex flex-col gap-3">
+<label class="flex items-center gap-3 cursor-pointer">
+<input id="vegOnly" class="rounded text-primary focus:ring-primary/30 border-none bg-surface-container-high" type="checkbox"/>
+<span class="text-sm font-medium text-zinc-700">Vegetarian</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer">
+<input checked="" class="rounded text-primary focus:ring-primary/30 border-none bg-surface-container-high" type="checkbox"/>
+<span class="text-sm font-medium text-zinc-700">Non-Vegetarian</span>
+</label>
+</div>
+</div>
+<button id="applyFilters" class="w-full bg-primary text-white py-4 rounded-full font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform active:scale-95">
+                            Apply Filters
+                        </button>
+</div>
+</div>
+</aside>
+<!-- Right Content -->
+<div class="flex-1">
+  <!-- Category Pill Filter Bar -->
+  <div class="flex items-center gap-3 overflow-x-auto pb-6 scrollbar-hide no-scrollbar">
+    <button data-category="all" class="px-8 py-3 rounded-full bg-primary text-on-primary font-bold shadow-xl shadow-primary/20 whitespace-nowrap">All Items</button>
+    <button data-category="Pizza" class="px-8 py-3 rounded-full bg-surface-container-highest text-zinc-700 font-bold hover:bg-primary/10 hover:text-primary transition-all whitespace-nowrap">Italian Pizza</button>
+    <button data-category="Burger" class="px-8 py-3 rounded-full bg-surface-container-highest text-zinc-700 font-bold hover:bg-primary/10 hover:text-primary transition-all whitespace-nowrap">Gourmet Burgers</button>
+    <button data-category="Drinks" class="px-8 py-3 rounded-full bg-surface-container-highest text-zinc-700 font-bold hover:bg-primary/10 hover:text-primary transition-all whitespace-nowrap">Cold Beverages</button>
+    <button data-category="Bakery" class="px-8 py-3 rounded-full bg-surface-container-highest text-zinc-700 font-bold hover:bg-primary/10 hover:text-primary transition-all whitespace-nowrap">Fresh Bakery</button>
+  </div>
+
+  <!-- Product Grid Section -->
+  <section class="py-24 bg-surface-container-low rounded-3xl shadow-lg shadow-black/5">
+    <div class="px-6 py-10">
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8" id="menuGrid"></div>
+    </div>
+  </section>
+</div>
+</section>
+<!-- Special Offer Section -->
+<section class="max-w-7xl mx-auto px-8 pb-20">
+<div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-primary to-primary-container p-12 md:p-20 text-white">
+<div class="relative z-10 max-w-xl">
+<span class="inline-block bg-white/20 backdrop-blur-md px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest mb-6">Limited Time Offer</span>
+<h2 class="text-4xl md:text-5xl font-extrabold mb-6 leading-tight">Special Combo Offer: Family Feast</h2>
+<p class="text-lg text-white/80 mb-10">Get 2 Large Pizzas, 1 Family Burger, and 4 Drinks for a discounted price. Taste the best of our curation.</p>
+<button class="bg-white text-primary px-10 py-4 rounded-full font-black hover:scale-105 transition-transform shadow-xl">
+                        Order Now - $49.99
+                    </button>
+</div>
+<!-- Decorative Food Shot -->
+<img alt="" class="absolute -right-20 -bottom-20 w-[450px] h-[450px] object-cover rounded-full border-[15px] border-white/10 hidden lg:block" data-alt="a large overhead table spread with various dishes including roasted chicken, salads, pizza slices and colorful appetizers" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNEOvhk6VybZT3zaj-N2D6rlPPjrildJwvbviJ6YK_nrQj8tq1B-qp9ZrHsWvxmB5FEJrhetLz1H8pLvXQheqCA_fFEXnQcoXrf8A0rS2hyv8XXL8bf6vDMQrQdN9dfy_ca_aSgQ2d88TmFGCttDeA6XFUB89aXz2wZXK9ZeAKfwHfMmBrVS-wUL59tComoPc5J0MmpuAY4ZdjCI6ytlj6jTIZ9oXOwzIpmsxihNsN21hKU6VtaC94JdQ62lMwVAXZXaA3tVJ2_AVS"/>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-zinc-900 text-white w-full pt-20 pb-10 mt-20">
+<div class="max-w-7xl mx-auto px-8 flex flex-col items-center">
+<div class="text-white font-black text-3xl mb-8 tracking-tighter">
+                Vrindavan
+            </div>
+<div class="flex flex-wrap justify-center gap-8 mb-12">
+<a class="text-zinc-400 hover:text-red-400 transition-all hover:underline decoration-red-500 underline-offset-8" href="#">Privacy Policy</a>
+<a class="text-zinc-400 hover:text-red-400 transition-all hover:underline decoration-red-500 underline-offset-8" href="#">Terms of Service</a>
+<a class="text-zinc-400 hover:text-red-400 transition-all hover:underline decoration-red-500 underline-offset-8" href="#">Shipping Info</a>
+<a class="text-zinc-400 hover:text-red-400 transition-all hover:underline decoration-red-500 underline-offset-8" href="#">Careers</a>
+<a class="text-zinc-400 hover:text-red-400 transition-all hover:underline decoration-red-500 underline-offset-8" href="#">Franchise</a>
+</div>
+<div class="flex gap-6 mb-12">
+<button class="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center hover:bg-primary transition-colors">
+<span class="material-symbols-outlined text-xl">public</span>
+</button>
+<button class="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center hover:bg-primary transition-colors">
+<span class="material-symbols-outlined text-xl">thumb_up</span>
+</button>
+<button class="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center hover:bg-primary transition-colors">
+<span class="material-symbols-outlined text-xl">share</span>
+</button>
+</div>
+<div class="w-full border-t border-zinc-800 pt-10 flex flex-col md:flex-row justify-between items-center gap-6">
+<p class="text-zinc-500 text-sm font-medium">© 2024 Vrindavan. All Rights Reserved.</p>
+<div class="flex gap-4">
+<img alt="" class="h-4 grayscale opacity-50" data-alt="visa payment logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmIIb1zb3rqOifdLgjxpaBFTNB6tdJBJ_x7Bh2DSuGV0obe6efm6WACZ-1DSaF0Q2yyF9ghsxRzi5w0tkmKqGmas3BhgzoGqUixv_sZjeCy0KIyVMxBejz6_txps0hDKdYUSynG8WnjLB3agx-hxIUecIHmg2pjQRiPlDGo7wvJ703pjmjODiZ1_pRa63l-nOCx8WArfCOjpXscg5v7shg6aL0wu95PpWlNIOyUIJOwjp_YCln14qwCkLU7dfEP8UMEgxRULPhpc81"/>
+<img alt="" class="h-4 grayscale opacity-50" data-alt="mastercard payment logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAMrjOrwiZbuYi763bHcVZt96UFQpru_DENpw0P3ChSkKJYAKhjZdB3LJAseXektg_B9424gVJI5X1bq88vNJfWTIU8jc14c039cR_6_cVz1-TAfGYopO0RjfX3PYCPlkZd7h5jOJQmp9DxeNspRMYGqzFXAKkR_XWHF0wBgvqQNNExGpIn2WhOWCMcsNXpjKnMvIhCvFUTAFKWmqKhdHP5TGKT5Ihsmf6sTrNNb5OBJaknl_KYEedeMoQuBCeOkHFSndeA9cTzGA_"/>
+</div>
+</div>
+</div>
+</footer>
+<script>
+const dbUrl = 'https://vrindavan-website-default-rtdb.firebaseio.com';
+
+const loginNavLink = document.getElementById('loginNavLink');
+const registerNavLink = document.getElementById('registerNavLink');
+const logoutNavLink = document.getElementById('logoutNavLink');
+const openCartButton = document.getElementById('openCartButton');
+const closeCartButton = document.getElementById('closeCartButton');
+const cartPanel = document.getElementById('cartPanel');
+const cartBackdrop = document.getElementById('cartBackdrop');
+const cartItemsEl = document.getElementById('cartItems');
+const cartTotalEl = document.getElementById('cartTotal');
+const checkoutButton = document.getElementById('checkoutButton');
+const menuGrid = document.getElementById('menuGrid');
+const searchInput = document.getElementById('searchInput');
+const priceRange = document.getElementById('priceRange');
+const vegOnly = document.getElementById('vegOnly');
+const categoryButtons = document.querySelectorAll('[data-category]');
+const applyFilters = document.getElementById('applyFilters');
+const toastRoot = document.getElementById('toastRoot');
+
+let currentUser = null;
+let menuItems = [];
+let activeCategory = 'all';
+
+function showToast(message, type = 'success') {
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.textContent = message;
+  toastRoot.appendChild(toast);
+  requestAnimationFrame(() => toast.classList.add('show'));
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 200);
+  }, 3200);
+}
+
+function getCart() {
+  const raw = localStorage.getItem('vrindavanCart');
+  return raw ? JSON.parse(raw) : [];
+}
+
+function saveCart(cart) {
+  localStorage.setItem('vrindavanCart', JSON.stringify(cart));
+  renderCart();
+  renderCartCount();
+}
+
+function renderCartCount() {
+  const count = getCart().reduce((sum, item) => sum + item.quantity, 0);
+  const cartCountEl = document.getElementById('cartCount');
+  if (cartCountEl) cartCountEl.textContent = count;
+}
+
+function getCurrentUser() {
+  return JSON.parse(localStorage.getItem('vrindavanUser') || 'null');
+}
+
+function clearSession() {
+  localStorage.removeItem('vrindavanUser');
+  currentUser = null;
+}
+
+function fetchJson(path, options = {}) {
+  const url = path.includes('?')
+    ? `${dbUrl}${path.replace('?', '.json?')}`
+    : `${dbUrl}${path}.json`;
+  return fetch(url, {
+    headers: { 'Content-Type': 'application/json' },
+    ...options
+  }).then(async response => {
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || 'Network error');
+    }
+    return response.json();
+  });
+}
+
+function putJson(path, body) {
+  return fetchJson(path, {
+    method: 'PUT',
+    body: JSON.stringify(body)
+  });
+}
+
+function toggleCart(open) {
+  cartPanel.classList.toggle('open', open);
+  cartBackdrop.classList.toggle('show', open);
+}
+window.toggleCart = toggleCart;
+
+openCartButton?.addEventListener('click', () => {
+  toggleCart(true);
+});
+closeCartButton?.addEventListener('click', () => toggleCart(false));
+cartBackdrop?.addEventListener('click', () => toggleCart(false));
+
+function addToCart(item) {
+  const cart = getCart();
+  const existing = cart.find(entry => entry.productId === item.id);
+  if (existing) existing.quantity += 1;
+  else cart.push({ productId: item.id, name: item.name, price: item.price, quantity: 1, image: item.image });
+  saveCart(cart);
+  showToast('Added to cart', 'success');
+}
+
+function createMenuCard(item) {
+  const card = document.createElement('div');
+  card.className = 'group relative bg-surface-container-lowest p-6 rounded-xl transition-all duration-300 hover:shadow-2xl hover:shadow-black/5';
+  card.innerHTML = `
+    <div class="relative mb-6">
+      <span class="absolute top-0 right-0 z-10 ${item.isVeg ? 'bg-emerald-500' : 'bg-red-600'} text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-tighter">${item.isVeg ? 'Veg' : 'Non-Veg'}</span>
+      <div class="aspect-square rounded-full overflow-hidden shadow-2xl shadow-black/10 group-hover:-translate-y-4 transition-transform duration-500">
+        <img alt="${item.name}" class="w-full h-full object-cover" src="${item.image}"/>
+      </div>
+    </div>
+    <div class="text-center">
+      <div class="flex justify-center gap-1 mb-2">
+        <span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+        <span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+        <span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+        <span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+        <span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+      </div>
+      <h3 class="text-xl font-bold text-zinc-900 group-hover:text-primary transition-colors">${item.name}</h3>
+      <p class="text-zinc-500 text-sm mt-2 line-clamp-2">${item.category}</p>
+      <p class="text-2xl font-black text-primary mt-4">$${item.price.toFixed(2)}</p>
+    </div>
+    <button type="button" class="mt-6 w-full py-4 rounded-full bg-secondary-container text-on-secondary-container font-bold transition-all duration-300 hover:bg-secondary-container/90" data-add="${item.id}">
+      <span class="material-symbols-outlined mr-2">shopping_basket</span>
+      Add to Cart
+    </button>
+  `;
+  card.querySelector('[data-add]')?.addEventListener('click', () => addToCart(item));
+  return card;
+}
+
+function renderMenu(items) {
+  menuGrid.innerHTML = '';
+  if (!items.length) {
+    menuGrid.innerHTML = '<div class="col-span-3 text-center text-zinc-500">No menu items available right now.</div>';
+    return;
+  }
+  items.forEach(item => menuGrid.appendChild(createMenuCard(item)));
+}
+
+function filterMenu() {
+  const searchTerm = searchInput?.value.trim().toLowerCase() || '';
+  const maxPrice = Number(priceRange?.value) || 100;
+  const veg = vegOnly?.checked || false;
+  const filtered = menuItems.filter(item => {
+    const matchesCategory = activeCategory === 'all' || item.category.toLowerCase() === activeCategory.toLowerCase();
+    const matchesSearch = item.name.toLowerCase().includes(searchTerm) || item.category.toLowerCase().includes(searchTerm);
+    const matchesPrice = item.price <= maxPrice;
+    const matchesVeg = !veg || item.isVeg;
+    return matchesCategory && matchesSearch && matchesPrice && matchesVeg;
+  });
+  renderMenu(filtered);
+}
+
+searchInput?.addEventListener('input', filterMenu);
+priceRange?.addEventListener('input', filterMenu);
+vegOnly?.addEventListener('change', filterMenu);
+applyFilters?.addEventListener('click', filterMenu);
+categoryButtons.forEach(btn => btn.addEventListener('click', () => {
+  activeCategory = btn.dataset.category || 'all';
+  categoryButtons.forEach(el => el.classList.remove('bg-red-700', 'text-white'));
+  btn.classList.add('bg-red-700', 'text-white');
+  filterMenu();
+}));
+
+function renderCart() {
+  const cart = getCart();
+  cartItemsEl.innerHTML = '';
+  let total = 0;
+  if (!cart.length) {
+    cartItemsEl.innerHTML = '<div class="text-center text-zinc-500 mt-8">Your cart is empty.</div>';
+    cartTotalEl.textContent = '$0.00';
+    return;
+  }
+  cart.forEach(item => {
+    total += item.price * item.quantity;
+    const itemEl = document.createElement('div');
+    itemEl.className = 'flex items-center gap-4 p-4 rounded-3xl border border-zinc-200';
+    itemEl.innerHTML = `
+      <img src="${item.image}" alt="${item.name}" class="w-20 h-20 rounded-3xl object-cover"/>
+      <div class="flex-1">
+        <h4 class="font-bold text-zinc-900">${item.name}</h4>
+        <p class="text-zinc-500 text-sm">$${item.price.toFixed(2)} x ${item.quantity}</p>
+        <div class="flex items-center gap-2 mt-3">
+          <button class="px-3 py-1 bg-zinc-100 rounded-full" data-action="decrease">-</button>
+          <span class="font-semibold">${item.quantity}</span>
+          <button class="px-3 py-1 bg-zinc-100 rounded-full" data-action="increase">+</button>
+        </div>
+      </div>
+    `;
+    itemEl.querySelector('[data-action="increase"]').addEventListener('click', () => {
+      item.quantity += 1;
+      saveCart(cart);
+      renderCart();
+    });
+    itemEl.querySelector('[data-action="decrease"]').addEventListener('click', () => {
+      item.quantity -= 1;
+      if (item.quantity < 1) {
+        const index = cart.findIndex(entry => entry.productId === item.productId);
+        cart.splice(index, 1);
+      }
+      saveCart(cart);
+      renderCart();
+    });
+    cartItemsEl.appendChild(itemEl);
+  });
+  cartTotalEl.textContent = `$${total.toFixed(2)}`;
+}
+
+checkoutButton?.addEventListener('click', async () => {
+  if (!currentUser) {
+    window.location.href = 'login.html?redirect=menu.html';
+    return;
+  }
+  const cart = getCart();
+  if (!cart.length) {
+    showToast('Cart is empty', 'error');
+    return;
+  }
+  checkoutButton.disabled = true;
+  checkoutButton.textContent = 'Placing order...';
+  try {
+    const order = {
+      items: cart,
+      totalAmount: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
+      status: 'pending',
+      createdAt: Date.now(),
+      userInfo: {
+        name: currentUser.name || currentUser.email || 'Guest',
+        mobile: currentUser.mobile || ''
+      }
+    };
+    await fetchJson(`/orders/${currentUser.uid}`, {
+      method: 'POST',
+      body: JSON.stringify(order)
+    });
+    localStorage.removeItem('vrindavanCart');
+    renderCartCount();
+    renderCart();
+    showToast('Order placed successfully', 'success');
+    toggleCart(false);
+  } catch (error) {
+    console.error(error);
+    showToast('Could not place order, try again', 'error');
+  } finally {
+    checkoutButton.disabled = false;
+    checkoutButton.textContent = 'Place Order';
+  }
+});
+
+function setNavAuthLinks(user) {
+  if (loginNavLink) loginNavLink.style.display = user ? 'none' : '';
+  if (registerNavLink) registerNavLink.style.display = user ? 'none' : '';
+  if (logoutNavLink) logoutNavLink.style.display = user ? '' : 'none';
+}
+
+logoutNavLink?.addEventListener('click', event => {
+  event.preventDefault();
+  localStorage.removeItem('vrindavanUser');
+  setNavAuthLinks(null);
+  showToast('Logged out successfully', 'success');
+  setTimeout(() => window.location.href = 'index.html', 300);
+});
+
+
+async function loadMenuItems() {
+  const data = await fetchJson('/menu');
+  if (data === null) {
+    const sampleItems = [
+      {
+        id: 'demo-margherita',
+        name: 'Demo Margherita Pizza',
+        category: 'Pizza',
+        price: 12.99,
+        isVeg: true,
+        image: 'https://images.unsplash.com/photo-1601924582975-3077d0e8f929?auto=format&fit=crop&w=800&q=80',
+        description: 'Classic tomato sauce, fresh mozzarella and basil for quick menu testing.'
+      }
+    ];
+    const payload = {};
+    sampleItems.forEach(item => {
+      payload[item.id] = item;
+    });
+    await putJson('/menu', payload);
+    menuItems = sampleItems;
+  } else {
+    menuItems = Object.values(data).map(item => ({
+      id: item.id || String(item.name).toLowerCase().replace(/\s+/g, '-'),
+      ...item
+    }));
+  }
+  filterMenu();
+}
+
+currentUser = getCurrentUser();
+setNavAuthLinks(currentUser);
+renderCartCount();
+loadMenuItems();
+</script>
+</body></html>
