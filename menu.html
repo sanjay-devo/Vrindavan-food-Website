@@ -111,34 +111,102 @@
             height: 100vh;
             transform: translateX(120%);
             transition: transform 280ms ease;
-            z-index: 50;
+            z-index: 9999;
             background: white;
             box-shadow: -24px 0 60px rgba(0, 0, 0, 0.15);
             overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            padding: 2rem;
+            will-change: transform;
         }
         .cart-panel.open {
             transform: translateX(0);
+        }
+        .cart-item-card {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 1.5rem;
+            border: 1px solid #e5e7eb;
+            background: #f8fafc;
+            align-items: start;
+        }
+        .cart-item-card img {
+            width: 72px;
+            height: 72px;
+            object-fit: cover;
+            border-radius: 1rem;
+            flex-shrink: 0;
+        }
+        .cart-item-card button {
+            min-width: 32px;
+        }
+        @media (max-width: 640px) {
+            .cart-panel {
+                width: 100%;
+                padding: 1rem;
+            }
+            .cart-item-card {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
         }
     </style>
 </head>
 <body class="bg-surface text-on-surface selection:bg-primary/20 selection:text-primary overflow-x-hidden">
 <div id="toastRoot"></div>
 <div id="cartBackdrop" class="cart-backdrop" onclick="toggleCart(false)"></div>
-<div id="cartPanel" class="cart-panel p-8 overflow-y-auto">
-<div class="flex items-center justify-between mb-8">
-<h2 class="text-2xl font-bold">Your Cart</h2>
-<button id="closeCartButton" class="text-zinc-500 hover:text-zinc-900">Close</button>
+<aside id="cartPanel" class="cart-panel">
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <p class="text-sm uppercase tracking-[0.4em] text-primary font-bold">My Cart</p>
+            <h2 class="text-2xl font-bold">Order preview</h2>
+        </div>
+        <button id="closeCartButton" class="text-zinc-500 hover:text-zinc-900 font-semibold">✕</button>
+    </div>
+    <div id="cartSidebarAuth" class="mb-6"></div>
+    <div id="cartSidebarItems" class="space-y-4 overflow-y-auto flex-1"></div>
+    <div class="cart-sidebar-footer mt-6 border-t border-zinc-200 pt-6">
+        <div class="flex justify-between items-center mb-4">
+            <span class="font-semibold text-zinc-700">Total</span>
+            <span id="cartSidebarTotal" class="text-2xl font-black text-primary">₹0.00</span>
+        </div>
+        <button id="cartSidebarCheckoutButton" class="w-full bg-primary text-white py-4 rounded-full font-bold shadow-lg shadow-primary/20 hover:bg-red-700 transition-all">View Cart</button>
+    </div>
+</aside>
+
+<!-- Global Search Modal -->
+<div id="searchBackdrop" class="fixed inset-0 bg-black/50 opacity-0 pointer-events-none transition-opacity z-40" onclick="closeGlobalSearch()"></div>
+<div id="searchModal" class="fixed inset-0 flex items-start justify-center pt-20 opacity-0 pointer-events-none transition-opacity z-50 mt-4">
+  <div class="w-full max-w-2xl mx-4 bg-white rounded-2xl shadow-2xl overflow-hidden">
+    <!-- Search Input -->
+    <div class="border-b border-zinc-200 p-4">
+      <div class="flex items-center gap-3">
+        <span class="material-symbols-outlined text-zinc-400">search</span>
+        <input 
+          id="globalSearchInput" 
+          type="text" 
+          placeholder="Search items, categories... (type to see suggestions)" 
+          class="flex-1 bg-transparent border-none focus:outline-none text-lg"
+          autocomplete="off"
+        />
+        <button onclick="closeGlobalSearch()" class="text-zinc-400 hover:text-zinc-600">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Suggestions Container -->
+    <div id="searchSuggestions" class="max-h-96 overflow-y-auto">
+      <div class="p-8 text-center text-zinc-400">
+        <p class="text-sm">Start typing to search items and categories...</p>
+      </div>
+    </div>
+  </div>
 </div>
-<div id="cartSidebarAuth" class="mb-6"></div>
-<div id="cartItems" class="space-y-4"></div>
-<div class="mt-8 border-t border-zinc-200 pt-6">
-<div class="flex justify-between items-center mb-4">
-<span class="font-semibold text-zinc-700">Total</span>
-<span id="cartTotal" class="text-2xl font-black text-primary">$0.00</span>
-</div>
-<button id="checkoutButton" class="w-full bg-primary text-white py-4 rounded-full font-bold hover:bg-red-700 transition-all">Place Order</button>
-</div>
-</div>
+
 <nav class="fixed top-0 w-full z-50 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl shadow-xl shadow-black/5 dark:shadow-none">
 <div class="flex justify-between items-center max-w-7xl mx-auto px-6 h-20">
 <div class="text-2xl font-extrabold tracking-tighter text-red-700 dark:text-red-500">Vrindavan</div>
@@ -152,7 +220,7 @@
 <a class="text-zinc-600 dark:text-zinc-400 font-medium hover:text-red-700 transition-colors" href="orders.html">Orders</a>
 </div>
 <div class="flex items-center space-x-4">
-<button class="text-zinc-600 hover:scale-105 transition-all"><span class="material-symbols-outlined">search</span></button>
+<button onclick="openGlobalSearch()" class="text-zinc-600 hover:scale-105 transition-all" title="Search items and categories"><span class="material-symbols-outlined">search</span></button>
 <div class="relative">
 <button id="openCartButton" class="text-zinc-600 hover:scale-105 transition-all"><span class="material-symbols-outlined">shopping_basket</span></button>
 <span id="cartCount" class="absolute -top-2 -right-2 bg-primary text-white text-[10px] rounded-full h-4 w-4 flex items-center justify-center">0</span>
@@ -201,89 +269,140 @@ Order Online
 <!-- Price Range -->
 <div>
 <label class="block text-[10px] uppercase tracking-widest font-bold text-zinc-400 mb-4">Price Range</label>
-<input id="priceRange" class="w-full accent-red-700" type="range" min="0" max="100" value="100"/>
-<div class="flex justify-between text-xs mt-2 font-medium text-zinc-600">
-<span>$0</span>
-<span>$100</span>
+<div class="flex justify-between text-xs mt-2 font-medium text-zinc-600 mb-4">
+<span>₹<span id="minPriceLabel">0</span></span>
+<span>₹<span id="maxPriceLabel">5000</span></span>
+</div>
+
+<!-- Dual Range Slider -->
+<div class="relative pt-2 pb-4">
+<div class="absolute w-full h-1 bg-zinc-200 rounded-lg top-2"></div>
+<div id="priceRangeTrack" class="absolute h-1 bg-primary rounded-lg top-2" style="left: 0%; right: 0%;"></div>
+
+<div class="relative">
+<input 
+  id="priceRangeMin" 
+  type="range" 
+  min="0" 
+  max="5000" 
+  value="0"
+  class="absolute w-full h-1 top-2 accent-transparent pointer-events-none thumb-left"
+  style="z-index: 5;"
+/>
+<input 
+  id="priceRangeMax" 
+  type="range" 
+  min="0" 
+  max="5000" 
+  value="5000"
+  class="absolute w-full h-1 top-2 accent-transparent pointer-events-none thumb-right"
+  style="z-index: 6;"
+/>
 </div>
 </div>
-<!-- Navigation Categories -->
-<nav class="flex flex-col gap-1">
-<label class="block text-[10px] uppercase tracking-widest font-bold text-zinc-400 mb-4">Categories</label>
-<button data-category="all" class="flex items-center gap-3 bg-red-700 text-white rounded-full px-4 py-3 font-bold transition-transform hover:translate-x-2">
-<span class="material-symbols-outlined" data-icon="restaurant_menu">restaurant_menu</span>
-<span class="text-sm">All</span>
-</button>
-<button data-category="Pizza" class="flex items-center gap-3 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-full px-4 py-3 transition-transform hover:translate-x-2">
-<span class="material-symbols-outlined" data-icon="local_pizza">local_pizza</span>
-<span class="text-sm">Pizza</span>
-</button>
-<button data-category="Burger" class="flex items-center gap-3 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-full px-4 py-3 transition-transform hover:translate-x-2">
-<span class="material-symbols-outlined" data-icon="lunch_dining">lunch_dining</span>
-<span class="text-sm">Burger</span>
-</button>
-<button data-category="Drinks" class="flex items-center gap-3 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-full px-4 py-3 transition-transform hover:translate-x-2">
-<span class="material-symbols-outlined" data-icon="local_drink">local_drink</span>
-<span class="text-sm">Drinks</span>
-</button>
-<button data-category="Bakery" class="flex items-center gap-3 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-full px-4 py-3 transition-transform hover:translate-x-2">
-<span class="material-symbols-outlined" data-icon="bakery_dining">bakery_dining</span>
-<span class="text-sm">Bakery</span>
-</button>
-</nav>
-<!-- Dietary -->
+
+<style>
+  .thumb-left::-webkit-slider-thumb {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #bc0008;
+    cursor: pointer;
+    pointer-events: auto;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    border: 3px solid white;
+  }
+  
+  .thumb-left::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #bc0008;
+    cursor: pointer;
+    pointer-events: auto;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    border: 3px solid white;
+  }
+  
+  .thumb-right::-webkit-slider-thumb {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #bc0008;
+    cursor: pointer;
+    pointer-events: auto;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    border: 3px solid white;
+  }
+  
+  .thumb-right::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #bc0008;
+    cursor: pointer;
+    pointer-events: auto;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    border: 3px solid white;
+  }
+</style>
+
+<div class="mt-4 text-center">
+<span class="inline-block bg-primary text-white px-4 py-2 rounded-full text-sm font-bold">
+  Selected: ₹<span id="priceRangeValue">0</span> - ₹<span id="priceRangeValueMax">5000</span>
+</span>
+</div>
+</div>
+<!-- Dietary Type Filter -->
 <div>
 <label class="block text-[10px] uppercase tracking-widest font-bold text-zinc-400 mb-4">Dietary Type</label>
 <div class="flex flex-col gap-3">
-<label class="flex items-center gap-3 cursor-pointer">
-<input id="vegOnly" class="rounded text-primary focus:ring-primary/30 border-none bg-surface-container-high" type="checkbox"/>
-<span class="text-sm font-medium text-zinc-700">Vegetarian</span>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input id="filterVeg" class="rounded text-primary focus:ring-primary/30 border-none bg-surface-container-high cursor-pointer" type="checkbox"/>
+<span class="text-sm font-medium text-zinc-700 group-hover:text-primary transition-colors">Vegetarian</span>
+<span class="material-symbols-outlined text-xs text-emerald-500">leaf</span>
 </label>
-<label class="flex items-center gap-3 cursor-pointer">
-<input checked="" class="rounded text-primary focus:ring-primary/30 border-none bg-surface-container-high" type="checkbox"/>
-<span class="text-sm font-medium text-zinc-700">Non-Vegetarian</span>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input id="filterNonVeg" class="rounded text-primary focus:ring-primary/30 border-none bg-surface-container-high cursor-pointer" type="checkbox"/>
+<span class="text-sm font-medium text-zinc-700 group-hover:text-primary transition-colors">Non-Vegetarian</span>
+<span class="material-symbols-outlined text-xs text-red-600">favorite</span>
 </label>
 </div>
 </div>
-<button id="applyFilters" class="w-full bg-primary text-white py-4 rounded-full font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform active:scale-95">
-                            Apply Filters
-                        </button>
+
+<!-- Filter Control Buttons -->
+<div class="w-full">
+<button id="resetFilters" class="w-full bg-primary text-white py-3 rounded-full font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform active:scale-95 text-sm">
+  <span class="material-symbols-outlined align-middle text-sm mr-1">restart_alt</span>Reset Filters
+</button>
+</div>
+
+<!-- Active Filters Display -->
+<div id="activeFiltersDisplay" class="hidden mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs">
+<div class="font-semibold text-blue-900 mb-2">Active Filters:</div>
+<div id="filterTags" class="flex flex-wrap gap-2"></div>
+</div>
 </div>
 </div>
 </aside>
 <!-- Right Content -->
 <div class="flex-1">
   <!-- Category Pill Filter Bar -->
-  <div class="flex items-center gap-3 overflow-x-auto pb-6 scrollbar-hide no-scrollbar">
-    <button data-category="all" class="px-8 py-3 rounded-full bg-primary text-on-primary font-bold shadow-xl shadow-primary/20 whitespace-nowrap">All Items</button>
-    <button data-category="Pizza" class="px-8 py-3 rounded-full bg-surface-container-highest text-zinc-700 font-bold hover:bg-primary/10 hover:text-primary transition-all whitespace-nowrap">Italian Pizza</button>
-    <button data-category="Burger" class="px-8 py-3 rounded-full bg-surface-container-highest text-zinc-700 font-bold hover:bg-primary/10 hover:text-primary transition-all whitespace-nowrap">Gourmet Burgers</button>
-    <button data-category="Drinks" class="px-8 py-3 rounded-full bg-surface-container-highest text-zinc-700 font-bold hover:bg-primary/10 hover:text-primary transition-all whitespace-nowrap">Cold Beverages</button>
-    <button data-category="Bakery" class="px-8 py-3 rounded-full bg-surface-container-highest text-zinc-700 font-bold hover:bg-primary/10 hover:text-primary transition-all whitespace-nowrap">Fresh Bakery</button>
+  <div class="flex items-center gap-4 overflow-x-auto pb-4 px-3 -mx-3 scrollbar-hide no-scrollbar" id="categoryPillBar">
+    <button data-category="all" class="px-8 py-3.5 rounded-full bg-primary text-white font-bold shadow-lg shadow-primary/30 whitespace-nowrap transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50 hover:shadow-xl hover:shadow-primary/40 active:scale-95">All Items</button>
+    <!-- Dynamic pill categories will be inserted here -->
   </div>
 
   <!-- Product Grid Section -->
-  <section class="py-24 bg-surface-container-low rounded-3xl shadow-lg shadow-black/5">
-    <div class="px-6 py-10">
+  <section class="py-6 bg-surface-container-low rounded-3xl shadow-lg shadow-black/5">
+    <div class="px-6 py-4">
       <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8" id="menuGrid"></div>
     </div>
   </section>
 </div>
 </section>
-<!-- Special Offer Section -->
-<section class="max-w-7xl mx-auto px-8 pb-20">
-<div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-primary to-primary-container p-12 md:p-20 text-white">
-<div class="relative z-10 max-w-xl">
-<span class="inline-block bg-white/20 backdrop-blur-md px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest mb-6">Limited Time Offer</span>
-<h2 class="text-4xl md:text-5xl font-extrabold mb-6 leading-tight">Special Combo Offer: Family Feast</h2>
-<p class="text-lg text-white/80 mb-10">Get 2 Large Pizzas, 1 Family Burger, and 4 Drinks for a discounted price. Taste the best of our curation.</p>
-<button class="bg-white text-primary px-10 py-4 rounded-full font-black hover:scale-105 transition-transform shadow-xl">
-                        Order Now - $49.99
-                    </button>
-</div>
-<!-- Decorative Food Shot -->
-<img alt="" class="absolute -right-20 -bottom-20 w-[450px] h-[450px] object-cover rounded-full border-[15px] border-white/10 hidden lg:block" data-alt="a large overhead table spread with various dishes including roasted chicken, salads, pizza slices and colorful appetizers" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNEOvhk6VybZT3zaj-N2D6rlPPjrildJwvbviJ6YK_nrQj8tq1B-qp9ZrHsWvxmB5FEJrhetLz1H8pLvXQheqCA_fFEXnQcoXrf8A0rS2hyv8XXL8bf6vDMQrQdN9dfy_ca_aSgQ2d88TmFGCttDeA6XFUB89aXz2wZXK9ZeAKfwHfMmBrVS-wUL59tComoPc5J0MmpuAY4ZdjCI6ytlj6jTIZ9oXOwzIpmsxihNsN21hKU6VtaC94JdQ62lMwVAXZXaA3tVJ2_AVS"/>
-</div>
 </section>
 </main>
 <!-- Footer -->
@@ -332,12 +451,18 @@ const cartBackdrop = document.getElementById('cartBackdrop');
 const cartItemsEl = document.getElementById('cartItems');
 const cartTotalEl = document.getElementById('cartTotal');
 const checkoutButton = document.getElementById('checkoutButton');
+const cartSidebarItems = document.getElementById('cartSidebarItems');
+const cartSidebarTotal = document.getElementById('cartSidebarTotal');
+const cartSidebarCheckoutButton = document.getElementById('cartSidebarCheckoutButton');
+const cartSidebarAuth = document.getElementById('cartSidebarAuth');
 const menuGrid = document.getElementById('menuGrid');
 const searchInput = document.getElementById('searchInput');
 const priceRange = document.getElementById('priceRange');
-const vegOnly = document.getElementById('vegOnly');
-const categoryButtons = document.querySelectorAll('[data-category]');
-const applyFilters = document.getElementById('applyFilters');
+const filterVeg = document.getElementById('filterVeg');
+const filterNonVeg = document.getElementById('filterNonVeg');
+const resetFilters = document.getElementById('resetFilters');
+const activeFiltersDisplay = document.getElementById('activeFiltersDisplay');
+const filterTags = document.getElementById('filterTags');
 const toastRoot = document.getElementById('toastRoot');
 
 let currentUser = null;
@@ -346,7 +471,13 @@ let activeCategory = 'all';
 
 function showToast(message, type = 'success') {
   const toast = document.createElement('div');
-  toast.className = `toast toast-${type}`;
+  const typeColors = {
+    'success': 'bg-emerald-500',
+    'error': 'bg-red-500',
+    'info': 'bg-blue-500',
+    'warning': 'bg-yellow-500'
+  };
+  toast.className = `fixed bottom-6 right-6 ${typeColors[type] || typeColors['success']} text-white px-6 py-3 rounded-full font-semibold shadow-lg toast toast-${type} z-50`;
   toast.textContent = message;
   toastRoot.appendChild(toast);
   requestAnimationFrame(() => toast.classList.add('show'));
@@ -356,6 +487,10 @@ function showToast(message, type = 'success') {
   }, 3200);
 }
 
+function formatCurrency(amount) {
+  return '₹' + (parseFloat(amount || 0).toFixed(2));
+}
+
 function getCart() {
   const raw = localStorage.getItem('vrindavanCart');
   return raw ? JSON.parse(raw) : [];
@@ -363,14 +498,237 @@ function getCart() {
 
 function saveCart(cart) {
   localStorage.setItem('vrindavanCart', JSON.stringify(cart));
-  renderCart();
+  renderCartSidebar();
   renderCartCount();
+}
+
+// Generate dynamic categories from menu items - Top Pill Bar Only
+function generateCategories() {
+  // Get unique categories from menuItems
+  const uniqueCategories = [...new Set(menuItems.map(item => item.category).filter(Boolean))];
+  console.log('📂 Unique categories found:', uniqueCategories);
+  
+  // Generate top pill buttons
+  const categoryPillBar = document.getElementById('categoryPillBar');
+  // Remove existing category pills (keep "All Items" button)
+  const existingPills = categoryPillBar.querySelectorAll('[data-category]:not([data-category="all"])');
+  existingPills.forEach(pill => pill.remove());
+  
+  // Create category buttons for top bar
+  uniqueCategories.forEach(category => {
+    const button = document.createElement('button');
+    button.setAttribute('data-category', category);
+    button.className = 'px-8 py-3.5 rounded-full bg-zinc-100 text-zinc-700 font-bold transition-all duration-200 whitespace-nowrap hover:bg-zinc-200 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary/50 active:scale-95';
+    button.textContent = category;
+    
+    button.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      // Update active category
+      activeCategory = category;
+      
+      // Remove active state from all category buttons
+      document.querySelectorAll('#categoryPillBar [data-category]').forEach(el => {
+        el.classList.remove('bg-primary', 'text-white', 'shadow-lg', 'shadow-primary/30');
+        el.classList.add('bg-zinc-100', 'text-zinc-700');
+      });
+      
+      // Add active state to clicked button
+      button.classList.remove('bg-zinc-100', 'text-zinc-700');
+      button.classList.add('bg-primary', 'text-white', 'shadow-lg', 'shadow-primary/30');
+      
+      console.log('Category selected:', category);
+      filterMenu();
+    });
+    
+    categoryPillBar.appendChild(button);
+  });
+  
+  // Setup "All Items" button
+  const allButton = document.querySelector('[data-category="all"]');
+  if (allButton) {
+    allButton.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      // Reset to all categories
+      activeCategory = 'all';
+      
+      // Remove active state from all category buttons
+      document.querySelectorAll('#categoryPillBar [data-category]').forEach(el => {
+        el.classList.remove('bg-primary', 'text-white', 'shadow-lg', 'shadow-primary/30');
+        el.classList.add('bg-zinc-100', 'text-zinc-700');
+      });
+      
+      // Add active state to "All Items" button
+      allButton.classList.remove('bg-zinc-100', 'text-zinc-700');
+      allButton.classList.add('bg-primary', 'text-white', 'shadow-lg', 'shadow-primary/30');
+      
+      console.log('Showing all categories');
+      filterMenu();
+    });
+    
+    // Initialize "All Items" button as active
+    if (activeCategory === 'all') {
+      allButton.classList.remove('bg-zinc-100', 'text-zinc-700');
+      allButton.classList.add('bg-primary', 'text-white', 'shadow-lg', 'shadow-primary/30');
+    }
+  }
+  
+  console.log('✅ Category pills generated successfully');
+}
+
+// Update price range display
+function updatePriceDisplay() {
+  const minPrice = Number(document.getElementById('priceRangeMin')?.value) || 0;
+  const maxPrice = Number(document.getElementById('priceRangeMax')?.value) || 5000;
+  
+  const priceRangeValue = document.getElementById('priceRangeValue');
+  const priceRangeValueMax = document.getElementById('priceRangeValueMax');
+  const priceRangeTrack = document.getElementById('priceRangeTrack');
+  
+  if (priceRangeValue) priceRangeValue.textContent = minPrice;
+  if (priceRangeValueMax) priceRangeValueMax.textContent = maxPrice;
+  
+  // Update track background position
+  if (priceRangeTrack) {
+    const minPercent = (minPrice / 5000) * 100;
+    const maxPercent = (maxPrice / 5000) * 100;
+    priceRangeTrack.style.left = minPercent + '%';
+    priceRangeTrack.style.right = (100 - maxPercent) + '%';
+  }
+}
+
+// Calculate max price from menu items
+function calculateMaxPrice() {
+  const maxPrice = Math.max(...menuItems.map(item => item.price || 0), 5000);
+  const roundedMax = Math.ceil(maxPrice / 100) * 100; // Round up to nearest 100
+  
+  console.log('📊 Max price calculated:', roundedMax);
+  
+  const priceRangeMin = document.getElementById('priceRangeMin');
+  const priceRangeMax = document.getElementById('priceRangeMax');
+  const maxPriceLabel = document.getElementById('maxPriceLabel');
+  
+  if (priceRangeMin) priceRangeMin.setAttribute('max', roundedMax);
+  if (priceRangeMax) {
+    priceRangeMax.setAttribute('max', roundedMax);
+    priceRangeMax.value = roundedMax;
+  }
+  if (maxPriceLabel) {
+    maxPriceLabel.textContent = roundedMax;
+  }
+  
+  updatePriceDisplay();
 }
 
 function renderCartCount() {
   const count = getCart().reduce((sum, item) => sum + item.quantity, 0);
   const cartCountEl = document.getElementById('cartCount');
   if (cartCountEl) cartCountEl.textContent = count;
+}
+
+function renderCartAuthInfo() {
+  if (!cartSidebarAuth) return;
+  const user = getCurrentUser();
+  if (user) {
+    cartSidebarAuth.innerHTML = `
+      <div class="rounded-3xl bg-surface p-4 text-sm text-zinc-700">
+        <p class="font-semibold text-zinc-900">Welcome back, ${user.name || user.email || 'Guest'}.</p>
+        <p class="mt-1 text-zinc-600">Continue your order with saved preferences and faster checkout.</p>
+      </div>
+    `;
+  } else {
+    cartSidebarAuth.innerHTML = `
+      <div class="rounded-3xl bg-surface p-4 space-y-4 text-sm text-zinc-700">
+        <p class="font-semibold text-zinc-900">Login or register to save your cart and checkout faster.</p>
+        <div class="flex flex-wrap gap-3">
+          <button id="cartLoginButton" class="flex-1 px-4 py-3 rounded-full bg-primary text-white font-semibold hover:bg-red-700 transition-all">Login</button>
+          <button id="cartRegisterButton" class="flex-1 px-4 py-3 rounded-full border border-zinc-200 bg-white text-zinc-900 font-semibold hover:bg-zinc-100 transition-all">Register</button>
+        </div>
+      </div>
+    `;
+    document.getElementById('cartLoginButton')?.addEventListener('click', () => {
+      window.location.href = `login.html?redirect=${encodeURIComponent(window.location.pathname)}`;
+    });
+    document.getElementById('cartRegisterButton')?.addEventListener('click', () => {
+      window.location.href = `register.html?redirect=${encodeURIComponent(window.location.pathname)}`;
+    });
+  }
+}
+
+function renderCartSidebar() {
+  if (!cartSidebarItems) return;
+  const cart = getCart();
+  cartSidebarItems.innerHTML = '';
+  
+  if (!cart.length) {
+    cartSidebarItems.innerHTML = '<div class="rounded-[1.5rem] bg-surface p-6 text-zinc-500 text-center">Your cart is empty. Add tasty items from the menu.</div>';
+    if (cartSidebarTotal) cartSidebarTotal.textContent = '₹0.00';
+    renderCartAuthInfo();
+    return;
+  }
+  
+  let total = 0;
+  renderCartAuthInfo();
+  
+  cart.forEach(item => {
+    total += item.price * item.quantity;
+    const itemEl = document.createElement('div');
+    itemEl.className = 'cart-item-card';
+    itemEl.innerHTML = `
+      <img src="${item.image}" alt="${item.name}" class="rounded-3xl" />
+      <div class="space-y-3">
+        <div class="flex items-center justify-between gap-4">
+          <div>
+            <p class="font-semibold text-zinc-900">${item.name}</p>
+            <p class="text-sm text-zinc-500">${formatCurrency(item.price)} each</p>
+          </div>
+          <p class="font-black text-zinc-900">${formatCurrency(item.quantity * item.price)}</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button type="button" class="px-3 py-1 rounded-full border border-zinc-300 bg-white text-sm font-semibold hover:bg-zinc-50" data-action="decrease">−</button>
+          <span class="font-semibold text-sm w-6 text-center">${item.quantity}</span>
+          <button type="button" class="px-3 py-1 rounded-full border border-zinc-300 bg-white text-sm font-semibold hover:bg-zinc-50" data-action="increase">+</button>
+          <button type="button" class="ml-auto text-red-600 font-semibold text-sm hover:text-red-700" data-action="remove">Remove</button>
+        </div>
+      </div>
+    `;
+    
+    itemEl.querySelector('[data-action="increase"]')?.addEventListener('click', () => {
+      item.quantity += 1;
+      saveCart(cart);
+      renderCartSidebar();
+      renderCartCount();
+      showToast('Item quantity updated', 'success');
+    });
+    
+    itemEl.querySelector('[data-action="decrease"]')?.addEventListener('click', () => {
+      item.quantity -= 1;
+      if (item.quantity < 1) {
+        const index = cart.findIndex(entry => entry.productId === item.productId);
+        if (index > -1) cart.splice(index, 1);
+      }
+      saveCart(cart);
+      renderCartSidebar();
+      renderCartCount();
+      showToast('Item quantity updated', 'success');
+    });
+    
+    itemEl.querySelector('[data-action="remove"]')?.addEventListener('click', () => {
+      const index = cart.findIndex(entry => entry.productId === item.productId);
+      if (index > -1) cart.splice(index, 1);
+      saveCart(cart);
+      renderCartSidebar();
+      renderCartCount();
+      showToast('Item removed from cart', 'success');
+    });
+    
+    cartSidebarItems.appendChild(itemEl);
+  });
+  
+  if (cartSidebarTotal) cartSidebarTotal.textContent = formatCurrency(total);
 }
 
 function getCurrentUser() {
@@ -386,6 +744,7 @@ function fetchJson(path, options = {}) {
   const url = path.includes('?')
     ? `${dbUrl}${path.replace('?', '.json?')}`
     : `${dbUrl}${path}.json`;
+  console.log('Fetching from:', url);
   return fetch(url, {
     headers: { 'Content-Type': 'application/json' },
     ...options
@@ -394,7 +753,12 @@ function fetchJson(path, options = {}) {
       const errorText = await response.text();
       throw new Error(errorText || 'Network error');
     }
-    return response.json();
+    const data = await response.json();
+    console.log('Fetch successful, data:', data);
+    return data;
+  }).catch(error => {
+    console.error('Fetch failed:', error);
+    throw error;
   });
 }
 
@@ -408,6 +772,7 @@ function putJson(path, body) {
 function toggleCart(open) {
   cartPanel.classList.toggle('open', open);
   cartBackdrop.classList.toggle('show', open);
+  if (open) renderCartSidebar();
 }
 window.toggleCart = toggleCart;
 
@@ -423,17 +788,45 @@ function addToCart(item) {
   if (existing) existing.quantity += 1;
   else cart.push({ productId: item.id, name: item.name, price: item.price, quantity: 1, image: item.image });
   saveCart(cart);
+  renderCartCount();
+  renderCartSidebar();
   showToast('Added to cart', 'success');
 }
 
 function createMenuCard(item) {
   const card = document.createElement('div');
   card.className = 'group relative bg-surface-container-lowest p-6 rounded-xl transition-all duration-300 hover:shadow-2xl hover:shadow-black/5';
+  
+  // Handle dietary type - improved detection from database
+  let isVeg = true;
+  let dietaryLabel = 'Veg';
+  let dietaryColor = 'bg-emerald-500';
+  
+  if (item.isVeg === false || item.dietaryType === 'non-veg' || item.dietaryType === 'non-vegetarian') {
+    isVeg = false;
+    dietaryLabel = 'Non-Veg';
+    dietaryColor = 'bg-red-600';
+  } else if (item.dietaryType === 'both') {
+    isVeg = true;
+    dietaryLabel = 'Both';
+    dietaryColor = 'bg-yellow-500';
+  } else if (item.isVeg === true || item.dietaryType === 'veg') {
+    isVeg = true;
+    dietaryLabel = 'Veg';
+    dietaryColor = 'bg-emerald-500';
+  }
+  
+  // Ensure all required fields have fallbacks
+  const itemImage = item.image || 'https://via.placeholder.com/300?text=' + encodeURIComponent(item.name || 'Menu Item');
+  const itemName = item.name || 'Unknown Item';
+  const itemCategory = item.category || 'Uncategorized';
+  const itemPrice = item.price || 0;
+  
   card.innerHTML = `
     <div class="relative mb-6">
-      <span class="absolute top-0 right-0 z-10 ${item.isVeg ? 'bg-emerald-500' : 'bg-red-600'} text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-tighter">${item.isVeg ? 'Veg' : 'Non-Veg'}</span>
+      <span class="absolute top-0 right-0 z-10 ${dietaryColor} text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-tighter">${dietaryLabel}</span>
       <div class="aspect-square rounded-full overflow-hidden shadow-2xl shadow-black/10 group-hover:-translate-y-4 transition-transform duration-500">
-        <img alt="${item.name}" class="w-full h-full object-cover" src="${item.image}"/>
+        <img alt="${itemName}" class="w-full h-full object-cover" src="${itemImage}"/>
       </div>
     </div>
     <div class="text-center">
@@ -444,13 +837,19 @@ function createMenuCard(item) {
         <span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
         <span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
       </div>
-      <h3 class="text-xl font-bold text-zinc-900 group-hover:text-primary transition-colors">${item.name}</h3>
-      <p class="text-zinc-500 text-sm mt-2 line-clamp-2">${item.category}</p>
-      <p class="text-2xl font-black text-primary mt-4">$${item.price.toFixed(2)}</p>
+      <h3 class="text-xl font-bold text-zinc-900 group-hover:text-primary transition-colors">${itemName}</h3>
+      <p class="text-zinc-500 text-sm mt-2 line-clamp-2">${itemCategory}</p>
+      <p class="text-2xl font-black text-primary mt-4">${formatCurrency(itemPrice)}</p>
     </div>
-    <button type="button" class="mt-6 w-full py-4 rounded-full bg-secondary-container text-on-secondary-container font-bold transition-all duration-300 hover:bg-secondary-container/90" data-add="${item.id}">
-      <span class="material-symbols-outlined mr-2">shopping_basket</span>
-      Add to Cart
+    <button type="button" class="mt-6 w-full group relative overflow-hidden rounded-full bg-secondary-container text-zinc-900 font-bold transition-all duration-300 hover:shadow-lg hover:shadow-secondary-container/40 active:scale-95 py-4 flex items-center justify-center gap-3 hover:bg-opacity-90" data-add="${item.id}">
+      <!-- Background animation overlay -->
+      <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+      
+      <!-- Icon -->
+      <span class="material-symbols-outlined text-xl group-hover:scale-110 transition-transform duration-300 relative z-10" style="font-variation-settings: 'FILL' 1;">shopping_basket</span>
+      
+      <!-- Text -->
+      <span class="relative z-10 tracking-wide">Add to Cart</span>
     </button>
   `;
   card.querySelector('[data-add]')?.addEventListener('click', () => addToCart(item));
@@ -459,85 +858,189 @@ function createMenuCard(item) {
 
 function renderMenu(items) {
   menuGrid.innerHTML = '';
-  if (!items.length) {
-    menuGrid.innerHTML = '<div class="col-span-3 text-center text-zinc-500">No menu items available right now.</div>';
+  
+  if (!items || items.length === 0) {
+    const totalItems = menuItems.length;
+    let message = 'No items match your filters.';
+    let submessage = '';
+    
+    if (totalItems === 0) {
+      message = '🍽️ No menu items available right now.';
+      submessage = 'Check back soon or add items from the admin dashboard!';
+    } else {
+      submessage = `Tip: ${totalItems} item(s) available. Try adjusting your search or filters.`;
+    }
+    
+    menuGrid.innerHTML = `
+      <div class="col-span-1 md:col-span-2 xl:col-span-3 text-center py-16">
+        <div class="text-6xl mb-4">🔎</div>
+        <p class="text-zinc-500 font-semibold">${message}</p>
+        <p class="text-zinc-400 text-sm mt-2">${submessage}</p>
+        ${totalItems > 0 ? `<button onclick="document.getElementById('resetFilters')?.click(); location.reload();" class="mt-4 px-4 py-2 bg-primary text-white rounded-full text-sm font-bold">Reset Filters</button>` : ''}
+      </div>
+    `;
     return;
   }
+  
   items.forEach(item => menuGrid.appendChild(createMenuCard(item)));
 }
 
 function filterMenu() {
   const searchTerm = searchInput?.value.trim().toLowerCase() || '';
-  const maxPrice = Number(priceRange?.value) || 100;
-  const veg = vegOnly?.checked || false;
-  const filtered = menuItems.filter(item => {
-    const matchesCategory = activeCategory === 'all' || item.category.toLowerCase() === activeCategory.toLowerCase();
-    const matchesSearch = item.name.toLowerCase().includes(searchTerm) || item.category.toLowerCase().includes(searchTerm);
-    const matchesPrice = item.price <= maxPrice;
-    const matchesVeg = !veg || item.isVeg;
-    return matchesCategory && matchesSearch && matchesPrice && matchesVeg;
+  const minPrice = Number(document.getElementById('priceRangeMin')?.value) || 0;
+  const maxPrice = Number(document.getElementById('priceRangeMax')?.value) || 5000;
+  const showVeg = filterVeg?.checked || false;
+  const showNonVeg = filterNonVeg?.checked || false;
+  
+  console.group('🔍 Filtering Menu');
+  console.log('Active category:', activeCategory);
+  console.log('Search term:', searchTerm || '(none)');
+  console.log('Price range: ₹' + minPrice + ' - ₹' + maxPrice);
+  console.log('Show Veg:', showVeg, '| Show Non-Veg:', showNonVeg);
+  console.log('Total items to filter:', menuItems.length);
+  
+  // Check if any dietary filter is active
+  const hasDietaryFilter = showVeg || showNonVeg;
+  
+  const filtered = menuItems.filter((item) => {
+    // 1. Category filter
+    const itemCategory = (item.category || 'uncategorized').toLowerCase();
+    const matchesCategory = activeCategory === 'all' || itemCategory === activeCategory.toLowerCase();
+    
+    // 2. Search filter
+    const matchesSearch = !searchTerm || 
+                          (item.name || '').toLowerCase().includes(searchTerm) || 
+                          (item.category || '').toLowerCase().includes(searchTerm);
+    
+    // 3. Price filter
+    const itemPrice = item.price || 0;
+    const matchesPrice = itemPrice >= minPrice && itemPrice <= maxPrice;
+    
+    // 4. Dietary filter - improved logic
+    let matchesDietary = true;
+    if (hasDietaryFilter) {
+      // Determine if item is vegetarian (check both isVeg and dietaryType)
+      const isVeg = item.isVeg === true || item.dietaryType === 'veg' || item.dietaryType === 'both';
+      const isNonVeg = item.isVeg === false || item.dietaryType === 'non-veg' || item.dietaryType === 'non-vegetarian';
+      
+      // Show item only if its dietary type matches selected filters
+      if (isVeg && isNonVeg) {
+        // Item is both (e.g., "both") - always show if any filter is checked
+        matchesDietary = true;
+      } else if (isVeg) {
+        matchesDietary = showVeg;
+      } else if (isNonVeg) {
+        matchesDietary = showNonVeg;
+      } else {
+        matchesDietary = true; // Default to show if unclear
+      }
+    }
+    
+    const passes = matchesCategory && matchesSearch && matchesPrice && matchesDietary;
+    return passes;
   });
+  
+  console.log('✅ Filtered result:', filtered.length, 'items shown');
+  console.groupEnd();
+  
+  updateFilterDisplay();
   renderMenu(filtered);
 }
 
-searchInput?.addEventListener('input', filterMenu);
-priceRange?.addEventListener('input', filterMenu);
-vegOnly?.addEventListener('change', filterMenu);
-applyFilters?.addEventListener('click', filterMenu);
-categoryButtons.forEach(btn => btn.addEventListener('click', () => {
-  activeCategory = btn.dataset.category || 'all';
-  categoryButtons.forEach(el => el.classList.remove('bg-red-700', 'text-white'));
-  btn.classList.add('bg-red-700', 'text-white');
-  filterMenu();
-}));
-
-function renderCart() {
-  const cart = getCart();
-  cartItemsEl.innerHTML = '';
-  let total = 0;
-  if (!cart.length) {
-    cartItemsEl.innerHTML = '<div class="text-center text-zinc-500 mt-8">Your cart is empty.</div>';
-    cartTotalEl.textContent = '$0.00';
-    return;
+// Update active filters display
+function updateFilterDisplay() {
+  const showVeg = filterVeg?.checked || false;
+  const showNonVeg = filterNonVeg?.checked || false;
+  const searchTerm = searchInput?.value.trim() || '';
+  const minPrice = Number(document.getElementById('priceRangeMin')?.value) || 0;
+  const maxPrice = Number(document.getElementById('priceRangeMax')?.value) || 5000;
+  const hasAnyFilter = showVeg || showNonVeg || searchTerm || activeCategory !== 'all' || minPrice > 0 || maxPrice < 5000;
+  
+  // Show/hide active filters display
+  activeFiltersDisplay?.classList.toggle('hidden', !hasAnyFilter);
+  
+  if (hasAnyFilter && filterTags) {
+    filterTags.innerHTML = '';
+    const tags = [];
+    
+    if (activeCategory !== 'all') tags.push(`📁 Category: ${activeCategory}`);
+    if (searchTerm) tags.push(`🔍 Search: "${searchTerm}"`);
+    if (minPrice > 0 || maxPrice < 5000) tags.push(`💰 Price: ₹${minPrice}-₹${maxPrice}`);
+    if (showVeg) tags.push('🥬 Vegetarian');
+    if (showNonVeg) tags.push('🍗 Non-Veg');
+    
+    tags.forEach(tag => {
+      const tagEl = document.createElement('span');
+      tagEl.className = 'bg-blue-200 text-blue-900 px-2 py-1 rounded-full text-xs font-medium';
+      tagEl.textContent = tag;
+      filterTags.appendChild(tagEl);
+    });
   }
-  cart.forEach(item => {
-    total += item.price * item.quantity;
-    const itemEl = document.createElement('div');
-    itemEl.className = 'flex items-center gap-4 p-4 rounded-3xl border border-zinc-200';
-    itemEl.innerHTML = `
-      <img src="${item.image}" alt="${item.name}" class="w-20 h-20 rounded-3xl object-cover"/>
-      <div class="flex-1">
-        <h4 class="font-bold text-zinc-900">${item.name}</h4>
-        <p class="text-zinc-500 text-sm">$${item.price.toFixed(2)} x ${item.quantity}</p>
-        <div class="flex items-center gap-2 mt-3">
-          <button class="px-3 py-1 bg-zinc-100 rounded-full" data-action="decrease">-</button>
-          <span class="font-semibold">${item.quantity}</span>
-          <button class="px-3 py-1 bg-zinc-100 rounded-full" data-action="increase">+</button>
-        </div>
-      </div>
-    `;
-    itemEl.querySelector('[data-action="increase"]').addEventListener('click', () => {
-      item.quantity += 1;
-      saveCart(cart);
-      renderCart();
-    });
-    itemEl.querySelector('[data-action="decrease"]').addEventListener('click', () => {
-      item.quantity -= 1;
-      if (item.quantity < 1) {
-        const index = cart.findIndex(entry => entry.productId === item.productId);
-        cart.splice(index, 1);
-      }
-      saveCart(cart);
-      renderCart();
-    });
-    cartItemsEl.appendChild(itemEl);
-  });
-  cartTotalEl.textContent = `$${total.toFixed(2)}`;
 }
 
-checkoutButton?.addEventListener('click', async () => {
+searchInput?.addEventListener('input', filterMenu);
+
+// Dietary type filter listeners
+filterVeg?.addEventListener('change', filterMenu);
+filterNonVeg?.addEventListener('change', filterMenu);
+
+// Dual range price slider handlers
+const priceRangeMin = document.getElementById('priceRangeMin');
+const priceRangeMax = document.getElementById('priceRangeMax');
+
+if (priceRangeMin) {
+  priceRangeMin.addEventListener('input', () => {
+    const min = Number(priceRangeMin.value);
+    const max = Number(priceRangeMax.value);
+    
+    // Prevent min from going above max
+    if (min > max) {
+      priceRangeMin.value = max;
+    }
+    
+    updatePriceDisplay();
+    filterMenu();
+  });
+}
+
+if (priceRangeMax) {
+  priceRangeMax.addEventListener('input', () => {
+    const min = Number(priceRangeMin.value);
+    const max = Number(priceRangeMax.value);
+    
+    // Prevent max from going below min
+    if (max < min) {
+      priceRangeMax.value = min;
+    }
+    
+    updatePriceDisplay();
+    filterMenu();
+  });
+}
+
+// Reset filters button - reset all filters and show all items
+resetFilters?.addEventListener('click', () => {
+  searchInput.value = '';
+  filterVeg.checked = false;
+  filterNonVeg.checked = false;
+  activeCategory = 'all';
+  document.querySelector('[data-category="all"]')?.click();
+  document.getElementById('priceRangeMin').value = 0;
+  document.getElementById('priceRangeMax').value = 5000;
+  updatePriceDisplay();
+  filterMenu();
+  showToast('All filters reset', 'info');
+});
+
+function renderCart() {
+  // Legacy function - replaced by renderCartSidebar()
+  // Kept for backward compatibility
+  return;
+}
+
+cartSidebarCheckoutButton?.addEventListener('click', async () => {
   if (!currentUser) {
-    window.location.href = 'login.html?redirect=menu.html';
+    window.location.href = `login.html?redirect=${encodeURIComponent(window.location.pathname)}`;
     return;
   }
   const cart = getCart();
@@ -545,34 +1048,17 @@ checkoutButton?.addEventListener('click', async () => {
     showToast('Cart is empty', 'error');
     return;
   }
-  checkoutButton.disabled = true;
-  checkoutButton.textContent = 'Placing order...';
+  cartSidebarCheckoutButton.disabled = true;
+  const originalText = cartSidebarCheckoutButton.textContent;
+  cartSidebarCheckoutButton.textContent = 'Processing...';
   try {
-    const order = {
-      items: cart,
-      totalAmount: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
-      status: 'pending',
-      createdAt: Date.now(),
-      userInfo: {
-        name: currentUser.name || currentUser.email || 'Guest',
-        mobile: currentUser.mobile || ''
-      }
-    };
-    await fetchJson(`/orders/${currentUser.uid}`, {
-      method: 'POST',
-      body: JSON.stringify(order)
-    });
-    localStorage.removeItem('vrindavanCart');
-    renderCartCount();
-    renderCart();
-    showToast('Order placed successfully', 'success');
-    toggleCart(false);
+    window.location.href = 'cart.html';
   } catch (error) {
     console.error(error);
-    showToast('Could not place order, try again', 'error');
+    showToast('Could not proceed to checkout', 'error');
   } finally {
-    checkoutButton.disabled = false;
-    checkoutButton.textContent = 'Place Order';
+    cartSidebarCheckoutButton.disabled = false;
+    cartSidebarCheckoutButton.textContent = originalText;
   }
 });
 
@@ -592,37 +1078,426 @@ logoutNavLink?.addEventListener('click', event => {
 
 
 async function loadMenuItems() {
-  const data = await fetchJson('/menu');
-  if (data === null) {
-    const sampleItems = [
-      {
-        id: 'demo-margherita',
-        name: 'Demo Margherita Pizza',
-        category: 'Pizza',
-        price: 12.99,
-        isVeg: true,
-        image: 'https://images.unsplash.com/photo-1601924582975-3077d0e8f929?auto=format&fit=crop&w=800&q=80',
-        description: 'Classic tomato sauce, fresh mozzarella and basil for quick menu testing.'
-      }
-    ];
-    const payload = {};
-    sampleItems.forEach(item => {
-      payload[item.id] = item;
-    });
-    await putJson('/menu', payload);
-    menuItems = sampleItems;
-  } else {
-    menuItems = Object.values(data).map(item => ({
-      id: item.id || String(item.name).toLowerCase().replace(/\s+/g, '-'),
-      ...item
-    }));
+  try {
+    console.group('📦 Loading Menu Items');
+    console.log('Start time:', new Date().toLocaleTimeString());
+    
+    const data = await fetchJson('/menu');
+    console.log('Raw Firebase data:', data);
+    
+    // If data exists, use it; otherwise start with empty
+    if (data === null || typeof data !== 'object' || Object.keys(data).length === 0) {
+      console.log('❌ No data from Firebase - using sample data');
+      menuItems = getSampleMenuData();
+    } else {
+      console.log('✅ Data found, parsing items...');
+      menuItems = Object.entries(data).map(([itemId, item]) => {
+        console.log(`  Item ID: ${itemId}`, item);
+        
+        // Ensure dietary type is properly set
+        let dietaryType = item.dietaryType || 'veg';
+        let isVeg = item.isVeg !== false;
+        
+        // Sync isVeg with dietaryType for consistency
+        if (dietaryType === 'veg') isVeg = true;
+        else if (dietaryType === 'non-veg' || dietaryType === 'non-vegetarian') isVeg = false;
+        else if (dietaryType === 'both') isVeg = true; // "both" is treated as veg for filtering
+        
+        return {
+          id: itemId,
+          name: item.name || 'Unknown',
+          category: item.category || 'Uncategorized',
+          price: item.price || 0,
+          image: item.image || '',
+          description: item.description || '',
+          dietaryType: dietaryType.toLowerCase(),
+          isVeg: isVeg,
+          ...item
+        };
+      }).filter(item => item.name && item.name !== 'Unknown');
+      
+      console.log('✅ Parsed items:', menuItems.length);
+      menuItems.forEach(item => console.log('  -', item.name, `(${item.category}) [${item.dietaryType}]`));
+    }
+    
+    console.log('Total menu items loaded:', menuItems.length);
+    console.groupEnd();
+    
+    // Reset filters to show all items initially
+    activeCategory = 'all';
+    if (filterVeg) filterVeg.checked = false;
+    if (filterNonVeg) filterNonVeg.checked = false;
+    
+    // Generate categories from items and calculate max price
+    generateCategories();
+    calculateMaxPrice();
+    
+    filterMenu();
+  } catch (error) {
+    console.error('❌ Error loading menu from Firebase:', error);
+    console.log('Using sample data for demonstration...');
+    menuItems = getSampleMenuData();
+    generateCategories();
+    calculateMaxPrice();
+    filterMenu();
   }
-  filterMenu();
 }
+
+// Sample menu data for testing and demonstration
+function getSampleMenuData() {
+  console.log('%c🍽️ Using Sample Menu Data 🍽️', 'font-size: 16px; font-weight: bold; color: #bc0008;');
+  console.log('To use real menu items from your database: Add items via Admin Dashboard');
+  return [
+    {
+      id: 'pizza_1',
+      name: 'Margherita Pizza',
+      category: 'Pizza',
+      price: 299,
+      image: 'https://images.unsplash.com/photo-1604068549290-dea0e4a305ca?w=500&h=500&fit=crop',
+      description: 'Classic Margherita with fresh mozzarella',
+      dietaryType: 'veg',
+      isVeg: true
+    },
+    {
+      id: 'pizza_2',
+      name: 'Pepperoni Pizza',
+      category: 'Pizza',
+      price: 349,
+      image: 'https://images.unsplash.com/photo-1628840042765-356cda07f4ee?w=500&h=500&fit=crop',
+      description: 'Spicy pepperoni with mozzarella',
+      dietaryType: 'non-veg',
+      isVeg: false
+    },
+    {
+      id: 'burger_1',
+      name: 'Classic Cheeseburger',
+      category: 'Burger',
+      price: 249,
+      image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&h=500&fit=crop',
+      description: 'Juicy burger with cheddar cheese',
+      dietaryType: 'non-veg',
+      isVeg: false
+    },
+    {
+      id: 'burger_2',
+      name: 'Veggie Burger',
+      category: 'Burger',
+      price: 199,
+      image: 'https://images.unsplash.com/photo-1585238341710-4b4e6cedb7eb?w=500&h=500&fit=crop',
+      description: 'Plant-based veggie burger',
+      dietaryType: 'veg',
+      isVeg: true
+    },
+    {
+      id: 'drinks_1',
+      name: 'Fresh Lemonade',
+      category: 'Drinks',
+      price: 99,
+      image: 'https://images.unsplash.com/photo-1508617529925-361e1c8b3ff9?w=500&h=500&fit=crop',
+      description: 'Freshly made lemonade',
+      dietaryType: 'veg',
+      isVeg: true
+    },
+    {
+      id: 'drinks_2',
+      name: 'Iced Coffee',
+      category: 'Drinks',
+      price: 129,
+      image: 'https://images.unsplash.com/photo-1517701550927-30cf4ba20d4d?w=500&h=500&fit=crop',
+      description: 'Cold brew iced coffee',
+      dietaryType: 'veg',
+      isVeg: true
+    },
+    {
+      id: 'bakery_1',
+      name: 'Chocolate Cake',
+      category: 'Bakery',
+      price: 199,
+      image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=500&h=500&fit=crop',
+      description: 'Rich chocolate cake',
+      dietaryType: 'veg',
+      isVeg: true
+    },
+    {
+      id: 'bakery_2',
+      name: 'Croissant',
+      category: 'Bakery',
+      price: 79,
+      image: 'https://images.unsplash.com/photo-1585080198e2b1b9db4c1f13d05b8c6b41b4d5c3?w=500&h=500&fit=crop',
+      description: 'Buttery French croissant',
+      dietaryType: 'veg',
+      isVeg: true
+    }
+  ];
+}
+
+// Global variables for search
+let allMenuData = [];
+
+// Fuzzy match algorithm
+function fuzzyMatch(searchStr, targetStr) {
+  const search = searchStr.toLowerCase();
+  const target = targetStr.toLowerCase();
+  let searchIdx = 0;
+  let targetIdx = 0;
+  let score = 0;
+  
+  while (searchIdx < search.length && targetIdx < target.length) {
+    if (search[searchIdx] === target[targetIdx]) {
+      score += 1;
+      searchIdx++;
+    }
+    targetIdx++;
+  }
+  
+  // If all search chars were found, calculate match quality
+  if (searchIdx === search.length) {
+    return (score / target.length) * 100; // Return score out of 100
+  }
+  return 0; // No match
+}
+
+// Load menu items from Firebase
+async function loadGlobalMenuData() {
+  try {
+    const response = await fetch(`${dbUrl}/menu.json`);
+    const data = await response.json();
+    
+    if (data) {
+      allMenuData = Object.entries(data).map(([id, item]) => ({
+        id,
+        name: item.name || '',
+        category: item.category || '',
+        price: item.price || 0,
+        image: item.image || '',
+        type: 'item'
+      }));
+    }
+  } catch (error) {
+    console.error('Error loading menu data:', error);
+  }
+}
+
+// Get unique categories
+function getUniqueCategories() {
+  const categories = [...new Set(allMenuData.map(item => item.category).filter(Boolean))];
+  return categories.map(cat => ({ name: cat, type: 'category' }));
+}
+
+// Search items and categories
+function performGlobalSearch(query) {
+  if (!query.trim()) {
+    return { items: [], categories: [] };
+  }
+  
+  const searchQuery = query.toLowerCase();
+  
+  // Search items
+  const matchedItems = allMenuData
+    .map(item => ({
+      ...item,
+      score: Math.max(
+        fuzzyMatch(searchQuery, item.name),
+        fuzzyMatch(searchQuery, item.category) * 0.7
+      )
+    }))
+    .filter(item => item.score > 15)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 8);
+  
+  // Search categories
+  const allCategories = getUniqueCategories();
+  const matchedCategories = allCategories
+    .map(cat => ({
+      ...cat,
+      score: fuzzyMatch(searchQuery, cat.name)
+    }))
+    .filter(cat => cat.score > 15)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5);
+  
+  return { items: matchedItems, categories: matchedCategories };
+}
+
+// Render search results
+function renderSearchSuggestions(results) {
+  const container = document.getElementById('searchSuggestions');
+  
+  if (results.items.length === 0 && results.categories.length === 0) {
+    container.innerHTML = '<div class="p-8 text-center text-zinc-400"><p class="text-sm">No results found. Try different keywords.</p></div>';
+    return;
+  }
+  
+  let html = '';
+  
+  // Categories section
+  if (results.categories.length > 0) {
+    html += '<div class="border-b border-zinc-200">';
+    html += '<div class="px-4 py-3 bg-zinc-50 text-xs font-bold text-zinc-600 uppercase">Categories</div>';
+    results.categories.forEach(cat => {
+      html += `
+        <button onclick="navigateToCategory('${cat.name}')" class="w-full text-left px-4 py-3 hover:bg-zinc-50 transition-colors flex items-center gap-3">
+          <span class="material-symbols-outlined text-sm text-zinc-400">local_dining</span>
+          <span class="font-medium text-zinc-900">${cat.name}</span>
+        </button>
+      `;
+    });
+    html += '</div>';
+  }
+  
+  // Items section
+  if (results.items.length > 0) {
+    html += '<div class="border-b border-zinc-200">';
+    html += '<div class="px-4 py-3 bg-zinc-50 text-xs font-bold text-zinc-600 uppercase">Items</div>';
+    results.items.forEach(item => {
+      html += `
+        <button onclick="addItemToCart('${item.id}', '${item.name.replace(/'/g, "\\'")}', ${item.price}, '${item.image.replace(/'/g, "\\'")}')" class="w-full text-left px-4 py-3 hover:bg-zinc-50 transition-colors flex items-center gap-3">
+          <img src="${item.image}" alt="${item.name}" class="w-10 h-10 rounded-lg object-cover" />
+          <div class="flex-1 min-w-0">
+            <div class="font-medium text-zinc-900">${item.name}</div>
+            <div class="text-xs text-zinc-500">${item.category} · ₹${item.price.toFixed(2)}</div>
+          </div>
+          <span class="material-symbols-outlined text-sm text-primary">add_shopping_cart</span>
+        </button>
+      `;
+    });
+    html += '</div>';
+  }
+  
+  container.innerHTML = html;
+}
+
+// Open global search modal
+function openGlobalSearch() {
+  const modal = document.getElementById('searchModal');
+  const backdrop = document.getElementById('searchBackdrop');
+  const input = document.getElementById('globalSearchInput');
+  
+  modal.classList.remove('opacity-0', 'pointer-events-none');
+  backdrop.classList.remove('opacity-0', 'pointer-events-none');
+  input.focus();
+}
+
+// Close global search modal
+function closeGlobalSearch() {
+  const modal = document.getElementById('searchModal');
+  const backdrop = document.getElementById('searchBackdrop');
+  const input = document.getElementById('globalSearchInput');
+  
+  modal.classList.add('opacity-0', 'pointer-events-none');
+  backdrop.classList.add('opacity-0', 'pointer-events-none');
+  input.value = '';
+  
+  const suggestions = document.getElementById('searchSuggestions');
+  suggestions.innerHTML = '<div class="p-8 text-center text-zinc-400"><p class="text-sm">Start typing to search items and categories...</p></div>';
+}
+
+// Handle real-time search input
+document.getElementById('globalSearchInput')?.addEventListener('input', (e) => {
+  const query = e.target.value;
+  if (query.length > 0) {
+    const results = performGlobalSearch(query);
+    renderSearchSuggestions(results);
+  } else {
+    const suggestions = document.getElementById('searchSuggestions');
+    suggestions.innerHTML = '<div class="p-8 text-center text-zinc-400"><p class="text-sm">Start typing to search items and categories...</p></div>';
+  }
+});
+
+// Close modal with Escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const modal = document.getElementById('searchModal');
+    if (!modal.classList.contains('opacity-0')) {
+      closeGlobalSearch();
+    }
+  }
+});
+
+// Navigate to category on menu page
+function navigateToCategory(category) {
+  closeGlobalSearch();
+  activeCategory = category;
+  filterMenu();
+  categoryPills.querySelector('[data-category]')?.scrollIntoView({behavior: 'smooth'});
+}
+
+// Add item to cart from search
+function addItemToCart(itemId, itemName, itemPrice, itemImage) {
+  const cart = JSON.parse(localStorage.getItem('vrindavanCart') || '[]');
+  const existing = cart.find(e => e.productId === itemId);
+  
+  if (existing) {
+    existing.quantity += 1;
+  } else {
+    cart.push({
+      productId: itemId,
+      name: itemName,
+      price: itemPrice,
+      quantity: 1,
+      image: itemImage
+    });
+  }
+  
+  localStorage.setItem('vrindavanCart', JSON.stringify(cart));
+  closeGlobalSearch();
+  updateCartCount();
+  renderCartSidebar();
+  showToast(`${itemName} added to cart`, 'success');
+}
+
+// Make functions global
+window.openGlobalSearch = openGlobalSearch;
+window.closeGlobalSearch = closeGlobalSearch;
+window.navigateToCategory = navigateToCategory;
+window.addItemToCart = addItemToCart;
+
+// Load global menu data
+loadGlobalMenuData();
 
 currentUser = getCurrentUser();
 setNavAuthLinks(currentUser);
 renderCartCount();
+renderCartAuthInfo();
+
+// Show loading state
+menuGrid.innerHTML = `
+  <div class="col-span-1 md:col-span-2 xl:col-span-3 text-center py-16">
+    <div class="inline-block">
+      <div class="animate-spin mb-4">
+        <span class="material-symbols-outlined text-4xl text-zinc-400">restaurant_menu</span>
+      </div>
+      <p class="text-zinc-500 font-semibold">Loading menu items...</p>
+      <p class="text-zinc-400 text-sm mt-2">Connecting to kitchen...</p>
+    </div>
+  </div>
+`;
+
+// Helper function for debugging - see all loaded items
+window.debugMenu = function() {
+  console.group('🔧 DEBUG: Menu Data');
+  console.log('Total items loaded:', menuItems.length);
+  console.table(menuItems.map(item => ({
+    'Name': item.name,
+    'Category': item.category,
+    'Price': item.price,
+    'Veg': item.isVeg ? '🥬' : '🍗',
+    'Type': item.dietaryType
+  })));
+  const minPrice = Number(document.getElementById('priceRangeMin')?.value) || 0;
+  const maxPrice = Number(document.getElementById('priceRangeMax')?.value) || 5000;
+  console.log('Active filters:', {
+    category: activeCategory,
+    showVeg: filterVeg?.checked || false,
+    showNonVeg: filterNonVeg?.checked || false,
+    priceRange: `₹${minPrice} - ₹${maxPrice}`,
+    search: searchInput?.value || ''
+  });
+  console.groupEnd();
+};
+
+console.log('💡 Tip: Type window.debugMenu() in console to see all menu items');
+
 loadMenuItems();
 </script>
 </body></html>

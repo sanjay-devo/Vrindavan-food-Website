@@ -114,7 +114,7 @@
     <div class="cart-sidebar-footer mt-6 border-t border-zinc-200 pt-6">
         <div class="flex justify-between items-center mb-4">
             <span class="font-semibold text-zinc-700">Total</span>
-            <span id="cartTotal" class="text-2xl font-black text-primary">$0.00</span>
+            <span id="cartTotal" class="text-2xl font-black text-primary">₹0.00</span>
         </div>
         <button id="cartSidebarCheckoutButton" class="w-full bg-primary text-white py-4 rounded-full font-bold hover:bg-red-700 transition-all">View Cart</button>
     </div>
@@ -132,7 +132,7 @@
 <a class="text-zinc-600 dark:text-zinc-400 font-medium hover:text-red-700 transition-colors" href="orders.html">Orders</a>
 </div>
 <div class="flex items-center space-x-4">
-<button class="text-zinc-600 hover:scale-105 transition-all"><span class="material-symbols-outlined">search</span></button>
+<button onclick="openGlobalSearch()" class="text-zinc-600 hover:scale-105 transition-all" title="Search items and categories"><span class="material-symbols-outlined">search</span></button>
 <div class="relative">
 <button id="openCartButton" class="text-zinc-600 hover:scale-105 transition-all"><span class="material-symbols-outlined">shopping_basket</span></button>
 <span id="cartCount" class="absolute -top-2 -right-2 bg-primary text-white text-[10px] rounded-full h-4 w-4 flex items-center justify-center">0</span>
@@ -144,6 +144,35 @@ Order Online
 </div>
 </div>
 </nav>
+<!-- Global Search Modal -->
+<div id="searchBackdrop" class="fixed inset-0 bg-black/50 opacity-0 pointer-events-none transition-opacity z-40" onclick="closeGlobalSearch()"></div>
+<div id="searchModal" class="fixed inset-0 flex items-start justify-center pt-20 opacity-0 pointer-events-none transition-opacity z-50 mt-4">
+  <div class="w-full max-w-2xl mx-4 bg-white rounded-2xl shadow-2xl overflow-hidden">
+    <!-- Search Input -->
+    <div class="border-b border-zinc-200 p-4">
+      <div class="flex items-center gap-3">
+        <span class="material-symbols-outlined text-zinc-400">search</span>
+        <input 
+          id="globalSearchInput" 
+          type="text" 
+          placeholder="Search items, categories... (type to see suggestions)" 
+          class="flex-1 bg-transparent border-none focus:outline-none text-lg"
+          autocomplete="off"
+        />
+        <button onclick="closeGlobalSearch()" class="text-zinc-400 hover:text-zinc-600">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Suggestions Container -->
+    <div id="searchSuggestions" class="max-h-96 overflow-y-auto">
+      <div class="p-8 text-center text-zinc-400">
+        <p class="text-sm">Start typing to search items and categories...</p>
+      </div>
+    </div>
+  </div>
+</div>
 <main class="pt-28 pb-20 min-h-screen bg-background">
 <section class="max-w-5xl mx-auto px-6 py-16 rounded-[3rem] bg-surface shadow-2xl shadow-black/10">
 <div class="grid md:grid-cols-2 gap-12 items-center">
@@ -257,7 +286,7 @@ function renderCartSidebar() {
   cartSidebarItemsEl.innerHTML = '';
   if (!cart.length) {
     cartSidebarItemsEl.innerHTML = '<div class="rounded-[1.5rem] bg-surface p-6 text-zinc-500 text-center">Your cart is empty. Add tasty items from the menu.</div>';
-    if (cartSidebarTotalEl) cartSidebarTotalEl.textContent = '$0.00';
+    if (cartSidebarTotalEl) cartSidebarTotalEl.textContent = '₹0.00';
     return;
   }
   let total = 0;
@@ -271,9 +300,9 @@ function renderCartSidebar() {
         <div class="flex items-center justify-between gap-4">
           <div>
             <p class="font-semibold text-zinc-900">${item.name}</p>
-            <p class="text-sm text-zinc-500">$${item.price.toFixed(2)} each</p>
+            <p class="text-sm text-zinc-500">₹${item.price.toFixed(2)} each</p>
           </div>
-          <p class="font-black text-zinc-900">$${(item.quantity * item.price).toFixed(2)}</p>
+          <p class="font-black text-zinc-900">₹${(item.quantity * item.price).toFixed(2)}</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
           <button type="button" class="px-3 py-1 rounded-full border border-zinc-300 bg-white text-sm" data-action="decrease">-</button>
@@ -305,7 +334,7 @@ function renderCartSidebar() {
     });
     cartSidebarItemsEl.appendChild(itemEl);
   });
-  if (cartSidebarTotalEl) cartSidebarTotalEl.textContent = `$${total.toFixed(2)}`;
+  if (cartSidebarTotalEl) cartSidebarTotalEl.textContent = `₹${total.toFixed(2)}`;
 }
 
 openCartButton?.addEventListener('click', () => toggleCart(true));
@@ -397,10 +426,11 @@ registerForm.addEventListener('submit', async event => {
     const uid = `u${Date.now()}`;
     const user = {
       uid,
-      name,
+      fullName: name,
       email,
       mobile,
       password,
+      role: 'user',
       createdAt: Date.now()
     };
     await fetchJson(`/users/${uid}`, {
@@ -427,5 +457,227 @@ registerForm.addEventListener('submit', async event => {
     registerButton.textContent = 'Create Account';
   }
 });
+
+// Global variables for search
+let allMenuData = [];
+
+// Fuzzy match algorithm
+function fuzzyMatch(searchStr, targetStr) {
+  const search = searchStr.toLowerCase();
+  const target = targetStr.toLowerCase();
+  let searchIdx = 0;
+  let targetIdx = 0;
+  let score = 0;
+  
+  while (searchIdx < search.length && targetIdx < target.length) {
+    if (search[searchIdx] === target[targetIdx]) {
+      score += 1;
+      searchIdx++;
+    }
+    targetIdx++;
+  }
+  
+  // If all search chars were found, calculate match quality
+  if (searchIdx === search.length) {
+    return (score / target.length) * 100; // Return score out of 100
+  }
+  return 0; // No match
+}
+
+// Load menu items from Firebase
+async function loadGlobalMenuData() {
+  try {
+    const response = await fetch(`${dbUrl}/menu.json`);
+    const data = await response.json();
+    
+    if (data) {
+      allMenuData = Object.entries(data).map(([id, item]) => ({
+        id,
+        name: item.name || '',
+        category: item.category || '',
+        price: item.price || 0,
+        image: item.image || '',
+        type: 'item'
+      }));
+    }
+  } catch (error) {
+    console.error('Error loading menu data:', error);
+  }
+}
+
+// Get unique categories
+function getUniqueCategories() {
+  const categories = [...new Set(allMenuData.map(item => item.category).filter(Boolean))];
+  return categories.map(cat => ({ name: cat, type: 'category' }));
+}
+
+// Search items and categories
+function performGlobalSearch(query) {
+  if (!query.trim()) {
+    return { items: [], categories: [] };
+  }
+  
+  const searchQuery = query.toLowerCase();
+  
+  // Search items
+  const matchedItems = allMenuData
+    .map(item => ({
+      ...item,
+      score: Math.max(
+        fuzzyMatch(searchQuery, item.name),
+        fuzzyMatch(searchQuery, item.category) * 0.7
+      )
+    }))
+    .filter(item => item.score > 15)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 8);
+  
+  // Search categories
+  const allCategories = getUniqueCategories();
+  const matchedCategories = allCategories
+    .map(cat => ({
+      ...cat,
+      score: fuzzyMatch(searchQuery, cat.name)
+    }))
+    .filter(cat => cat.score > 15)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5);
+  
+  return { items: matchedItems, categories: matchedCategories };
+}
+
+// Render search results
+function renderSearchSuggestions(results) {
+  const container = document.getElementById('searchSuggestions');
+  
+  if (results.items.length === 0 && results.categories.length === 0) {
+    container.innerHTML = '<div class="p-8 text-center text-zinc-400"><p class="text-sm">No results found. Try different keywords.</p></div>';
+    return;
+  }
+  
+  let html = '';
+  
+  // Categories section
+  if (results.categories.length > 0) {
+    html += '<div class="border-b border-zinc-200">';
+    html += '<div class="px-4 py-3 bg-zinc-50 text-xs font-bold text-zinc-600 uppercase">Categories</div>';
+    results.categories.forEach(cat => {
+      html += `
+        <button onclick="navigateToCategory('${cat.name}')" class="w-full text-left px-4 py-3 hover:bg-zinc-50 transition-colors flex items-center gap-3">
+          <span class="material-symbols-outlined text-sm text-zinc-400">local_dining</span>
+          <span class="font-medium text-zinc-900">${cat.name}</span>
+        </button>
+      `;
+    });
+    html += '</div>';
+  }
+  
+  // Items section
+  if (results.items.length > 0) {
+    html += '<div class="border-b border-zinc-200">';
+    html += '<div class="px-4 py-3 bg-zinc-50 text-xs font-bold text-zinc-600 uppercase">Items</div>';
+    results.items.forEach(item => {
+      html += `
+        <button onclick="addItemToCart('${item.id}', '${item.name.replace(/'/g, "\\'")}', ${item.price}, '${item.image.replace(/'/g, "\\'")}')" class="w-full text-left px-4 py-3 hover:bg-zinc-50 transition-colors flex items-center gap-3">
+          <img src="${item.image}" alt="${item.name}" class="w-10 h-10 rounded-lg object-cover" />
+          <div class="flex-1 min-w-0">
+            <div class="font-medium text-zinc-900">${item.name}</div>
+            <div class="text-xs text-zinc-500">${item.category} · ₹${item.price.toFixed(2)}</div>
+          </div>
+          <span class="material-symbols-outlined text-sm text-primary">add_shopping_cart</span>
+        </button>
+      `;
+    });
+    html += '</div>';
+  }
+  
+  container.innerHTML = html;
+}
+
+// Open global search modal
+function openGlobalSearch() {
+  const modal = document.getElementById('searchModal');
+  const backdrop = document.getElementById('searchBackdrop');
+  const input = document.getElementById('globalSearchInput');
+  
+  modal.classList.remove('opacity-0', 'pointer-events-none');
+  backdrop.classList.remove('opacity-0', 'pointer-events-none');
+  input.focus();
+}
+
+// Close global search modal
+function closeGlobalSearch() {
+  const modal = document.getElementById('searchModal');
+  const backdrop = document.getElementById('searchBackdrop');
+  const input = document.getElementById('globalSearchInput');
+  
+  modal.classList.add('opacity-0', 'pointer-events-none');
+  backdrop.classList.add('opacity-0', 'pointer-events-none');
+  input.value = '';
+  
+  const suggestions = document.getElementById('searchSuggestions');
+  suggestions.innerHTML = '<div class="p-8 text-center text-zinc-400"><p class="text-sm">Start typing to search items and categories...</p></div>';
+}
+
+// Handle real-time search input
+document.getElementById('globalSearchInput')?.addEventListener('input', (e) => {
+  const query = e.target.value;
+  if (query.length > 0) {
+    const results = performGlobalSearch(query);
+    renderSearchSuggestions(results);
+  } else {
+    const suggestions = document.getElementById('searchSuggestions');
+    suggestions.innerHTML = '<div class="p-8 text-center text-zinc-400"><p class="text-sm">Start typing to search items and categories...</p></div>';
+  }
+});
+
+// Close modal with Escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const modal = document.getElementById('searchModal');
+    if (!modal.classList.contains('opacity-0')) {
+      closeGlobalSearch();
+    }
+  }
+});
+
+// Navigate to category on menu page
+function navigateToCategory(category) {
+  closeGlobalSearch();
+  window.location.href = `menu.html#category=${encodeURIComponent(category)}`;
+}
+
+// Add item to cart from search
+function addItemToCart(itemId, itemName, itemPrice, itemImage) {
+  const cart = JSON.parse(localStorage.getItem('vrindavanCart') || '[]');
+  const existing = cart.find(e => e.productId === itemId);
+  
+  if (existing) {
+    existing.quantity += 1;
+  } else {
+    cart.push({
+      productId: itemId,
+      name: itemName,
+      price: itemPrice,
+      quantity: 1,
+      image: itemImage
+    });
+  }
+  
+  localStorage.setItem('vrindavanCart', JSON.stringify(cart));
+  closeGlobalSearch();
+  updateCartCount();
+  renderCartSidebar();
+  showToast(`${itemName} added to cart`, 'success');
+}
+
+// Make functions global
+window.openGlobalSearch = openGlobalSearch;
+window.closeGlobalSearch = closeGlobalSearch;
+window.navigateToCategory = navigateToCategory;
+window.addItemToCart = addItemToCart;
+
+// Load global menu data
+loadGlobalMenuData();
 </script>
 </body></html>

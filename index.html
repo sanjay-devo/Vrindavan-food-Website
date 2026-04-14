@@ -174,11 +174,42 @@
     <div class="cart-sidebar-footer mt-6 border-t border-zinc-200 pt-6">
         <div class="flex justify-between items-center mb-4">
             <span class="font-semibold text-zinc-700">Total</span>
-            <span id="cartTotal" class="text-2xl font-black text-primary">$0.00</span>
+            <span id="cartTotal" class="text-2xl font-black text-primary">₹0.00</span>
         </div>
         <button id="cartSidebarCheckoutButton" class="w-full bg-primary text-white py-4 rounded-full font-bold hover:bg-red-700 transition-all">View Cart</button>
     </div>
 </aside>
+
+<!-- Global Search Modal -->
+<div id="searchBackdrop" class="fixed inset-0 bg-black/50 opacity-0 pointer-events-none transition-opacity z-40" onclick="closeGlobalSearch()"></div>
+<div id="searchModal" class="fixed inset-0 flex items-start justify-center pt-20 opacity-0 pointer-events-none transition-opacity z-50 mt-4">
+  <div class="w-full max-w-2xl mx-4 bg-white rounded-2xl shadow-2xl overflow-hidden">
+    <!-- Search Input -->
+    <div class="border-b border-zinc-200 p-4">
+      <div class="flex items-center gap-3">
+        <span class="material-symbols-outlined text-zinc-400">search</span>
+        <input 
+          id="globalSearchInput" 
+          type="text" 
+          placeholder="Search items, categories... (type to see suggestions)" 
+          class="flex-1 bg-transparent border-none focus:outline-none text-lg"
+          autocomplete="off"
+        />
+        <button onclick="closeGlobalSearch()" class="text-zinc-400 hover:text-zinc-600">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Suggestions Container -->
+    <div id="searchSuggestions" class="max-h-96 overflow-y-auto">
+      <div class="p-8 text-center text-zinc-400">
+        <p class="text-sm">Start typing to search items and categories...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- TopNavBar -->
 <nav class="fixed top-0 w-full z-50 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl shadow-xl shadow-black/5 dark:shadow-none">
 <div class="flex justify-between items-center max-w-7xl mx-auto px-6 h-20">
@@ -195,7 +226,7 @@
 <a class="text-zinc-600 dark:text-zinc-400 font-medium hover:text-red-700 transition-colors" href="orders.html">Orders</a>
 </div>
 <div class="flex items-center space-x-4">
-<button class="text-zinc-600 hover:scale-105 transition-all"><span class="material-symbols-outlined">search</span></button>
+<button onclick="openGlobalSearch()" class="text-zinc-600 hover:scale-105 transition-all" title="Search items and categories"><span class="material-symbols-outlined">search</span></button>
 <div class="relative">
 <button id="openCartButton" class="text-zinc-600 hover:scale-105 transition-all"><span class="material-symbols-outlined">shopping_basket</span></button>
 <span id="cartCount" class="absolute -top-2 -right-2 bg-primary text-white text-[10px] rounded-full h-4 w-4 flex items-center justify-center">0</span>
@@ -241,7 +272,7 @@
 <img alt="Signature Pizza" class="w-full max-w-xl floating-element drop-shadow-2xl rounded-full" data-alt="overhead view of a large rustic pepperoni pizza with melting mozzarella and fresh basil on a floating wood platter" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWmc2anQ7ExbB8vE1PHcRHrqwyqFVV4IL13vukM2iIhrDNt0Zg2oMivdyBd6_fJWCxTT6vGTrnj2xEgEVFsIkiaByEJX1U8QjCyh6EWFQIu-nnenJq2PNXqL_WGgFNU-UIluxnjrc8nPf4I8hjvbFZEW4VJtcX1TxFgPxIxH1AN0c30KyLLi-Zxgta6ngEHBjFpAS-OWyuH57_EKLOIJz8PlU4Z17RmhiMMCcwF9xeD2Am8oFE0gIfOoiXWbyIXCG6hqYTTdn6sD8J"/>
 <div class="absolute top-10 right-0 lg:right-10 bg-secondary-container p-6 rounded-full w-28 h-28 flex flex-col items-center justify-center shadow-xl rotate-12 scale-110">
 <span class="text-xs font-bold text-on-secondary-container uppercase">Only</span>
-<span class="text-2xl font-black text-on-secondary-container">$39</span>
+<span class="text-2xl font-black text-on-secondary-container">₹399</span>
 </div>
 </div>
 </div>
@@ -309,7 +340,7 @@
 <span class="absolute top-0 right-4 bg-secondary-container text-[10px] font-black px-2 py-1 rounded-full uppercase">Hot</span>
 </div>
 <h4 class="font-headline text-xl font-bold mb-2">BBQ Chicken Pizza</h4>
-<p class="text-primary font-black text-xl mb-4">$25.00</p>
+<p class="text-primary font-black text-xl mb-4">₹250</p>
 <button class="bg-primary text-white w-full py-3 rounded-full font-bold opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 flex justify-center items-center">
 <span class="material-symbols-outlined mr-2">shopping_basket</span>
                         Add to Cart
@@ -321,7 +352,7 @@
 <img alt="Classic Burger" class="w-40 h-40 rounded-full mx-auto object-cover group-hover:rotate-12 transition-transform duration-500 shadow-lg" data-alt="stacked beef burger with dripping cheese and fresh vegetables" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDm3ZanrCcxnXa_C25ToZsnRu_jxQ2z8jJ6R_tzH4i9sYQ-wom8LJhfqyjyOf1Ek6bgc3L2hj77E2QKBnAkCM9_zvrHmaeCTN5AmsIUnAdwIPbJycjRRlH_8xYXFc4D3GDQg9m1sH10h3gBet-lyJLvTSR7OrCcNHJ0nt2QSU5Vx5t--3JK_fbALK3RKJqY99NcAmII2YSbrf5oLTyI1eFYHBXfZ-I1nwoQaOJf4Ko4gjwhRZ8XUo663tEeJwKwa8I_j3ogX7Yelsgc"/>
 </div>
 <h4 class="font-headline text-xl font-bold mb-2">King Cheese Burger</h4>
-<p class="text-primary font-black text-xl mb-4">$18.00</p>
+<p class="text-primary font-black text-xl mb-4">₹180</p>
 <button class="bg-primary text-white w-full py-3 rounded-full font-bold opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 flex justify-center items-center">
 <span class="material-symbols-outlined mr-2">shopping_basket</span>
                         Add to Cart
@@ -333,7 +364,7 @@
 <img alt="Spicy Pizza" class="w-40 h-40 rounded-full mx-auto object-cover group-hover:rotate-12 transition-transform duration-500 shadow-lg" data-alt="top-down photo of spicy margherita pizza with red chili flakes" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAqiP848x8n4GsWD-APQugNnCpN7smpMGRoUrSBWsxLIB47u38DMn_Me25TdCkeRsUBHmBnoQCR-ExXAOASv2BJszYlylXMFTrWtfaDPWMW-WKyslhrnbn1-2oYJlK0MFLSLZTDuIYyS-ZTO6-Agi6O6cpUflXIUqd4cTO5YR-im1BF12xmLOHkil86rZCT9e_gnTCp5Ay2wRFWbnIeoPULvYmqsCkuDAMowkcZ1fS42QB6FyO6Wjt-6r9q46t7Za8DWt9A4tscKsp"/>
 </div>
 <h4 class="font-headline text-xl font-bold mb-2">Spicy Margherita</h4>
-<p class="text-primary font-black text-xl mb-4">$22.00</p>
+<p class="text-primary font-black text-xl mb-4">₹220</p>
 <button class="bg-primary text-white w-full py-3 rounded-full font-bold opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 flex justify-center items-center">
 <span class="material-symbols-outlined mr-2">shopping_basket</span>
                         Add to Cart
@@ -345,7 +376,7 @@
 <img alt="Berry Donut" class="w-40 h-40 rounded-full mx-auto object-cover group-hover:rotate-12 transition-transform duration-500 shadow-lg" data-alt="glazed donut with colorful sprinkles on a bright platter" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAjTeZmHiCf_WKubf93gUIV2bis61FmUoQjKFmnGv9_bb3VTv29XvM7PbVKCtd3E-2cYGP4EOfL7dGObM5AmccyD_AkTMWJam40HB4f5-5nWNK52IexKDdvdZsmhytnzfYm9Pf5ASG3RolcsFbFR9URa-I9Eet2NJ3ilRiLO-y55qj1yHgh0GTj4kA6vGT_0Pi5LJ7o0pfUnR0-DrhmYE1X99UJpFz22upIgvsEpg65fSTw6D-SkJR_01K4QXR7RjbMDQtKIQcxDuRy"/>
 </div>
 <h4 class="font-headline text-xl font-bold mb-2">Berry Glazed Donut</h4>
-<p class="text-primary font-black text-xl mb-4">$4.50</p>
+<p class="text-primary font-black text-xl mb-4">₹45</p>
 <button class="bg-primary text-white w-full py-3 rounded-full font-bold opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 flex justify-center items-center">
 <span class="material-symbols-outlined mr-2">shopping_basket</span>
                         Add to Cart
@@ -460,8 +491,8 @@
 <span class="bg-white text-primary px-4 py-1 rounded-full font-bold text-sm mb-6 inline-block">Limited Edition</span>
 <h2 class="font-headline text-5xl md:text-7xl font-extrabold mb-8 leading-tight">Monster Chicken Burger</h2>
 <div class="flex items-center gap-6 mb-10">
-<span class="text-4xl font-black text-secondary-container">$29.00</span>
-<span class="text-xl text-zinc-300 line-through">$45.00</span>
+<span class="text-4xl font-black text-secondary-container">₹290</span>
+<span class="text-xl text-zinc-300 line-through">₹450</span>
 </div>
 <button class="bg-white text-primary px-10 py-4 rounded-full font-bold text-lg hover:scale-105 active:scale-95 transition-all shadow-xl">Grab It Now</button>
 </div>
@@ -479,7 +510,7 @@
 </div>
 <div>
 <h3 class="font-headline text-3xl font-black text-on-secondary-container">FREE DELIVERY</h3>
-<p class="text-on-secondary-container font-semibold opacity-80 uppercase tracking-widest text-sm">On all orders over $50</p>
+<p class="text-on-secondary-container font-semibold opacity-80 uppercase tracking-widest text-sm">On all orders over ₹500</p>
 </div>
 </div>
 <div class="flex items-center gap-4 bg-white/20 backdrop-blur-md px-8 py-4 rounded-full">
@@ -637,7 +668,7 @@ function renderCartSidebar() {
   cartSidebarItemsEl.innerHTML = '';
   if (!cart.length) {
     cartSidebarItemsEl.innerHTML = '<div class="rounded-[1.5rem] bg-surface p-6 text-zinc-500 text-center">Your cart is empty. Add tasty items from the menu.</div>';
-    if (cartSidebarTotalEl) cartSidebarTotalEl.textContent = '$0.00';
+    if (cartSidebarTotalEl) cartSidebarTotalEl.textContent = '₹0.00';
     return;
   }
   let total = 0;
@@ -651,9 +682,9 @@ function renderCartSidebar() {
         <div class="flex items-center justify-between gap-4">
           <div>
             <p class="font-semibold text-zinc-900">${item.name}</p>
-            <p class="text-sm text-zinc-500">$${item.price.toFixed(2)} each</p>
+            <p class="text-sm text-zinc-500">₹${item.price.toFixed(2)} each</p>
           </div>
-          <p class="font-black text-zinc-900">$${(item.quantity * item.price).toFixed(2)}</p>
+          <p class="font-black text-zinc-900">₹${(item.quantity * item.price).toFixed(2)}</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
           <button type="button" class="px-3 py-1 rounded-full border border-zinc-300 bg-white text-sm" data-action="decrease">-</button>
@@ -688,7 +719,7 @@ function renderCartSidebar() {
     });
     cartSidebarItemsEl.appendChild(itemEl);
   });
-  if (cartSidebarTotalEl) cartSidebarTotalEl.textContent = `$${total.toFixed(2)}`;
+  if (cartSidebarTotalEl) cartSidebarTotalEl.textContent = `₹${total.toFixed(2)}`;
 }
 
 openCartButton?.addEventListener('click', () => toggleCart(true));
@@ -713,5 +744,228 @@ logoutNavLink?.addEventListener('click', event => {
 const currentUser = getCurrentUser();
 setNavAuthLinks(currentUser);
 updateCartCount();
+
+// ===== GLOBAL SEARCH FUNCTIONALITY =====
+const dbUrl = 'https://vrindavan-website-default-rtdb.firebaseio.com';
+let allMenuData = [];
+
+// Fuzzy search algorithm - allows typos
+function fuzzyMatch(searchStr, targetStr) {
+  const search = searchStr.toLowerCase();
+  const target = targetStr.toLowerCase();
+  let searchIdx = 0;
+  let targetIdx = 0;
+  let score = 0;
+  
+  while (searchIdx < search.length && targetIdx < target.length) {
+    if (search[searchIdx] === target[targetIdx]) {
+      score += 1;
+      searchIdx++;
+    }
+    targetIdx++;
+  }
+  
+  // If all search chars were found, calculate match quality
+  if (searchIdx === search.length) {
+    return (score / target.length) * 100; // Return score out of 100
+  }
+  return 0; // No match
+}
+
+// Load menu items from Firebase
+async function loadGlobalMenuData() {
+  try {
+    const response = await fetch(`${dbUrl}/menu.json`);
+    const data = await response.json();
+    
+    if (data) {
+      allMenuData = Object.entries(data).map(([id, item]) => ({
+        id,
+        name: item.name || '',
+        category: item.category || '',
+        price: item.price || 0,
+        image: item.image || '',
+        type: 'item'
+      }));
+    }
+  } catch (error) {
+    console.error('Error loading menu data:', error);
+  }
+}
+
+// Get unique categories
+function getUniqueCategories() {
+  const categories = [...new Set(allMenuData.map(item => item.category).filter(Boolean))];
+  return categories.map(cat => ({ name: cat, type: 'category' }));
+}
+
+// Search items and categories
+function performGlobalSearch(query) {
+  if (!query.trim()) {
+    return { items: [], categories: [] };
+  }
+  
+  const searchQuery = query.toLowerCase();
+  
+  // Search items
+  const matchedItems = allMenuData
+    .map(item => ({
+      ...item,
+      score: Math.max(
+        fuzzyMatch(searchQuery, item.name),
+        fuzzyMatch(searchQuery, item.category) * 0.7
+      )
+    }))
+    .filter(item => item.score > 15)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 8);
+  
+  // Search categories
+  const allCategories = getUniqueCategories();
+  const matchedCategories = allCategories
+    .map(cat => ({
+      ...cat,
+      score: fuzzyMatch(searchQuery, cat.name)
+    }))
+    .filter(cat => cat.score > 15)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5);
+  
+  return { items: matchedItems, categories: matchedCategories };
+}
+
+// Render search results
+function renderSearchSuggestions(results) {
+  const container = document.getElementById('searchSuggestions');
+  
+  if (results.items.length === 0 && results.categories.length === 0) {
+    container.innerHTML = '<div class="p-8 text-center text-zinc-400"><p class="text-sm">No results found. Try different keywords.</p></div>';
+    return;
+  }
+  
+  let html = '';
+  
+  // Categories section
+  if (results.categories.length > 0) {
+    html += '<div class="border-b border-zinc-200">';
+    html += '<div class="px-4 py-3 bg-zinc-50 text-xs font-bold text-zinc-600 uppercase">Categories</div>';
+    results.categories.forEach(cat => {
+      html += `
+        <button onclick="navigateToCategory('${cat.name}')" class="w-full text-left px-4 py-3 hover:bg-zinc-50 transition-colors flex items-center gap-3">
+          <span class="material-symbols-outlined text-sm text-zinc-400">local_dining</span>
+          <span class="font-medium text-zinc-900">${cat.name}</span>
+        </button>
+      `;
+    });
+    html += '</div>';
+  }
+  
+  // Items section
+  if (results.items.length > 0) {
+    html += '<div class="border-b border-zinc-200">';
+    html += '<div class="px-4 py-3 bg-zinc-50 text-xs font-bold text-zinc-600 uppercase">Items</div>';
+    results.items.forEach(item => {
+      html += `
+        <button onclick="addItemToCart('${item.id}', '${item.name.replace(/'/g, "\\'")}', ${item.price}, '${item.image.replace(/'/g, "\\'")}')" class="w-full text-left px-4 py-3 hover:bg-zinc-50 transition-colors flex items-center gap-3">
+          <img src="${item.image}" alt="${item.name}" class="w-10 h-10 rounded-lg object-cover" />
+          <div class="flex-1 min-w-0">
+            <div class="font-medium text-zinc-900">${item.name}</div>
+            <div class="text-xs text-zinc-500">${item.category} · ₹${item.price.toFixed(2)}</div>
+          </div>
+          <span class="material-symbols-outlined text-sm text-primary">add_shopping_cart</span>
+        </button>
+      `;
+    });
+    html += '</div>';
+  }
+  
+  container.innerHTML = html;
+}
+
+// Open global search modal
+function openGlobalSearch() {
+  const modal = document.getElementById('searchModal');
+  const backdrop = document.getElementById('searchBackdrop');
+  const input = document.getElementById('globalSearchInput');
+  
+  modal.classList.remove('opacity-0', 'pointer-events-none');
+  backdrop.classList.remove('opacity-0', 'pointer-events-none');
+  input.focus();
+}
+
+// Close global search modal
+function closeGlobalSearch() {
+  const modal = document.getElementById('searchModal');
+  const backdrop = document.getElementById('searchBackdrop');
+  const input = document.getElementById('globalSearchInput');
+  
+  modal.classList.add('opacity-0', 'pointer-events-none');
+  backdrop.classList.add('opacity-0', 'pointer-events-none');
+  input.value = '';
+  
+  const suggestions = document.getElementById('searchSuggestions');
+  suggestions.innerHTML = '<div class="p-8 text-center text-zinc-400"><p class="text-sm">Start typing to search items and categories...</p></div>';
+}
+
+// Handle real-time search input
+document.getElementById('globalSearchInput')?.addEventListener('input', (e) => {
+  const query = e.target.value;
+  if (query.length > 0) {
+    const results = performGlobalSearch(query);
+    renderSearchSuggestions(results);
+  } else {
+    const suggestions = document.getElementById('searchSuggestions');
+    suggestions.innerHTML = '<div class="p-8 text-center text-zinc-400"><p class="text-sm">Start typing to search items and categories...</p></div>';
+  }
+});
+
+// Close modal with Escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const modal = document.getElementById('searchModal');
+    if (!modal.classList.contains('opacity-0')) {
+      closeGlobalSearch();
+    }
+  }
+});
+
+// Navigate to category on menu page
+function navigateToCategory(category) {
+  closeGlobalSearch();
+  window.location.href = `menu.html#category=${encodeURIComponent(category)}`;
+}
+
+// Add item to cart from search
+function addItemToCart(itemId, itemName, itemPrice, itemImage) {
+  const cart = JSON.parse(localStorage.getItem('vrindavanCart') || '[]');
+  const existing = cart.find(e => e.productId === itemId);
+  
+  if (existing) {
+    existing.quantity += 1;
+  } else {
+    cart.push({
+      productId: itemId,
+      name: itemName,
+      price: itemPrice,
+      quantity: 1,
+      image: itemImage
+    });
+  }
+  
+  localStorage.setItem('vrindavanCart', JSON.stringify(cart));
+  closeGlobalSearch();
+  updateCartCount();
+  renderCartSidebar();
+  showToast(`${itemName} added to cart`, 'success');
+}
+
+// Make functions global
+window.openGlobalSearch = openGlobalSearch;
+window.closeGlobalSearch = closeGlobalSearch;
+window.navigateToCategory = navigateToCategory;
+window.addItemToCart = addItemToCart;
+
+// Load menu data on page load
+loadGlobalMenuData();
 </script>
 </body></html>
