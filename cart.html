@@ -147,30 +147,31 @@ Order Online
 </div>
 </nav>
 <!-- Global Search Modal -->
-<div id="searchBackdrop" class="fixed inset-0 bg-black/50 opacity-0 pointer-events-none transition-opacity z-40" onclick="closeGlobalSearch()"></div>
+<div id="searchBackdrop" class="fixed inset-0 bg-black/60 opacity-0 pointer-events-none transition-opacity z-40" onclick="closeGlobalSearch()"></div>
 <div id="searchModal" class="fixed inset-0 flex items-start justify-center pt-20 opacity-0 pointer-events-none transition-opacity z-50 mt-4">
-  <div class="w-full max-w-2xl mx-4 bg-white rounded-2xl shadow-2xl overflow-hidden">
+  <div class="w-full max-w-2xl mx-4 bg-white rounded-3xl shadow-2xl overflow-hidden border border-zinc-100">
     <!-- Search Input -->
-    <div class="border-b border-zinc-200 p-4">
-      <div class="flex items-center gap-3">
-        <span class="material-symbols-outlined text-zinc-400">search</span>
+    <div class="bg-gradient-to-r from-primary/5 to-secondary-container/5 border-b border-zinc-200 p-5">
+      <div class="flex items-center gap-3 bg-white px-5 py-3 rounded-2xl border-2 border-primary/20 hover:border-primary/40 transition-all">
+        <span class="material-symbols-outlined text-primary text-2xl">search</span>
         <input 
           id="globalSearchInput" 
           type="text" 
           placeholder="Search items, categories... (type to see suggestions)" 
-          class="flex-1 bg-transparent border-none focus:outline-none text-lg"
+          class="flex-1 bg-transparent border-none focus:outline-none text-base font-medium"
           autocomplete="off"
         />
-        <button onclick="closeGlobalSearch()" class="text-zinc-400 hover:text-zinc-600">
-          <span class="material-symbols-outlined">close</span>
+        <button onclick="closeGlobalSearch()" class="text-zinc-400 hover:text-zinc-700 transition-colors p-1">
+          <span class="material-symbols-outlined text-xl">close</span>
         </button>
       </div>
     </div>
     
     <!-- Suggestions Container -->
-    <div id="searchSuggestions" class="max-h-96 overflow-y-auto">
+    <div id="searchSuggestions" class="max-h-[500px] overflow-y-auto bg-white">
       <div class="p-8 text-center text-zinc-400">
-        <p class="text-sm">Start typing to search items and categories...</p>
+        <span class="material-symbols-outlined text-4xl mb-3 block opacity-50">search</span>
+        <p class="text-sm">Type even 1 character to see suggestions...</p>
       </div>
     </div>
   </div>
@@ -543,7 +544,7 @@ updateCartCount();
 // Global variables for search
 let allMenuData = [];
 
-// Fuzzy match algorithm
+// Fuzzy match algorithm with bonus for prefix matches
 function fuzzyMatch(searchStr, targetStr) {
   const search = searchStr.toLowerCase();
   const target = targetStr.toLowerCase();
@@ -554,6 +555,10 @@ function fuzzyMatch(searchStr, targetStr) {
   while (searchIdx < search.length && targetIdx < target.length) {
     if (search[searchIdx] === target[targetIdx]) {
       score += 1;
+      // Bonus for matching at the start of words
+      if (targetIdx === 0 || target[targetIdx - 1] === ' ') {
+        score += 2;
+      }
       searchIdx++;
     }
     targetIdx++;
@@ -561,7 +566,12 @@ function fuzzyMatch(searchStr, targetStr) {
   
   // If all search chars were found, calculate match quality
   if (searchIdx === search.length) {
-    return (score / target.length) * 100; // Return score out of 100
+    let baseScore = (score / target.length) * 100;
+    // For single character searches, boost score if it's a prefix match
+    if (search.length === 1 && target[0] === search[0]) {
+      baseScore += 20; // Significant boost for first character
+    }
+    return baseScore;
   }
   return 0; // No match
 }
@@ -600,6 +610,8 @@ function performGlobalSearch(query) {
   }
   
   const searchQuery = query.toLowerCase();
+  const itemThreshold = query.length === 1 ? 3 : 15;
+  const categoryThreshold = query.length === 1 ? 3 : 15;
   
   // Search items
   const matchedItems = allMenuData
@@ -610,7 +622,7 @@ function performGlobalSearch(query) {
         fuzzyMatch(searchQuery, item.category) * 0.7
       )
     }))
-    .filter(item => item.score > 15)
+    .filter(item => item.score >= itemThreshold)
     .sort((a, b) => b.score - a.score)
     .slice(0, 8);
   
@@ -621,7 +633,7 @@ function performGlobalSearch(query) {
       ...cat,
       score: fuzzyMatch(searchQuery, cat.name)
     }))
-    .filter(cat => cat.score > 15)
+    .filter(cat => cat.score >= categoryThreshold)
     .sort((a, b) => b.score - a.score)
     .slice(0, 5);
   
@@ -633,7 +645,7 @@ function renderSearchSuggestions(results) {
   const container = document.getElementById('searchSuggestions');
   
   if (results.items.length === 0 && results.categories.length === 0) {
-    container.innerHTML = '<div class="p-8 text-center text-zinc-400"><p class="text-sm">No results found. Try different keywords.</p></div>';
+    container.innerHTML = '<div class="p-8 text-center text-zinc-400"><span class="material-symbols-outlined text-4xl mb-3 block opacity-50">inbox</span><p class="text-sm">No results found. Try different keywords.</p></div>';
     return;
   }
   
@@ -641,13 +653,14 @@ function renderSearchSuggestions(results) {
   
   // Categories section
   if (results.categories.length > 0) {
-    html += '<div class="border-b border-zinc-200">';
-    html += '<div class="px-4 py-3 bg-zinc-50 text-xs font-bold text-zinc-600 uppercase">Categories</div>';
+    html += '<div class="border-b border-zinc-100 bg-zinc-50/50">';
+    html += '<div class="px-5 py-3 text-xs font-bold text-zinc-600 uppercase tracking-wider flex items-center gap-2"><span class="material-symbols-outlined text-sm">category</span>Categories</div>';
     results.categories.forEach(cat => {
       html += `
-        <button onclick="navigateToCategory('${cat.name}')" class="w-full text-left px-4 py-3 hover:bg-zinc-50 transition-colors flex items-center gap-3">
-          <span class="material-symbols-outlined text-sm text-zinc-400">local_dining</span>
-          <span class="font-medium text-zinc-900">${cat.name}</span>
+        <button onclick="navigateToCategory('${cat.name}')" class="w-full text-left px-5 py-3.5 hover:bg-primary/5 transition-colors flex items-center gap-3 group active:scale-95">
+          <span class="material-symbols-outlined text-zinc-400 group-hover:text-primary transition-colors">folder_open</span>
+          <span class="font-semibold text-zinc-900 group-hover:text-primary transition-colors">${cat.name}</span>
+          <span class="ml-auto material-symbols-outlined text-zinc-300 group-hover:text-primary group-hover:translate-x-1 transition-all text-sm">arrow_forward</span>
         </button>
       `;
     });
@@ -656,18 +669,20 @@ function renderSearchSuggestions(results) {
   
   // Items section
   if (results.items.length > 0) {
-    html += '<div class="border-b border-zinc-200">';
-    html += '<div class="px-4 py-3 bg-zinc-50 text-xs font-bold text-zinc-600 uppercase">Items</div>';
+    html += '<div class="bg-white">';
+    html += '<div class="px-5 py-3 text-xs font-bold text-zinc-600 uppercase tracking-wider flex items-center gap-2"><span class="material-symbols-outlined text-sm">restaurant</span>Items</div>';
     results.items.forEach(item => {
       html += `
-        <button onclick="addItemToCart('${item.id}', '${item.name.replace(/'/g, "\\'")}', ${item.price}, '${item.image.replace(/'/g, "\\'")}')" class="w-full text-left px-4 py-3 hover:bg-zinc-50 transition-colors flex items-center gap-3">
-          <img src="${item.image}" alt="${item.name}" class="w-10 h-10 rounded-lg object-cover" />
-          <div class="flex-1 min-w-0">
-            <div class="font-medium text-zinc-900">${item.name}</div>
-            <div class="text-xs text-zinc-500">${item.category} · ₹${item.price.toFixed(2)}</div>
+        <div class="w-full text-left px-5 py-3.5 hover:bg-primary/5 transition-colors flex items-center gap-3 group border-b border-zinc-100 last:border-b-0 active:scale-95">
+          <img src="${item.image}" alt="${item.name}" class="w-12 h-12 rounded-lg object-cover flex-shrink-0 group-hover:scale-110 transition-transform" onerror="this.src='🍽️'" />
+          <div class="flex-1 min-w-0 cursor-pointer" onclick="navigateToItemMenu('${item.id}', '${item.name.replace(/'/g, "\\'")}')">
+            <div class="font-semibold text-zinc-900 group-hover:text-primary transition-colors truncate">${item.name}</div>
+            <div class="text-xs text-zinc-500">${item.category} · ₹${item.price.toFixed(0)}</div>
           </div>
-          <span class="material-symbols-outlined text-sm text-primary">add_shopping_cart</span>
-        </button>
+          <button onclick="addItemToCartFromSearch('${item.id}', '${item.name.replace(/'/g, "\\'")}', ${item.price}, '${item.image.replace(/'/g, "\\'")}')" class="flex-shrink-0 bg-primary text-white p-2 rounded-lg hover:bg-red-700 transition-colors group-hover:scale-110">
+            <span class="material-symbols-outlined text-base">add_shopping_cart</span>
+          </button>
+        </div>
       `;
     });
     html += '</div>';
@@ -704,12 +719,12 @@ function closeGlobalSearch() {
 // Handle real-time search input
 document.getElementById('globalSearchInput')?.addEventListener('input', (e) => {
   const query = e.target.value;
-  if (query.length > 0) {
+  if (query.length >= 1) {
     const results = performGlobalSearch(query);
     renderSearchSuggestions(results);
   } else {
     const suggestions = document.getElementById('searchSuggestions');
-    suggestions.innerHTML = '<div class="p-8 text-center text-zinc-400"><p class="text-sm">Start typing to search items and categories...</p></div>';
+    suggestions.innerHTML = '<div class="p-8 text-center text-zinc-400"><span class="material-symbols-outlined text-4xl mb-3 block opacity-50">search</span><p class="text-sm">Type even 1 character to see suggestions...</p></div>';
   }
 });
 
@@ -723,14 +738,22 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
+// Navigate to item on menu page with highlighting
+function navigateToItemMenu(itemId, itemName) {
+  sessionStorage.setItem('highlightItemId', itemId);
+  window.location.href = 'menu.html?highlight=' + itemId;
+  closeGlobalSearch();
+}
+
 // Navigate to category on menu page
 function navigateToCategory(category) {
+  sessionStorage.setItem('autoSelectCategory', category);
   closeGlobalSearch();
-  window.location.href = `menu.html#category=${encodeURIComponent(category)}`;
+  window.location.href = `menu.html?category=${encodeURIComponent(category)}`;
 }
 
 // Add item to cart from search
-function addItemToCart(itemId, itemName, itemPrice, itemImage) {
+function addItemToCartFromSearch(itemId, itemName, itemPrice, itemImage) {
   const cart = JSON.parse(localStorage.getItem('vrindavanCart') || '[]');
   const existing = cart.find(e => e.productId === itemId);
   
@@ -747,6 +770,9 @@ function addItemToCart(itemId, itemName, itemPrice, itemImage) {
   }
   
   localStorage.setItem('vrindavanCart', JSON.stringify(cart));
+  updateCartCount();
+  showToast(`✅ ${itemName} added to cart!`, 'success');
+}
   closeGlobalSearch();
   updateCartCount();
   renderCart();
