@@ -851,6 +851,21 @@ function closeGlobalSearch() {
   suggestions.innerHTML = '<div class="p-8 text-center text-zinc-400"><p class="text-sm">Start typing to search items and categories...</p></div>';
 }
 
+// Close search when clicking outside the modal white box
+document.addEventListener('click', (e) => {
+  const modal = document.getElementById('searchModal');
+  const modalContent = modal?.querySelector('div:first-child');
+  
+  // If modal is hidden, do nothing
+  if (!modal || modal.classList.contains('opacity-0')) return;
+  
+  // If clicking inside the white search box, don't close
+  if (modalContent?.contains(e.target)) return;
+  
+  // Otherwise close the search
+  closeGlobalSearch();
+}, true); // Use capture phase to catch clicks before they bubble
+
 // Handle real-time search input
 document.getElementById('globalSearchInput')?.addEventListener('input', (e) => {
   const query = e.target.value;
