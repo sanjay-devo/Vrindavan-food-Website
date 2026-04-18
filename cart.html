@@ -121,30 +121,97 @@
         <button id="cartSidebarCheckoutButton" class="w-full bg-primary text-white py-4 rounded-full font-bold hover:bg-red-700 transition-all">View Cart</button>
     </div>
 </aside>
+<!-- Mobile Menu Backdrop -->
+<div id="mobileMenuBackdrop" class="fixed inset-0 bg-black/50 opacity-0 pointer-events-none transition-opacity duration-300 z-40" onclick="toggleMobileMenu(false)"></div>
+
+<!-- Mobile Sidebar Menu -->
+<div id="mobileSidebar" class="fixed left-0 top-0 h-full w-64 bg-white dark:bg-zinc-900 shadow-2xl transform -translate-x-full transition-transform duration-300 z-50 overflow-y-auto flex flex-col">
+  <div class="p-6 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between flex-shrink-0">
+    <div class="text-2xl font-extrabold tracking-tighter text-red-700 dark:text-red-500">Vrindavan</div>
+    <button id="closeMobileMenuBtn" onclick="toggleMobileMenu(false)" class="md:hidden p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors">
+      <span class="material-symbols-outlined text-zinc-600 dark:text-zinc-400">close</span>
+    </button>
+  </div>
+  
+  <div class="flex-1 overflow-y-auto flex flex-col">
+    <div class="p-6 space-y-2">
+      <!-- Mobile Navigation Links -->
+      <a href="index.html" class="mobile-nav-link text-zinc-600 dark:text-zinc-400 font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800 block px-4 py-3 rounded-lg transition-colors">Home</a>
+      <a href="menu.html" class="mobile-nav-link text-zinc-600 dark:text-zinc-400 font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800 block px-4 py-3 rounded-lg transition-colors">Menu</a>
+      <a href="cart.html" class="mobile-nav-link text-red-700 dark:text-red-500 font-bold bg-red-50 dark:bg-red-950/30 block px-4 py-3 rounded-lg transition-colors">Cart</a>
+      <a href="orders.html" class="mobile-nav-link text-zinc-600 dark:text-zinc-400 font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800 block px-4 py-3 rounded-lg transition-colors">Orders</a>
+    </div>
+
+    <!-- Dynamic Categories Section -->
+    <div class="flex-1 px-6">
+      <div class="mb-4 flex items-center gap-2">
+        <span class="material-symbols-outlined text-zinc-500 text-sm">category</span>
+        <h3 class="text-xs uppercase tracking-widest font-bold text-zinc-600 dark:text-zinc-400">Categories</h3>
+      </div>
+      <div id="mobileCategoriesList" class="space-y-2">
+        <!-- Loading spinner -->
+        <div class="flex items-center justify-center py-4">
+          <div class="animate-spin">
+            <span class="material-symbols-outlined text-zinc-400">hourglass_empty</span>
+          </div>
+          <span class="ml-2 text-xs text-zinc-500">Loading categories...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Auth Section at Bottom -->
+  <div class="border-t border-zinc-200 dark:border-zinc-800 p-6 flex-shrink-0 space-y-3">
+    <a id="mobileLoginLink" href="login.html" class="mobile-nav-link text-zinc-600 dark:text-zinc-400 font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800 block px-4 py-3 rounded-lg transition-colors">Login</a>
+    <a id="mobileRegisterLink" href="register.html" class="mobile-nav-link text-zinc-600 dark:text-zinc-400 font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800 block px-4 py-3 rounded-lg transition-colors">Register</a>
+    <button id="mobileLogoutBtn" onclick="handleMobileLogout()" class="hidden mobile-nav-link text-zinc-600 dark:text-zinc-400 font-medium hover:bg-red-50 dark:hover:bg-red-950/30 w-full text-left px-4 py-3 rounded-lg transition-colors">Logout</button>
+    <div id="mobileUserInfo" class="hidden px-4 py-3 text-sm bg-zinc-50 dark:bg-zinc-800 rounded-lg">
+      <p class="text-zinc-600 dark:text-zinc-400 text-xs">Welcome</p>
+      <p id="mobileUserName" class="font-semibold text-zinc-900 dark:text-white truncate"></p>
+    </div>
+  </div>
+</div>
+
 <nav class="fixed top-0 w-full z-50 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl shadow-xl shadow-black/5 dark:shadow-none">
-<div class="flex justify-between items-center max-w-7xl mx-auto px-6 h-20">
-<div class="text-2xl font-extrabold tracking-tighter text-red-700 dark:text-red-500">Vrindavan</div>
-<div class="hidden md:flex space-x-8">
-<a class="text-zinc-600 dark:text-zinc-400 font-medium hover:text-red-700 transition-colors" href="index.html">Home</a>
-<a class="text-zinc-600 dark:text-zinc-400 font-medium hover:text-red-700 transition-colors" href="menu.html">Menu</a>
-<a class="text-red-700 dark:text-red-500 border-b-2 border-red-700 font-bold pb-1 transition-colors" href="cart.html">Cart</a>
-<a id="loginNavLink" class="text-zinc-600 dark:text-zinc-400 font-medium hover:text-red-700 transition-colors" href="login.html">Login</a>
-<a id="registerNavLink" class="text-zinc-600 dark:text-zinc-400 font-medium hover:text-red-700 transition-colors" href="register.html">Register</a>
-<a id="logoutNavLink" class="hidden text-zinc-600 dark:text-zinc-400 font-medium hover:text-red-700 transition-colors" href="#">Logout</a>
-<a class="text-zinc-600 dark:text-zinc-400 font-medium hover:text-red-700 transition-colors" href="orders.html">Orders</a>
-</div>
-<div class="flex items-center space-x-4">
-<button onclick="openGlobalSearch()" class="text-zinc-600 hover:scale-105 transition-all" title="Search items and categories"><span class="material-symbols-outlined">search</span></button>
-<div class="relative">
-<button id="openCartButton" class="text-zinc-600 hover:scale-105 transition-all"><span class="material-symbols-outlined">shopping_basket</span></button>
-<span id="cartCount" class="absolute -top-2 -right-2 bg-primary text-white text-[10px] rounded-full h-4 w-4 flex items-center justify-center">0</span>
-</div>
-<button id="orderOnlineButton" type="button" onclick="location.href='menu.html'" class="hidden lg:flex items-center bg-primary text-white px-6 py-2 rounded-full font-bold hover:scale-105 active:scale-95 transition-all">
-<span class="material-symbols-outlined mr-2">phone_in_talk</span>
-Order Online
-</button>
-</div>
-</div>
+  <div class="flex justify-between items-center max-w-7xl mx-auto px-4 sm:px-6 h-20">
+    <!-- Hamburger Button (Mobile) -->
+    <button id="hamburgerBtn" onclick="toggleMobileMenu(true)" class="md:hidden p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors">
+      <span class="material-symbols-outlined text-zinc-600 dark:text-zinc-400">menu</span>
+    </button>
+
+    <!-- Logo -->
+    <div class="text-xl sm:text-2xl font-extrabold tracking-tighter text-red-700 dark:text-red-500 md:mr-0">
+      Vrindavan
+    </div>
+
+    <!-- Desktop Menu -->
+    <div class="hidden md:flex space-x-8">
+      <a class="text-zinc-600 dark:text-zinc-400 font-medium hover:text-red-700 transition-colors" href="index.html">Home</a>
+      <a class="text-zinc-600 dark:text-zinc-400 font-medium hover:text-red-700 transition-colors" href="menu.html">Menu</a>
+      <a class="text-red-700 dark:text-red-500 border-b-2 border-red-700 font-bold pb-1 transition-colors" href="cart.html">Cart</a>
+      <a id="desktopLoginLink" class="text-zinc-600 dark:text-zinc-400 font-medium hover:text-red-700 transition-colors" href="login.html">Login</a>
+      <a id="desktopRegisterLink" class="text-zinc-600 dark:text-zinc-400 font-medium hover:text-red-700 transition-colors" href="register.html">Register</a>
+      <a id="desktopLogoutLink" class="hidden text-zinc-600 dark:text-zinc-400 font-medium hover:text-red-700 transition-colors cursor-pointer" onclick="handleDesktopLogout()">Logout</a>
+      <a class="text-zinc-600 dark:text-zinc-400 font-medium hover:text-red-700 transition-colors" href="orders.html">Orders</a>
+    </div>
+
+    <!-- Right Side Icons (Desktop & Mobile) -->
+    <div class="flex items-center space-x-2 sm:space-x-4">
+      <button onclick="openGlobalSearch()" class="p-2 text-zinc-600 dark:text-zinc-400 hover:scale-105 transition-all" title="Search items and categories">
+        <span class="material-symbols-outlined">search</span>
+      </button>
+      <div class="relative">
+        <button id="openCartButton" class="p-2 text-zinc-600 dark:text-zinc-400 hover:scale-105 transition-all">
+          <span class="material-symbols-outlined">shopping_basket</span>
+        </button>
+        <span id="cartCount" class="absolute -top-1 -right-1 bg-primary text-white text-[10px] rounded-full h-5 w-5 flex items-center justify-center font-bold">0</span>
+      </div>
+      <button id="orderOnlineButton" type="button" onclick="location.href='menu.html'" class="hidden lg:flex items-center bg-primary text-white px-6 py-2 rounded-full font-bold hover:scale-105 active:scale-95 transition-all text-sm">
+        <span class="material-symbols-outlined mr-2 text-lg">phone_in_talk</span>
+        Order Online
+      </button>
+    </div>
+  </div>
 </nav>
 <!-- Global Search Modal -->
 <div id="searchBackdrop" class="fixed inset-0 bg-black/60 opacity-0 pointer-events-none transition-opacity z-40" onclick="closeGlobalSearch()"></div>
@@ -226,9 +293,6 @@ const cartTotalEl = document.getElementById('cartTotal');
 const itemsTotalEl = document.getElementById('itemsTotal');
 const deliveryFeeEl = document.getElementById('deliveryFee');
 const checkoutButton = document.getElementById('checkoutButton');
-const loginNavLink = document.getElementById('loginNavLink');
-const registerNavLink = document.getElementById('registerNavLink');
-const logoutNavLink = document.getElementById('logoutNavLink');
 const openCartButton = document.getElementById('openCartButton');
 const closeCartButton = document.getElementById('closeCartButton');
 const cartPanel = document.getElementById('cartPanel');
@@ -305,10 +369,86 @@ function getCurrentUser() {
 }
 
 function setNavAuthLinks(user) {
-  if (loginNavLink) loginNavLink.style.display = user ? 'none' : '';
-  if (registerNavLink) registerNavLink.style.display = user ? 'none' : '';
-  if (logoutNavLink) logoutNavLink.style.display = user ? '' : 'none';
+  // Desktop Navigation
+  const desktopLoginLink = document.getElementById('desktopLoginLink');
+  const desktopRegisterLink = document.getElementById('desktopRegisterLink');
+  const desktopLogoutLink = document.getElementById('desktopLogoutLink');
+  
+  if (desktopLoginLink) desktopLoginLink.style.display = user ? 'none' : '';
+  if (desktopRegisterLink) desktopRegisterLink.style.display = user ? 'none' : '';
+  if (desktopLogoutLink) desktopLogoutLink.style.display = user ? '' : 'none';
+  
+  // Mobile Navigation
+  const mobileLoginLink = document.getElementById('mobileLoginLink');
+  const mobileRegisterLink = document.getElementById('mobileRegisterLink');
+  const mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
+  const mobileUserInfo = document.getElementById('mobileUserInfo');
+  const mobileUserName = document.getElementById('mobileUserName');
+  
+  if (user) {
+    if (mobileLoginLink) mobileLoginLink.style.display = 'none';
+    if (mobileRegisterLink) mobileRegisterLink.style.display = 'none';
+    if (mobileLogoutBtn) mobileLogoutBtn.style.display = 'block';
+    if (mobileUserInfo) {
+      mobileUserInfo.style.display = 'block';
+      if (mobileUserName) mobileUserName.textContent = user.fullName || user.email || 'User';
+    }
+  } else {
+    if (mobileLoginLink) mobileLoginLink.style.display = '';
+    if (mobileRegisterLink) mobileRegisterLink.style.display = '';
+    if (mobileLogoutBtn) mobileLogoutBtn.style.display = 'none';
+    if (mobileUserInfo) mobileUserInfo.style.display = 'none';
+  }
 }
+
+// Mobile Menu Functions
+function toggleMobileMenu(open) {
+  const mobileSidebar = document.getElementById('mobileSidebar');
+  const mobileMenuBackdrop = document.getElementById('mobileMenuBackdrop');
+  
+  if (open) {
+    mobileSidebar?.classList.remove('-translate-x-full');
+    mobileMenuBackdrop?.classList.remove('opacity-0', 'pointer-events-none');
+    mobileMenuBackdrop?.classList.add('opacity-100', 'pointer-events-auto');
+    document.body.style.overflow = 'hidden';
+  } else {
+    mobileSidebar?.classList.add('-translate-x-full');
+    mobileMenuBackdrop?.classList.add('opacity-0', 'pointer-events-none');
+    mobileMenuBackdrop?.classList.remove('opacity-100', 'pointer-events-auto');
+    document.body.style.overflow = '';
+  }
+}
+window.toggleMobileMenu = toggleMobileMenu;
+
+function handleMobileLogout() {
+  localStorage.removeItem('vrindavanUser');
+  toggleMobileMenu(false);
+  setTimeout(() => window.location.href = 'index.html', 300);
+}
+window.handleMobileLogout = handleMobileLogout;
+
+function handleDesktopLogout() {
+  localStorage.removeItem('vrindavanUser');
+  setTimeout(() => window.location.href = 'index.html', 300);
+}
+window.handleDesktopLogout = handleDesktopLogout;
+
+// Close mobile menu on navigation
+document.querySelectorAll('.mobile-nav-link').forEach(link => {
+  if (link.id !== 'mobileLogoutBtn') {
+    link.addEventListener('click', () => toggleMobileMenu(false));
+  }
+});
+
+// Handle mobile back button
+history.pushState(null, null, location.href);
+window.addEventListener('popstate', () => {
+  const mobileSidebar = document.getElementById('mobileSidebar');
+  if (mobileSidebar && !mobileSidebar.classList.contains('-translate-x-full')) {
+    toggleMobileMenu(false);
+    history.pushState(null, null, location.href);
+  }
+});
 
 function toggleCart(open) {
   cartPanel?.classList.toggle('open', open);
@@ -528,14 +668,6 @@ checkoutButton.addEventListener('click', async () => {
   }
 });
 
-logoutNavLink?.addEventListener('click', event => {
-  event.preventDefault();
-  localStorage.removeItem('vrindavanUser');
-  setNavAuthLinks(null);
-  showToast('Logged out successfully', 'success');
-  setTimeout(() => window.location.href = 'index.html', 300);
-});
-
 const currentUser = getCurrentUser();
 setNavAuthLinks(currentUser);
 renderCart();
@@ -543,6 +675,7 @@ updateCartCount();
 
 // Global variables for search
 let allMenuData = [];
+let isMenuDataLoaded = false;
 
 // Fuzzy match algorithm with bonus for prefix matches
 function fuzzyMatch(searchStr, targetStr) {
@@ -592,8 +725,10 @@ async function loadGlobalMenuData() {
         type: 'item'
       }));
     }
+    isMenuDataLoaded = true;
   } catch (error) {
     console.error('Error loading menu data:', error);
+    isMenuDataLoaded = true; // Mark as loaded even if error
   }
 }
 
@@ -719,11 +854,17 @@ function closeGlobalSearch() {
 // Handle real-time search input
 document.getElementById('globalSearchInput')?.addEventListener('input', (e) => {
   const query = e.target.value;
+  const suggestions = document.getElementById('searchSuggestions');
+  
+  if (!isMenuDataLoaded) {
+    suggestions.innerHTML = '<div class="p-8 text-center text-zinc-400"><span class="material-symbols-outlined text-4xl mb-3 block opacity-50 animate-spin">hourglass_empty</span><p class="text-sm">Loading menu items...</p></div>';
+    return;
+  }
+  
   if (query.length >= 1) {
     const results = performGlobalSearch(query);
     renderSearchSuggestions(results);
   } else {
-    const suggestions = document.getElementById('searchSuggestions');
     suggestions.innerHTML = '<div class="p-8 text-center text-zinc-400"><span class="material-symbols-outlined text-4xl mb-3 block opacity-50">search</span><p class="text-sm">Type even 1 character to see suggestions...</p></div>';
   }
 });
@@ -773,19 +914,139 @@ function addItemToCartFromSearch(itemId, itemName, itemPrice, itemImage) {
   updateCartCount();
   showToast(`✅ ${itemName} added to cart!`, 'success');
 }
-  closeGlobalSearch();
-  updateCartCount();
-  renderCart();
-  showToast(`${itemName} added to cart`, 'success');
-}
 
 // Make functions global
 window.openGlobalSearch = openGlobalSearch;
 window.closeGlobalSearch = closeGlobalSearch;
 window.navigateToCategory = navigateToCategory;
-window.addItemToCart = addItemToCart;
+window.addItemToCartFromSearch = addItemToCartFromSearch;
+
+// ========== DYNAMIC MOBILE MENU CATEGORIES ==========
+// Global cache for mobile categories
+let mobileCategoriesCache = null;
+let mobileCategoriesCacheTime = 0;
+const MOBILE_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+// Load and render categories in mobile menu
+async function loadMobileCategoriesFromFirebase() {
+  try {
+    const categoryContainer = document.getElementById('mobileCategoriesList');
+    if (!categoryContainer) return;
+
+    // Check if data is cached and still fresh
+    const now = Date.now();
+    if (mobileCategoriesCache && (now - mobileCategoriesCacheTime < MOBILE_CACHE_DURATION)) {
+      console.log('📱 Using cached mobile categories');
+      renderMobileCategories(mobileCategoriesCache);
+      return;
+    }
+
+    // Show loading state
+    categoryContainer.innerHTML = `
+      <div class="flex items-center justify-center py-4">
+        <div class="animate-spin">
+          <span class="material-symbols-outlined text-zinc-400">hourglass_empty</span>
+        </div>
+        <span class="ml-2 text-xs text-zinc-500">Loading...</span>
+      </div>
+    `;
+
+    // Fetch menu data from Firebase
+    const dbUrl = 'https://vrindavan-website-default-rtdb.firebaseio.com';
+    const response = await fetch(`${dbUrl}/menu.json`);
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch menu data');
+    }
+
+    const data = await response.json();
+    
+    // Extract unique categories from menu items
+    let categories = [];
+    if (data && typeof data === 'object' && Object.keys(data).length > 0) {
+      categories = [...new Set(
+        Object.values(data)
+          .map(item => item.category)
+          .filter(cat => cat && cat.trim())
+      )].sort();
+      
+      console.log('📱 Loaded mobile categories:', categories);
+    } else {
+      console.log('⚠️ No menu items found, showing empty categories');
+      categories = [];
+    }
+
+    // Cache the categories
+    mobileCategoriesCache = categories;
+    mobileCategoriesCacheTime = now;
+
+    // Render categories
+    renderMobileCategories(categories);
+  } catch (error) {
+    console.error('❌ Error loading mobile categories:', error);
+    renderMobileCategoriesError();
+  }
+}
+
+// Render categories in mobile menu
+function renderMobileCategories(categories) {
+  const categoryContainer = document.getElementById('mobileCategoriesList');
+  if (!categoryContainer) return;
+
+  if (!categories || categories.length === 0) {
+    categoryContainer.innerHTML = `
+      <div class="text-center py-4">
+        <span class="material-symbols-outlined text-zinc-300 text-2xl block mb-2">restaurant</span>
+        <p class="text-xs text-zinc-500">No categories available</p>
+        <p class="text-xs text-zinc-400 mt-1">Check back soon!</p>
+      </div>
+    `;
+    return;
+  }
+
+  categoryContainer.innerHTML = categories.map(category => `
+    <a href="menu.html?category=${encodeURIComponent(category)}" 
+       class="mobile-nav-link mobile-category-link flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-zinc-700 dark:text-zinc-300 hover:bg-primary/10 dark:hover:bg-primary/20 hover:text-primary dark:hover:text-primary transition-all group" 
+       data-category="${category}"
+       onclick="closeMobileMenuAfterDelay()">
+      <span class="material-symbols-outlined text-zinc-500 group-hover:text-primary transition-colors text-sm">folder_open</span>
+      <span class="font-medium flex-1 truncate">${category}</span>
+      <span class="material-symbols-outlined text-zinc-300 group-hover:text-primary transition-colors text-sm">arrow_forward</span>
+    </a>
+  `).join('');
+}
+
+// Show error state for categories
+function renderMobileCategoriesError() {
+  const categoryContainer = document.getElementById('mobileCategoriesList');
+  if (!categoryContainer) return;
+
+  categoryContainer.innerHTML = `
+    <div class="text-center py-4">
+      <span class="material-symbols-outlined text-red-300 text-2xl block mb-2">error_outline</span>
+      <p class="text-xs text-zinc-500">Failed to load categories</p>
+      <button onclick="loadMobileCategoriesFromFirebase()" class="mt-2 px-2 py-1 text-xs bg-primary text-white rounded hover:bg-red-700 transition-colors">
+        Retry
+      </button>
+    </div>
+  `;
+}
+
+// Helper to close mobile menu after brief delay
+function closeMobileMenuAfterDelay() {
+  setTimeout(() => toggleMobileMenu(false), 200);
+}
+
+// Make functions global
+window.loadMobileCategoriesFromFirebase = loadMobileCategoriesFromFirebase;
+window.closeMobileMenuAfterDelay = closeMobileMenuAfterDelay;
 
 // Load global menu data
 loadGlobalMenuData();
+
+// Load mobile categories after a brief delay to ensure DOM is ready
+setTimeout(() => {
+  loadMobileCategoriesFromFirebase();
+}, 100);
 </script>
 </body></html>

@@ -273,7 +273,72 @@
             box-shadow: 0 0 0 3px rgba(188, 0, 8, 0.1);
         }
         
+        
         /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            /* Sidebar responsiveness */
+            aside {
+                width: 100% !important;
+                position: fixed !important;
+                left: 0 !important;
+                top: 0 !important;
+                height: 100% !important;
+                transform: translateX(-100%);
+                transition: transform 300ms ease;
+                z-index: 40 !important;
+            }
+            
+            aside.open {
+                transform: translateX(0);
+            }
+            
+            /* Header responsiveness */
+            header {
+                width: 100% !important;
+                right: 0 !important;
+                left: 0 !important;
+            }
+            
+            /* Main content responsiveness */
+            main {
+                margin-left: 0 !important;
+                padding-top: 80px !important;
+            }
+            
+            #hamburgerBtn {
+                display: block !important;
+            }
+            
+            #sidebarBackdrop {
+                display: block !important;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            #hamburgerBtn {
+                display: none !important;
+            }
+            
+            #sidebarBackdrop {
+                display: none !important;
+            }
+        }
+        
+        #sidebarBackdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 30;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 300ms ease;
+        }
+        
+        #sidebarBackdrop.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
         @media (max-width: 640px) {
             .modal {
                 padding: 0.5rem;
@@ -355,6 +420,9 @@
 <!-- Toast Root -->
 <div id="toastRoot"></div>
 
+<!-- Sidebar Backdrop (Mobile) -->
+<div id="sidebarBackdrop" onclick="toggleSidebarMobile(false)"></div>
+
 <!-- Sidebar Navigation -->
 <aside class="h-screen w-64 fixed left-0 top-0 bg-surface-container-low dark:bg-slate-900 flex flex-col py-8 px-4 z-40 shadow-lg">
     <div class="mb-10 px-4">
@@ -396,6 +464,12 @@
 
 <!-- Top Navigation Bar -->
 <header class="fixed top-0 right-0 w-[calc(100%-16rem)] z-50 glass-header shadow-lg flex justify-between items-center px-8 h-16">
+    <!-- Hamburger Button (Mobile) -->
+    <button id="hamburgerBtn" onclick="toggleSidebarMobile(true)" class="p-2 hover:bg-surface-container rounded-lg transition-colors md:hidden">
+        <span class="material-symbols-outlined text-on-surface-variant">menu</span>
+    </button>
+    
+    <!-- Search Bar -->
     <div class="flex items-center flex-1 max-w-2xl">
         <div class="relative w-full">
             <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-primary text-lg">search</span>
@@ -927,6 +1001,30 @@ function showToast(message, type = 'success') {
         setTimeout(() => toast.remove(), 200);
     }, 3200);
 }
+
+// Mobile sidebar toggle function
+function toggleSidebarMobile(open) {
+    const sidebar = document.querySelector('aside');
+    const backdrop = document.getElementById('sidebarBackdrop');
+    
+    if (open) {
+        sidebar?.classList.add('open');
+        backdrop?.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    } else {
+        sidebar?.classList.remove('open');
+        backdrop?.classList.remove('show');
+        document.body.style.overflow = '';
+    }
+}
+window.toggleSidebarMobile = toggleSidebarMobile;
+
+// Close sidebar when clicking on a nav item
+document.querySelectorAll('aside nav a').forEach(link => {
+    link.addEventListener('click', () => {
+        toggleSidebarMobile(false);
+    });
+});
 
 // Get current user from localStorage
 function getCurrentUser() {
