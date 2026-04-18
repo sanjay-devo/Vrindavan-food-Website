@@ -172,18 +172,18 @@
 
 <nav class="fixed top-0 w-full z-50 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl shadow-xl shadow-black/5 dark:shadow-none">
   <div class="flex justify-between items-center max-w-7xl mx-auto px-4 sm:px-6 h-20">
-    <!-- Hamburger Button (Mobile) -->
-    <button id="hamburgerBtn" onclick="toggleMobileMenu(true)" class="md:hidden p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors">
-      <span class="material-symbols-outlined text-zinc-600 dark:text-zinc-400">menu</span>
-    </button>
-
-    <!-- Logo -->
-    <div class="text-xl sm:text-2xl font-extrabold tracking-tighter text-red-700 dark:text-red-500 md:mr-0">
-      Vrindavan
+    <!-- Left Side: Hamburger (Mobile) + Logo -->
+    <div class="flex items-center gap-3 md:flex-1">
+      <button id="hamburgerBtn" onclick="toggleMobileMenu(true)" class="md:hidden p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors">
+        <span class="material-symbols-outlined text-zinc-600 dark:text-zinc-400">menu</span>
+      </button>
+      <div class="text-lg sm:text-xl md:text-2xl font-extrabold tracking-tighter text-red-700 dark:text-red-500">
+        Vrindavan
+      </div>
     </div>
 
     <!-- Desktop Menu -->
-    <div class="hidden md:flex space-x-8">
+    <div class="hidden md:flex md:flex-1 justify-center space-x-8">
       <a class="text-zinc-600 dark:text-zinc-400 font-medium hover:text-red-700 transition-colors" href="index.html">Home</a>
       <a class="text-zinc-600 dark:text-zinc-400 font-medium hover:text-red-700 transition-colors" href="menu.html">Menu</a>
       <a class="text-zinc-600 dark:text-zinc-400 font-medium hover:text-red-700 transition-colors" href="cart.html">Cart</a>
@@ -193,14 +193,14 @@
       <a class="text-red-700 dark:text-red-500 font-bold border-b-2 border-red-700 pb-1 transition-colors" href="orders.html">Orders</a>
     </div>
 
-    <!-- Right Side Icons (Desktop & Mobile) -->
-    <div class="flex items-center space-x-2 sm:space-x-4">
+    <!-- Right Side Icons (Search, Cart, Order Button) -->
+    <div class="flex items-center gap-1.5 md:gap-3 md:flex-1 md:justify-end">
       <button onclick="openGlobalSearch()" class="p-2 text-zinc-600 dark:text-zinc-400 hover:scale-105 transition-all" title="Search items and categories">
-        <span class="material-symbols-outlined">search</span>
+        <span class="material-symbols-outlined text-xl">search</span>
       </button>
       <div class="relative">
         <button id="openCartButton" class="p-2 text-zinc-600 dark:text-zinc-400 hover:scale-105 transition-all">
-          <span class="material-symbols-outlined">shopping_basket</span>
+          <span class="material-symbols-outlined text-xl">shopping_basket</span>
         </button>
         <span id="cartCount" class="absolute -top-1 -right-1 bg-primary text-white text-[10px] rounded-full h-5 w-5 flex items-center justify-center font-bold">0</span>
       </div>
