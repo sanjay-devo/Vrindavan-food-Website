@@ -81,6 +81,23 @@
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
+        .filter-icon-active {
+            animation: filterPulse 0.6s ease-out;
+        }
+        @keyframes filterPulse {
+            0% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 0px rgba(188, 0, 8, 0));
+            }
+            50% {
+                transform: scale(1.2);
+                filter: drop-shadow(0 0 12px rgba(188, 0, 8, 0.6));
+            }
+            100% {
+                transform: scale(1.15);
+                filter: drop-shadow(0 0 8px rgba(188, 0, 8, 0.4));
+            }
+        }
         .glass-nav {
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(12px);
@@ -1012,6 +1029,7 @@ function filterMenu() {
   console.groupEnd();
   
   updateFilterDisplay();
+  syncCheckboxStates();
   renderMenu(filtered);
 }
 
@@ -1043,6 +1061,44 @@ function updateFilterDisplay() {
       tagEl.textContent = tag;
       filterTags.appendChild(tagEl);
     });
+  }
+  
+  // Update filter icon status
+  updateFilterIconStatus();
+}
+
+// Update filter icon to show active/inactive state
+function updateFilterIconStatus() {
+  const filterIcon = document.querySelector('aside .flex.items-center span.material-symbols-outlined');
+  const showVeg = filterVeg?.checked || false;
+  const showNonVeg = filterNonVeg?.checked || false;
+  const searchTerm = searchInput?.value.trim() || '';
+  const minPrice = Number(document.getElementById('priceRangeMin')?.value) || 0;
+  const maxPrice = Number(document.getElementById('priceRangeMax')?.value) || 5000;
+  
+  // Check if any filter is active
+  const hasAnyFilter = showVeg || showNonVeg || searchTerm || activeCategory !== 'all' || minPrice > 0 || maxPrice < 5000;
+  
+  if (!filterIcon) return;
+  
+  if (hasAnyFilter) {
+    // Active state: filled icon with vibrant styling
+    filterIcon.style.fontVariationSettings = "'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24";
+    filterIcon.style.color = '#bc0008'; // primary color - keep red
+    filterIcon.style.fontSize = '28px';
+    filterIcon.style.transition = 'all 300ms cubic-bezier(0.34, 1.56, 0.64, 1)';
+    filterIcon.style.filter = 'drop-shadow(0 0 8px rgba(188, 0, 8, 0.4))';
+    filterIcon.style.transform = 'scale(1.15)';
+    filterIcon.classList.add('filter-icon-active');
+  } else {
+    // Inactive state: normal styling
+    filterIcon.style.fontVariationSettings = "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24";
+    filterIcon.style.color = '#b91c1c'; // lighter red
+    filterIcon.style.fontSize = '24px';
+    filterIcon.style.transition = 'all 300ms cubic-bezier(0.34, 1.56, 0.64, 1)';
+    filterIcon.style.filter = 'drop-shadow(0 0 0px rgba(188, 0, 8, 0))';
+    filterIcon.style.transform = 'scale(1)';
+    filterIcon.classList.remove('filter-icon-active');
   }
 }
 
@@ -1639,10 +1695,42 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
+// Sync checkbox visual states with filter data
+function syncCheckboxStates() {
+  const showVeg = filterVeg?.checked || false;
+  const showNonVeg = filterNonVeg?.checked || false;
+  
+  // Update checkbox visual appearance
+  if (filterVeg) {
+    filterVeg.style.accentColor = showVeg ? '#bc0008' : '#999';
+  }
+  if (filterNonVeg) {
+    filterNonVeg.style.accentColor = showNonVeg ? '#bc0008' : '#999';
+  }
+}
+
+// Update category button visual state
+function updateCategoryButtonState() {
+  // Remove active state from all category buttons
+  document.querySelectorAll('#categoryPillBar [data-category]').forEach(el => {
+    el.classList.remove('bg-primary', 'text-white', 'shadow-lg', 'shadow-primary/30');
+    el.classList.add('bg-zinc-100', 'text-zinc-700');
+  });
+  
+  // Add active state to current category button
+  const activeButton = document.querySelector(`#categoryPillBar [data-category="${activeCategory}"]`);
+  if (activeButton) {
+    activeButton.classList.remove('bg-zinc-100', 'text-zinc-700');
+    activeButton.classList.add('bg-primary', 'text-white', 'shadow-lg', 'shadow-primary/30');
+  }
+}
+
 // Navigate to category on menu page
 function navigateToCategory(category) {
   closeGlobalSearch();
   activeCategory = category;
+  updateCategoryButtonState();
+  syncCheckboxStates();
   filterMenu();
   categoryPills.querySelector('[data-category]')?.scrollIntoView({behavior: 'smooth'});
 }
@@ -1803,6 +1891,7 @@ loadGlobalMenuData();
 // Load mobile categories after a brief delay to ensure DOM is ready
 setTimeout(() => {
   loadMobileCategoriesFromFirebase();
+  updateFilterIconStatus(); // Initialize filter icon status
 }, 100);
 
 currentUser = getCurrentUser();
@@ -1849,6 +1938,12 @@ window.debugMenu = function() {
 console.log('💡 Tip: Type window.debugMenu() in console to see all menu items');
 
 loadMenuItems();
+
+// Initialize checkbox states on page load
+setTimeout(() => {
+  syncCheckboxStates();
+  updateCategoryButtonState();
+}, 100);
 
 // Handle query parameters for highlighting and category selection after items load
 setTimeout(() => {
