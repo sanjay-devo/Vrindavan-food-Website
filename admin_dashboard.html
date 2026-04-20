@@ -48,7 +48,7 @@
             border-radius: 1rem;
             box-shadow: 0 25px 50px rgba(15, 23, 42, 0.15);
             color: white;
-            z-index: 9999;
+            z-index: 9999 !important;
             transform: translateY(-20px);
             opacity: 0;
             pointer-events: none;
@@ -278,14 +278,14 @@
         @media (max-width: 768px) {
             /* Sidebar responsiveness */
             aside {
-                width: 100% !important;
+                width: 75% !important;
                 position: fixed !important;
                 left: 0 !important;
                 top: 0 !important;
                 height: 100% !important;
                 transform: translateX(-100%);
                 transition: transform 300ms ease;
-                z-index: 40 !important;
+                z-index: 9998 !important;
             }
             
             aside.open {
@@ -325,10 +325,10 @@
         }
         
         #sidebarBackdrop {
-            position: fixed;
+            position: fixed !important;
             inset: 0;
             background: rgba(0, 0, 0, 0.5);
-            z-index: 30;
+            z-index: 9997 !important;
             opacity: 0;
             pointer-events: none;
             transition: opacity 300ms ease;
@@ -425,9 +425,14 @@
 
 <!-- Sidebar Navigation -->
 <aside class="h-screen w-64 fixed left-0 top-0 bg-surface-container-low dark:bg-slate-900 flex flex-col py-8 px-4 z-40 shadow-lg">
-    <div class="mb-10 px-4">
-        <h1 class="font-headline font-bold text-xl text-primary uppercase tracking-wider">Vrindavan</h1>
-        <p id="adminName" class="text-xs text-on-surface-variant font-medium mt-1">Admin Panel</p>
+    <div class="mb-10 px-4 flex items-center justify-between">
+        <div>
+            <h1 class="font-headline font-bold text-xl text-primary uppercase tracking-wider">Vrindavan</h1>
+            <p id="adminName" class="text-xs text-on-surface-variant font-medium mt-1">Admin Panel</p>
+        </div>
+        <button onclick="toggleSidebarMobile(false)" class="p-2 hover:bg-surface-container rounded-lg transition-colors md:hidden text-on-surface-variant">
+            <span class="material-symbols-outlined">close</span>
+        </button>
     </div>
     <nav class="flex-1 space-y-1">
         <a class="flex items-center px-4 py-3 rounded-lg text-primary dark:text-red-400 font-semibold hover:bg-white/50 dark:hover:bg-slate-800 transition-colors cursor-pointer" id="dashboardNav" onclick="showSection('dashboard')">
