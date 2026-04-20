@@ -180,17 +180,17 @@
   <div class="flex-1 overflow-y-auto flex flex-col">
     <div class="p-6 space-y-2">
       <!-- Mobile Navigation Links -->
-      <a href="index.html" class="mobile-nav-link text-zinc-600 dark:text-zinc-400 font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800 block px-4 py-3 rounded-lg transition-colors">Home</a>
-      <a href="menu.html" class="mobile-nav-link text-zinc-600 dark:text-zinc-400 font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800 block px-4 py-3 rounded-lg transition-colors">Menu</a>
-      <a href="account.html" class="mobile-nav-link text-zinc-600 dark:text-zinc-400 font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800 block px-4 py-3 rounded-lg transition-colors">Account</a>
+      <a href="index.html" class="mobile-nav-link text-zinc-600 dark:text-zinc-400 font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800 block px-4 py-3 rounded-lg transition-colors flex items-center gap-3"><span class="material-symbols-outlined text-lg">home</span> Home</a>
+      <a href="menu.html" class="mobile-nav-link text-zinc-600 dark:text-zinc-400 font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800 block px-4 py-3 rounded-lg transition-colors flex items-center gap-3"><span class="material-symbols-outlined text-lg">restaurant_menu</span> Menu</a>
+      <a href="account.html" class="mobile-nav-link text-zinc-600 dark:text-zinc-400 font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800 block px-4 py-3 rounded-lg transition-colors flex items-center gap-3"><span class="material-symbols-outlined text-lg">account_circle</span> Account</a>
     </div>
   </div>
   
   <!-- Auth Section at Bottom -->
   <div class="border-t border-zinc-200 dark:border-zinc-800 p-6 flex-shrink-0 space-y-3">
-    <a id="mobileLoginLink" href="login.html" class="mobile-nav-link text-zinc-600 dark:text-zinc-400 font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800 block px-4 py-3 rounded-lg transition-colors">Login</a>
-    <a id="mobileRegisterLink" href="register.html" class="mobile-nav-link text-zinc-600 dark:text-zinc-400 font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800 block px-4 py-3 rounded-lg transition-colors">Register</a>
-    <button id="mobileLogoutBtn" onclick="handleMobileLogout()" class="hidden mobile-nav-link text-zinc-600 dark:text-zinc-400 font-medium hover:bg-red-50 dark:hover:bg-red-950/30 w-full text-left px-4 py-3 rounded-lg transition-colors">Logout</button>
+    <a id="mobileLoginLink" href="login.html" class="mobile-nav-link text-zinc-600 dark:text-zinc-400 font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800 block px-4 py-3 rounded-lg transition-colors flex items-center gap-3"><span class="material-symbols-outlined text-lg">login</span> Login</a>
+    <a id="mobileRegisterLink" href="register.html" class="mobile-nav-link text-zinc-600 dark:text-zinc-400 font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800 block px-4 py-3 rounded-lg transition-colors flex items-center gap-3"><span class="material-symbols-outlined text-lg">person_add</span> Register</a>
+    <button id="mobileLogoutBtn" onclick="handleMobileLogout()" class="hidden mobile-nav-link text-zinc-600 dark:text-zinc-400 font-medium hover:bg-red-50 dark:hover:bg-red-950/30 w-full text-left px-4 py-3 rounded-lg transition-colors flex items-center gap-3"><span class="material-symbols-outlined text-lg">logout</span> Logout</button>
     <div id="mobileUserInfo" class="hidden px-4 py-3 text-sm bg-zinc-50 dark:bg-zinc-800 rounded-lg">
       <p class="text-zinc-600 dark:text-zinc-400 text-xs">Welcome</p>
       <p id="mobileUserName" class="font-semibold text-zinc-900 dark:text-white truncate"></p>
@@ -344,7 +344,7 @@ function setNavAuthLinks(user) {
   if (user) {
     if (mobileLoginLink) mobileLoginLink.style.display = 'none';
     if (mobileRegisterLink) mobileRegisterLink.style.display = 'none';
-    if (mobileLogoutBtn) mobileLogoutBtn.style.display = 'block';
+    if (mobileLogoutBtn) mobileLogoutBtn.style.display = 'flex';
     if (mobileUserInfo) {
       mobileUserInfo.style.display = 'block';
       if (mobileUserName) mobileUserName.textContent = user.fullName || user.email || 'User';
