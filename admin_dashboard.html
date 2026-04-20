@@ -412,6 +412,43 @@
             background: #e1e2e5;
             border-radius: 10px;
         }
+        
+        /* Animated Hamburger Menu */
+        .hamburger {
+            cursor: pointer;
+        }
+
+        .hamburger input {
+            display: none;
+        }
+
+        .hamburger svg {
+            height: 3em;
+            transition: transform 600ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .line {
+            fill: none;
+            stroke: #bc0008;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-width: 3;
+            transition: stroke-dasharray 600ms cubic-bezier(0.4, 0, 0.2, 1),
+                stroke-dashoffset 600ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .line-top-bottom {
+            stroke-dasharray: 12 63;
+        }
+
+        .hamburger input:checked + svg {
+            transform: rotate(-45deg);
+        }
+
+        .hamburger input:checked + svg .line-top-bottom {
+            stroke-dasharray: 20 300;
+            stroke-dashoffset: -32.42;
+        }
     </style>
 </head>
 
@@ -469,10 +506,17 @@
 
 <!-- Top Navigation Bar -->
 <header class="fixed top-0 right-0 w-[calc(100%-16rem)] z-50 glass-header shadow-lg flex justify-between items-center px-8 h-16">
-    <!-- Hamburger Button (Mobile) -->
-    <button id="hamburgerBtn" onclick="toggleSidebarMobile(true)" class="p-2 hover:bg-surface-container rounded-lg transition-colors md:hidden">
-        <span class="material-symbols-outlined text-on-surface-variant">menu</span>
-    </button>
+    <!-- Animated Hamburger Button (Mobile) -->
+    <label class="hamburger md:hidden" id="hamburgerBtn">
+        <input type="checkbox" onchange="handleHamburgerToggle(this)" />
+        <svg viewBox="0 0 32 32" class="h-8 w-8">
+            <path
+                d="M27 10 13 10C10.8 10 9 8.2 9 6 9 3.5 10.8 2 13 2 15.2 2 17 3.8 17 6L17 26C17 28.2 18.8 30 21 30 23.2 30 25 28.2 25 26 25 23.8 23.2 22 21 22L7 22"
+                class="line line-top-bottom"
+            ></path>
+            <path d="M7 16 27 16" class="line"></path>
+        </svg>
+    </label>
     
     <!-- Search Bar -->
     <div class="flex items-center flex-1 max-w-2xl">
@@ -1011,18 +1055,28 @@ function showToast(message, type = 'success') {
 function toggleSidebarMobile(open) {
     const sidebar = document.querySelector('aside');
     const backdrop = document.getElementById('sidebarBackdrop');
+    const hamburgerCheckbox = document.querySelector('.hamburger input');
     
     if (open) {
         sidebar?.classList.add('open');
         backdrop?.classList.add('show');
         document.body.style.overflow = 'hidden';
+        if (hamburgerCheckbox) hamburgerCheckbox.checked = true;
     } else {
         sidebar?.classList.remove('open');
         backdrop?.classList.remove('show');
         document.body.style.overflow = '';
+        if (hamburgerCheckbox) hamburgerCheckbox.checked = false;
     }
 }
+
+// Handle hamburger checkbox toggle
+function handleHamburgerToggle(checkbox) {
+    toggleSidebarMobile(checkbox.checked);
+}
+
 window.toggleSidebarMobile = toggleSidebarMobile;
+window.handleHamburgerToggle = handleHamburgerToggle;
 
 // Close sidebar when clicking on a nav item
 document.querySelectorAll('aside nav a').forEach(link => {
