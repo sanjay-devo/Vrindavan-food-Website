@@ -297,6 +297,61 @@
                 width: 100% !important;
                 right: 0 !important;
                 left: 0 !important;
+                padding: 0 0.75rem !important;
+                gap: 0.5rem !important;
+                flex-wrap: nowrap;
+            }
+            
+            header > div:first-child {
+                flex: 1 !important;
+                min-width: 0 !important;
+                gap: 0.5rem !important;
+                align-items: center;
+            }
+            
+            header .hamburger {
+                flex-shrink: 0;
+            }
+            
+            header h2 {
+                font-size: 1rem !important;
+                letter-spacing: 0.05em !important;
+            }
+            
+            /* Search bar container - stretch on mobile */
+            header > div:first-child > div {
+                flex: 1 !important;
+                min-width: 0 !important;
+                width: 100% !important;
+            }
+            
+            /* Search bar responsive */
+            header > div:last-child {
+                gap: 0.5rem !important;
+                margin-left: auto !important;
+                flex-shrink: 0;
+                min-width: 0;
+            }
+            
+            header input[type="text"] {
+                font-size: 0.8rem !important;
+                padding: 0.5rem 0.75rem !important;
+                padding-left: 2rem !important;
+                width: 100% !important;
+            }
+            
+            header .relative {
+                width: 100% !important;
+            }
+            
+            /* Notification button */
+            header button {
+                padding: 0.375rem !important;
+                flex-shrink: 0;
+            }
+            
+            header .material-symbols-outlined {
+                font-size: 1.25rem !important;
             }
             
             /* Main content responsiveness */
@@ -311,6 +366,78 @@
             
             #sidebarBackdrop {
                 display: block !important;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            header {
+                padding: 0 0.5rem !important;
+                gap: 0.25rem !important;
+            }
+            
+            header > div:first-child {
+                gap: 0.25rem !important;
+            }
+            
+            header > div:first-child > div {
+                flex: 1 !important;
+                min-width: 0 !important;
+                gap: 0.25rem !important;
+            }
+            
+            header > div:first-child {
+                gap: 0.25rem !important;
+            }
+            
+            header .hamburger svg {
+                height: 1.5rem !important;
+                width: 1.5rem !important;
+            }
+            
+            header h2 {
+                font-size: 0.9rem !important;
+                letter-spacing: 0.025em !important;
+            }
+            
+            header > div:last-child {
+                gap: 0.25rem !important;
+            }
+            
+            header input[type="text"] {
+                font-size: 0.75rem !important;
+                padding: 0.375rem 0.5rem !important;
+                padding-left: 1.75rem !important;
+                width: 100% !important;
+            }
+            
+            header .relative {
+                width: 100% !important;
+            }
+            
+            header .material-symbols-outlined {
+                font-size: 1.1rem !important;
+            }
+            
+            header button {
+                padding: 0.25rem !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            header {
+                padding: 0 0.375rem !important;
+            }
+            
+            header h2 {
+                display: none;
+            }
+            
+            header input[type="text"]::placeholder {
+                font-size: 0.6rem !important;
+            }
+            
+            header input[type="text"] {
+                font-size: 0.65rem !important;
             }
         }
         
@@ -506,28 +633,34 @@
 
 <!-- Top Navigation Bar -->
 <header class="fixed top-0 right-0 w-[calc(100%-16rem)] z-50 glass-header shadow-lg flex justify-between items-center px-8 h-16">
-    <!-- Animated Hamburger Button (Mobile) -->
-    <label class="hamburger md:hidden" id="hamburgerBtn">
-        <input type="checkbox" onchange="handleHamburgerToggle(this)" />
-        <svg viewBox="0 0 32 32" class="h-8 w-8">
-            <path
-                d="M27 10 13 10C10.8 10 9 8.2 9 6 9 3.5 10.8 2 13 2 15.2 2 17 3.8 17 6L17 26C17 28.2 18.8 30 21 30 23.2 30 25 28.2 25 26 25 23.8 23.2 22 21 22L7 22"
-                class="line line-top-bottom"
-            ></path>
-            <path d="M7 16 27 16" class="line"></path>
-        </svg>
-    </label>
-    
-    <!-- Search Bar -->
-    <div class="flex items-center flex-1 max-w-2xl">
-        <div class="relative w-full">
-            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-primary text-lg">search</span>
-            <input autocomplete="off" class="w-full pl-10 pr-4 py-2.5 bg-gradient-to-r from-surface-container-low to-surface-container-low border-2 border-primary/10 hover:border-primary/30 focus:border-primary rounded-xl focus:ring-2 focus:ring-primary/20 text-sm placeholder-on-surface-variant/60 font-medium transition-all" placeholder="Search customers by name/email/phone, menu items, or orders..." type="text" id="searchInput"/>
-            <div id="searchResults" class="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-surface-container max-h-96 overflow-y-auto hidden z-50"></div>
+    <!-- Left section: Hamburger (mobile) + Search Bar (desktop) -->
+    <div class="flex items-center gap-3 flex-1">
+        <!-- Animated Hamburger Button (Mobile) -->
+        <label class="hamburger md:hidden" id="hamburgerBtn">
+            <input type="checkbox" onchange="handleHamburgerToggle(this)" />
+            <svg viewBox="0 0 32 32" class="h-8 w-8">
+                <path
+                    d="M27 10 13 10C10.8 10 9 8.2 9 6 9 3.5 10.8 2 13 2 15.2 2 17 3.8 17 6L17 26C17 28.2 18.8 30 21 30 23.2 30 25 28.2 25 26 25 23.8 23.2 22 21 22L7 22"
+                    class="line line-top-bottom"
+                ></path>
+                <path d="M7 16 27 16" class="line"></path>
+            </svg>
+        </label>
+        
+        <!-- Search Bar - visible on all devices, fills available space -->
+        <div class="flex items-center flex-1 gap-2">
+            <div class="relative w-full">
+                <span class="material-symbols-outlined absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 text-primary text-base sm:text-lg">search</span>
+                <input autocomplete="off" class="w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-2.5 bg-gradient-to-r from-surface-container-low to-surface-container-low border-2 border-primary/10 hover:border-primary/30 focus:border-primary rounded-lg sm:rounded-xl focus:ring-2 focus:ring-primary/20 text-xs sm:text-sm placeholder-on-surface-variant/60 font-medium transition-all" placeholder="Search orders, customers, menu, categories..." type="text" id="searchInput"/>
+                <div id="searchResults" class="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-surface-container max-h-96 overflow-y-auto hidden z-50"></div>
+            </div>
         </div>
     </div>
-    <div class="flex items-center gap-4 ml-6">
-        <button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors relative">
+    
+    <!-- Right section: Notification -->
+    <div class="flex items-center gap-3">
+        <!-- Notification Bell -->
+        <button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors relative flex-shrink-0">
             <span class="material-symbols-outlined">notifications</span>
             <span id="notificationBadge" class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full border-2 border-white hidden"></span>
         </button>
