@@ -576,6 +576,596 @@
             stroke-dasharray: 20 300;
             stroke-dashoffset: -32.42;
         }
+
+        /* ========== MOBILE RESPONSIVE ORDERS SECTION ========== */
+        @media (max-width: 768px) {
+            /* Orders section header - stack vertically */
+            #orders-section .bg-surface-container-lowest > div:first-child {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 1rem !important;
+                padding: 1rem !important;
+            }
+
+            #orders-section h4 {
+                font-size: 1.1rem !important;
+                margin: 0 !important;
+            }
+
+            #orders-section .flex.gap-3 {
+                width: 100% !important;
+                flex-direction: column !important;
+                gap: 0.75rem !important;
+            }
+
+            #orders-section .flex.gap-3 .relative {
+                width: 100% !important;
+            }
+
+            #orders-section select {
+                width: 100% !important;
+                font-size: 0.9rem !important;
+                padding: 0.625rem 2.5rem 0.625rem 0.75rem !important;
+            }
+
+            #orders-section #orderCountBadge {
+                width: 100% !important;
+                text-align: center !important;
+                padding: 0.625rem !important;
+                font-size: 0.85rem !important;
+            }
+
+            /* Orders table responsive */
+            #orders-section .overflow-x-auto {
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+
+            #orders-section table {
+                font-size: 0.8rem !important;
+                min-width: 600px !important;
+            }
+
+            #orders-section thead tr {
+                background: #f8f9fc !important;
+            }
+
+            #orders-section th {
+                padding: 0.5rem 0.75rem !important;
+                font-size: 0.7rem !important;
+                text-transform: uppercase !important;
+                letter-spacing: 0.5px !important;
+            }
+
+            #orders-section td {
+                padding: 0.625rem 0.75rem !important;
+                font-size: 0.8rem !important;
+            }
+
+            #orders-section tbody tr {
+                border-bottom: 1px solid #e8e8e8 !important;
+                transition: background-color 150ms ease !important;
+            }
+
+            #orders-section tbody tr:hover {
+                background: #f8f9fc !important;
+            }
+
+            /* Order ID column - truncate if needed */
+            #orders-section td:nth-child(1) {
+                font-weight: 600 !important;
+                max-width: 100px !important;
+                word-break: break-word !important;
+            }
+
+            /* Action buttons in table */
+            #orders-section button[onclick*="openEditOrder"] {
+                padding: 0.4rem 0.6rem !important;
+                font-size: 0.7rem !important;
+                border-radius: 0.375rem !important;
+                white-space: nowrap !important;
+            }
+
+            /* Status badge styling */
+            #orders-section td:nth-child(4) {
+                font-weight: 500 !important;
+                white-space: nowrap !important;
+            }
+        }
+
+        @media (max-width: 640px) {
+            #orders-section .mb-8 h2 {
+                font-size: 1.5rem !important;
+            }
+
+            #orders-section .mb-8 p {
+                font-size: 0.75rem !important;
+                margin-top: 0.25rem !important;
+            }
+
+            #orders-section .bg-surface-container-lowest {
+                border-radius: 0.75rem !important;
+                overflow: hidden !important;
+            }
+
+            #orders-section .bg-surface-container-lowest > div:first-child {
+                padding: 0.875rem !important;
+                gap: 0.5rem !important;
+            }
+
+            #orders-section h4 {
+                font-size: 1rem !important;
+            }
+
+            #orders-section .flex.gap-3 {
+                gap: 0.5rem !important;
+            }
+
+            #orders-section select {
+                font-size: 0.8rem !important;
+                padding: 0.5rem 2rem 0.5rem 0.625rem !important;
+            }
+
+            #orders-section #orderCountBadge {
+                font-size: 0.75rem !important;
+                padding: 0.5rem !important;
+            }
+
+            #orders-section table {
+                font-size: 0.75rem !important;
+            }
+
+            #orders-section th {
+                padding: 0.4rem 0.5rem !important;
+                font-size: 0.65rem !important;
+            }
+
+            #orders-section td {
+                padding: 0.5rem 0.5rem !important;
+                font-size: 0.75rem !important;
+            }
+
+            #orders-section button[onclick*="openEditOrder"] {
+                padding: 0.35rem 0.5rem !important;
+                font-size: 0.65rem !important;
+            }
+
+            #orders-section td:nth-child(4) {
+                white-space: nowrap !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #orders-section .mb-8 h2 {
+                font-size: 1.25rem !important;
+                letter-spacing: -0.02em !important;
+            }
+
+            #orders-section .mb-8 p {
+                font-size: 0.7rem !important;
+            }
+
+            #orders-section .bg-surface-container-lowest > div:first-child {
+                padding: 0.75rem !important;
+                gap: 0.5rem !important;
+            }
+
+            #orders-section h4 {
+                font-size: 0.9rem !important;
+            }
+
+            #orders-section .flex.gap-3 {
+                gap: 0.375rem !important;
+            }
+
+            #orders-section select {
+                font-size: 0.75rem !important;
+                padding: 0.4rem 1.75rem 0.4rem 0.5rem !important;
+            }
+
+            #orders-section #orderCountBadge {
+                font-size: 0.7rem !important;
+                padding: 0.4rem !important;
+            }
+
+            #orders-section table {
+                font-size: 0.7rem !important;
+            }
+
+            #orders-section th {
+                padding: 0.35rem 0.375rem !important;
+                font-size: 0.6rem !important;
+            }
+
+            #orders-section td {
+                padding: 0.4rem 0.375rem !important;
+                font-size: 0.7rem !important;
+            }
+
+            #orders-section td:nth-child(1) {
+                max-width: 80px !important;
+                font-size: 0.65rem !important;
+            }
+
+            #orders-section button[onclick*="openEditOrder"] {
+                padding: 0.3rem 0.4rem !important;
+                font-size: 0.6rem !important;
+                border-radius: 0.25rem !important;
+            }
+
+            #orders-section td:nth-child(4) {
+                white-space: nowrap !important;
+            }
+        }
+
+        /* ========== MOBILE RESPONSIVE MENU SECTION ========== */
+        @media (max-width: 768px) {
+            /* Menu section header - stack vertically */
+            #menu-section .mb-8.flex {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 1rem !important;
+            }
+
+            #menu-section .mb-8 > div {
+                width: 100% !important;
+            }
+
+            #menu-section h2 {
+                font-size: 1.75rem !important;
+            }
+
+            #menu-section > div:first-child > button {
+                width: 100% !important;
+                justify-content: center !important;
+                padding: 0.75rem 1rem !important;
+                font-size: 0.95rem !important;
+                gap: 0.5rem !important;
+            }
+
+            /* Menu grid responsive */
+            #menu-section #menuGrid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 1rem !important;
+            }
+
+            #menu-section .menu-card {
+                border-radius: 0.75rem !important;
+                overflow: hidden !important;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+            }
+
+            #menu-section .menu-card img {
+                height: 150px !important;
+                object-fit: cover !important;
+            }
+
+            #menu-section .menu-card-content {
+                padding: 0.75rem !important;
+            }
+
+            #menu-section .menu-card h3 {
+                font-size: 0.95rem !important;
+                font-weight: 600 !important;
+                margin-bottom: 0.25rem !important;
+                line-height: 1.3 !important;
+            }
+
+            #menu-section .menu-card-category {
+                font-size: 0.7rem !important;
+                margin-bottom: 0.375rem !important;
+                text-transform: uppercase !important;
+                letter-spacing: 0.5px !important;
+            }
+
+            #menu-section .menu-card-price {
+                font-size: 0.9rem !important;
+                font-weight: 700 !important;
+                color: #bc0008 !important;
+                margin-bottom: 0.5rem !important;
+            }
+
+            #menu-section .menu-card-actions {
+                display: flex !important;
+                gap: 0.375rem !important;
+            }
+
+            #menu-section .menu-card-actions button {
+                flex: 1 !important;
+                padding: 0.4rem 0.5rem !important;
+                font-size: 0.7rem !important;
+                border-radius: 0.375rem !important;
+                white-space: nowrap !important;
+            }
+
+            #menu-section .menu-card-actions .edit-btn {
+                background: #bc0008 !important;
+                color: white !important;
+            }
+
+            #menu-section .menu-card-actions .delete-btn {
+                background: #ffebee !important;
+                color: #b71c1c !important;
+            }
+
+            #menu-section .dietary-badge {
+                display: inline-block !important;
+                font-size: 0.75rem !important;
+                padding: 0.2rem 0.4rem !important;
+                border-radius: 0.25rem !important;
+                margin-top: 0.375rem !important;
+            }
+        }
+
+        @media (max-width: 640px) {
+            #menu-section .mb-8 {
+                gap: 0.75rem !important;
+            }
+
+            #menu-section h2 {
+                font-size: 1.5rem !important;
+            }
+
+            #menu-section > div:first-child > div > p {
+                font-size: 0.75rem !important;
+                margin-top: 0.25rem !important;
+            }
+
+            #menu-section > div:first-child > button {
+                width: 100% !important;
+                padding: 0.625rem 0.75rem !important;
+                font-size: 0.85rem !important;
+            }
+
+            #menu-section #menuGrid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 0.75rem !important;
+            }
+
+            #menu-section .menu-card img {
+                height: 120px !important;
+            }
+
+            #menu-section .menu-card-content {
+                padding: 0.625rem !important;
+            }
+
+            #menu-section .menu-card h3 {
+                font-size: 0.85rem !important;
+                margin-bottom: 0.2rem !important;
+            }
+
+            #menu-section .menu-card-category {
+                font-size: 0.65rem !important;
+                margin-bottom: 0.25rem !important;
+            }
+
+            #menu-section .menu-card-price {
+                font-size: 0.8rem !important;
+                margin-bottom: 0.375rem !important;
+            }
+
+            #menu-section .menu-card-actions {
+                gap: 0.25rem !important;
+            }
+
+            #menu-section .menu-card-actions button {
+                padding: 0.35rem 0.375rem !important;
+                font-size: 0.65rem !important;
+            }
+
+            #menu-section .dietary-badge {
+                font-size: 0.65rem !important;
+                padding: 0.15rem 0.3rem !important;
+                margin-top: 0.25rem !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #menu-section .mb-8 {
+                gap: 0.625rem !important;
+            }
+
+            #menu-section h2 {
+                font-size: 1.25rem !important;
+                letter-spacing: -0.02em !important;
+            }
+
+            #menu-section > div:first-child > div > p {
+                font-size: 0.7rem !important;
+            }
+
+            #menu-section > div:first-child > button {
+                padding: 0.5rem 0.625rem !important;
+                font-size: 0.75rem !important;
+                gap: 0.25rem !important;
+            }
+
+            #menu-section > div:first-child > button .material-symbols-outlined {
+                font-size: 1rem !important;
+            }
+
+            #menu-section #menuGrid {
+                grid-template-columns: 1fr !important;
+                gap: 0.625rem !important;
+            }
+
+            #menu-section .menu-card {
+                display: flex !important;
+                flex-direction: row !important;
+            }
+
+            #menu-section .menu-card img {
+                height: 100px !important;
+                width: 100px !important;
+                min-width: 100px !important;
+                flex-shrink: 0 !important;
+            }
+
+            #menu-section .menu-card-content {
+                padding: 0.5rem !important;
+                flex: 1 !important;
+                display: flex !important;
+                flex-direction: column !important;
+            }
+
+            #menu-section .menu-card h3 {
+                font-size: 0.8rem !important;
+                margin-bottom: 0.15rem !important;
+                line-height: 1.2 !important;
+            }
+
+            #menu-section .menu-card-category {
+                font-size: 0.6rem !important;
+                margin-bottom: 0.15rem !important;
+            }
+
+            #menu-section .menu-card-price {
+                font-size: 0.75rem !important;
+                margin-bottom: 0.25rem !important;
+            }
+
+            #menu-section .menu-card-actions {
+                gap: 0.2rem !important;
+                flex-wrap: wrap !important;
+            }
+
+            #menu-section .menu-card-actions button {
+                flex: 1 !important;
+                min-width: 45px !important;
+                padding: 0.3rem 0.25rem !important;
+                font-size: 0.6rem !important;
+            }
+
+            #menu-section .dietary-badge {
+                font-size: 0.6rem !important;
+                padding: 0.1rem 0.25rem !important;
+                margin-top: 0.15rem !important;
+            }
+        }
+
+        /* ========== MOBILE RESPONSIVE CUSTOMERS SECTION ========== */
+        @media (max-width: 768px) {
+            #customers-section .mb-8 h2 {
+                font-size: 1.75rem !important;
+            }
+
+            #customers-section .mb-8 p {
+                font-size: 0.8rem !important;
+                margin-top: 0.25rem !important;
+            }
+
+            #customers-section .overflow-x-auto {
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+
+            #customers-section table {
+                font-size: 0.8rem !important;
+                min-width: 700px !important;
+            }
+
+            #customers-section thead tr {
+                background: #f8f9fc !important;
+            }
+
+            #customers-section th {
+                padding: 0.5rem 0.75rem !important;
+                font-size: 0.7rem !important;
+                text-transform: uppercase !important;
+                letter-spacing: 0.5px !important;
+                font-weight: 600 !important;
+            }
+
+            #customers-section td {
+                padding: 0.625rem 0.75rem !important;
+                font-size: 0.8rem !important;
+            }
+
+            #customers-section tbody tr {
+                border-bottom: 1px solid #e8e8e8 !important;
+                transition: background-color 150ms ease !important;
+            }
+
+            #customers-section tbody tr:hover {
+                background: #f8f9fc !important;
+            }
+
+            #customers-section button {
+                padding: 0.4rem 0.6rem !important;
+                font-size: 0.7rem !important;
+                border-radius: 0.375rem !important;
+            }
+
+            #customers-section .material-symbols-outlined {
+                font-size: 0.75rem !important;
+            }
+        }
+
+        @media (max-width: 640px) {
+            #customers-section .mb-8 h2 {
+                font-size: 1.5rem !important;
+            }
+
+            #customers-section .mb-8 p {
+                font-size: 0.75rem !important;
+            }
+
+            #customers-section table {
+                font-size: 0.75rem !important;
+            }
+
+            #customers-section th {
+                padding: 0.4rem 0.5rem !important;
+                font-size: 0.65rem !important;
+            }
+
+            #customers-section td {
+                padding: 0.5rem 0.5rem !important;
+                font-size: 0.75rem !important;
+            }
+
+            #customers-section button {
+                padding: 0.35rem 0.5rem !important;
+                font-size: 0.65rem !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #customers-section .mb-8 h2 {
+                font-size: 1.25rem !important;
+                letter-spacing: -0.02em !important;
+            }
+
+            #customers-section .mb-8 p {
+                font-size: 0.7rem !important;
+            }
+
+            #customers-section table {
+                font-size: 0.7rem !important;
+                min-width: 600px !important;
+            }
+
+            #customers-section th {
+                padding: 0.35rem 0.375rem !important;
+                font-size: 0.6rem !important;
+            }
+
+            #customers-section td {
+                padding: 0.4rem 0.375rem !important;
+                font-size: 0.7rem !important;
+            }
+
+            #customers-section button {
+                padding: 0.3rem 0.4rem !important;
+                font-size: 0.6rem !important;
+                border-radius: 0.25rem !important;
+            }
+
+            #customers-section .material-symbols-outlined {
+                font-size: 0.65rem !important;
+            }
+        }
     </style>
 </head>
 
@@ -1747,7 +2337,10 @@ async function loadMenuItems() {
 async function loadCustomers() {
     try {
         const usersData = await fetchJson('/users');
+        const ordersData = await fetchJson('/orders');
+        
         const usersEntries = usersData ? Object.entries(usersData) : [];
+        const orders = ordersData ? Object.values(ordersData) : [];
 
         // Filter non-admin users
         const customers = usersEntries.filter(([_, u]) => u.role !== 'admin');
@@ -1761,7 +2354,21 @@ async function loadCustomers() {
         }
 
         customers.forEach(([userId, customer]) => {
-            const joinDate = new Date(customer.createdAt || Date.now()).toLocaleDateString();
+            // Calculate customer statistics from orders
+            const customerOrders = orders.filter(order => {
+                const orderPhone = order.consumer_phone || order.userInfo?.mobile || '';
+                const orderEmail = order.consumer_email || order.userInfo?.email || '';
+                const customerPhone = customer.mobile || '';
+                const customerEmail = customer.email || '';
+                
+                // Match by phone or email
+                return (orderPhone && orderPhone === customerPhone) || 
+                       (orderEmail && orderEmail === customerEmail);
+            });
+
+            const totalOrders = customerOrders.length;
+            const totalSpent = customerOrders.reduce((sum, order) => sum + (parseFloat(order.total) || 0), 0);
+            
             const escapedName = (customer.fullName || 'Unknown').replace(/'/g, "\\'");
             const escapedEmail = (customer.email || '-').replace(/'/g, "\\'");
             
@@ -1771,8 +2378,8 @@ async function loadCustomers() {
                 <td class="px-6 py-4"><span class="text-sm font-bold">${customer.fullName || 'Unknown'}</span></td>
                 <td class="px-6 py-4"><span class="text-sm">${customer.email || '-'}</span></td>
                 <td class="px-6 py-4"><span class="text-sm">${customer.mobile || '-'}</span></td>
-                <td class="px-6 py-4"><span class="text-sm">0</span></td>
-                <td class="px-6 py-4"><span class="text-sm">₹0.00</span></td>
+                <td class="px-6 py-4"><span class="text-sm font-semibold">${totalOrders}</span></td>
+                <td class="px-6 py-4"><span class="text-sm font-semibold text-primary">₹${totalSpent.toFixed(2)}</span></td>
                 <td class="px-6 py-4 text-right">
                     <button onclick="openEditUserModal('${userId}', '${escapedName}', '${escapedEmail}', '${customer.role || 'user'}')" class="px-3 py-1 text-xs font-bold bg-primary text-white rounded hover:bg-red-700 transition-colors">
                         <span class="material-symbols-outlined inline text-sm">edit</span>
