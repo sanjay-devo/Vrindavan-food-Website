@@ -96,6 +96,123 @@
                 gap: 0.75rem;
             }
         }
+
+        /* Desktop Optimizations */
+        @media (min-width: 769px) {
+            main {
+                padding-top: 3rem !important;
+                padding-bottom: 4rem !important;
+            }
+
+            section {
+                padding: 4rem 3rem !important;
+                border-radius: 3.5rem !important;
+            }
+
+            .grid {
+                gap: 3rem !important;
+            }
+
+            /* Label styling */
+            .mobile-label {
+                letter-spacing: 0.08em !important;
+                font-size: 0.85rem !important;
+                margin-bottom: 1.5rem !important;
+                display: block !important;
+            }
+
+            /* Heading improvements */
+            h1 {
+                font-size: 3.5rem !important;
+                line-height: 1.15 !important;
+                margin-bottom: 1.5rem !important;
+                color: #0f1419 !important;
+                font-weight: 900 !important;
+                letter-spacing: -0.02em !important;
+            }
+
+            /* Description text */
+            p.text-zinc-600 {
+                font-size: 1.05rem !important;
+                line-height: 1.7 !important;
+                color: #52525b !important;
+                margin-bottom: 1.5rem !important;
+            }
+
+            /* Left content area */
+            .grid > div:first-child {
+                padding-right: 2rem !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: center !important;
+            }
+
+            /* Form card */
+            .bg-white {
+                padding: 3rem !important;
+                border-radius: 2.5rem !important;
+            }
+
+            /* Form inputs */
+            form {
+                gap: 1.5rem !important;
+            }
+
+            label {
+                font-size: 0.95rem !important;
+                color: #27272a !important;
+                margin-bottom: 0.75rem !important;
+                font-weight: 600 !important;
+            }
+
+            input {
+                padding: 1rem 1.5rem !important;
+                font-size: 1rem !important;
+                border-radius: 1.5rem !important;
+                transition: all 250ms ease !important;
+            }
+
+            input:focus {
+                border-color: #bc0008 !important;
+                box-shadow: 0 0 0 4px rgba(188, 0, 8, 0.1) !important;
+            }
+
+            /* Submit button */
+            button[type="submit"] {
+                padding: 1.25rem 2rem !important;
+                font-size: 1.05rem !important;
+                border-radius: 50px !important;
+                font-weight: 700 !important;
+                margin-top: 1rem !important;
+                letter-spacing: 0.5px !important;
+            }
+
+            button[type="submit"]:hover {
+                transform: translateY(-2px) !important;
+                box-shadow: 0 8px 24px rgba(188, 0, 8, 0.3) !important;
+            }
+
+            /* Footer text */
+            .pt-6 {
+                font-size: 0.95rem !important;
+            }
+        }
+
+        /* Hide info text on mobile devices */
+        @media (max-width: 768px) {
+            .hidden-mobile-info {
+                display: none !important;
+            }
+            
+            /* Center and align labels on mobile */
+            .mobile-label {
+                display: block !important;
+                text-align: center !important;
+                width: 100% !important;
+                margin-bottom: 1rem !important;
+            }
+        }
+
         .mobile-sidebar,
         #mobileSidebar {
             position: fixed !important;
@@ -297,9 +414,9 @@
 <section class="max-w-5xl mx-auto px-6 py-16 rounded-[3rem] bg-surface shadow-2xl shadow-black/10">
 <div class="grid md:grid-cols-2 gap-12 items-center">
 <div>
-<span class="text-primary font-bold text-sm uppercase tracking-[0.4em] mb-4 inline-block">Create account</span>
-<h1 class="text-5xl font-headline font-extrabold mb-6">Register for premium ordering and history.</h1>
-<p class="text-zinc-600 text-lg leading-relaxed mb-10">Sign up once and enjoy fast checkout, order tracking, and secure storage of your favorite meals.</p>
+<span class="text-primary font-bold text-sm uppercase tracking-[0.4em] mb-4 inline-block mobile-label">Create account</span>
+<h1 class="text-5xl font-headline font-extrabold mb-6 hidden-mobile-info">Register for premium ordering and history.</h1>
+<p class="text-zinc-600 text-lg leading-relaxed mb-10 hidden-mobile-info">Sign up once and enjoy fast checkout, order tracking, and secure storage of your favorite meals.</p>
 </div>
 <div class="bg-white rounded-[2rem] p-10 shadow-2xl shadow-black/10">
 <form id="registerForm" class="space-y-6">
