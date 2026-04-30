@@ -172,7 +172,32 @@
         }
         .toast {
             position: fixed !important;
+            right: 1rem;
+            top: 1rem;
+            min-width: 260px;
+            padding: 1rem 1.25rem;
+            border-radius: 1rem;
+            box-shadow: 0 25px 50px rgba(15, 23, 42, 0.15);
+            color: white;
             z-index: 9999 !important;
+            transform: translateY(-20px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 200ms ease, transform 200ms ease;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+        .toast-success {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+        }
+        .toast-error {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+        }
+        .toast-info {
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
         }
         .mobile-sidebar,
         #mobileSidebar {
@@ -596,13 +621,7 @@ let activeCategory = 'all';
 
 function showToast(message, type = 'success') {
   const toast = document.createElement('div');
-  const typeColors = {
-    'success': 'bg-emerald-500',
-    'error': 'bg-red-500',
-    'info': 'bg-blue-500',
-    'warning': 'bg-yellow-500'
-  };
-  toast.className = `fixed bottom-6 right-6 ${typeColors[type] || typeColors['success']} text-white px-6 py-3 rounded-full font-semibold shadow-lg toast toast-${type} z-50`;
+  toast.className = `toast toast-${type}`;
   toast.textContent = message;
   toastRoot.appendChild(toast);
   requestAnimationFrame(() => toast.classList.add('show'));
@@ -801,23 +820,25 @@ function renderCartSidebar() {
   cart.forEach(item => {
     total += item.price * item.quantity;
     const itemEl = document.createElement('div');
-    itemEl.className = 'cart-item-card';
+    itemEl.className = 'rounded-2xl border border-zinc-200 bg-white p-3 shadow-sm hover:shadow-md transition-shadow';
     itemEl.innerHTML = `
-      <img src="${item.image}" alt="${item.name}" class="rounded-3xl" />
-      <div class="space-y-3">
-        <div class="flex items-center justify-between gap-4">
+      <div class="flex gap-3 items-start">
+        <img src="${item.image}" alt="${item.name}" class="w-16 h-16 rounded-lg object-cover flex-shrink-0" />
+        <div class="flex-1 min-w-0 flex flex-col justify-between">
           <div>
-            <p class="font-semibold text-zinc-900">${item.name}</p>
-            <p class="text-sm text-zinc-500">${formatCurrency(item.price)} each</p>
+            <p class="font-semibold text-sm text-zinc-900 line-clamp-2">${item.name}</p>
+            <p class="text-xs text-zinc-600 mt-1">${formatCurrency(item.price)} each</p>
           </div>
-          <p class="font-black text-zinc-900">${formatCurrency(item.quantity * item.price)}</p>
+          <p class="text-sm font-black text-primary mt-1">${formatCurrency(item.quantity * item.price)}</p>
         </div>
-        <div class="flex flex-wrap items-center gap-2">
-          <button type="button" class="px-3 py-1 rounded-full border border-zinc-300 bg-white text-sm font-semibold hover:bg-zinc-50" data-action="decrease">−</button>
-          <span class="font-semibold text-sm w-6 text-center">${item.quantity}</span>
-          <button type="button" class="px-3 py-1 rounded-full border border-zinc-300 bg-white text-sm font-semibold hover:bg-zinc-50" data-action="increase">+</button>
-          <button type="button" class="ml-auto text-red-600 font-semibold text-sm hover:text-red-700" data-action="remove">Remove</button>
+      </div>
+      <div class="flex items-center justify-between gap-2 mt-3 pt-2 border-t border-zinc-200">
+        <div class="flex items-center gap-1 bg-zinc-100 rounded-full px-2 py-1">
+          <button type="button" class="w-5 h-5 flex items-center justify-center text-zinc-700 hover:text-primary text-sm font-bold" data-action="decrease">−</button>
+          <span class="font-semibold text-xs text-center w-4">${item.quantity}</span>
+          <button type="button" class="w-5 h-5 flex items-center justify-center text-zinc-700 hover:text-primary text-sm font-bold" data-action="increase">+</button>
         </div>
+        <button type="button" class="text-red-600 hover:text-red-700 text-xs font-semibold" data-action="remove">Remove</button>
       </div>
     `;
     

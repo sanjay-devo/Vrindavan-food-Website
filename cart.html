@@ -98,6 +98,176 @@
                 gap: 0.75rem;
             }
         }
+        /* Checkout Modal Styles */
+        .checkout-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 300ms ease;
+            z-index: 9998;
+        }
+        .checkout-modal-backdrop.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .checkout-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.95);
+            background: white;
+            border-radius: 1.5rem;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 300ms ease;
+            z-index: 9999;
+        }
+        .checkout-modal.show {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        .checkout-modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .checkout-modal-header h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin: 0;
+        }
+        .checkout-modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+        }
+        .checkout-modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 0.75rem;
+        }
+        .order-type-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .order-type-btn {
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 1rem;
+            background: white;
+            cursor: pointer;
+            text-align: center;
+            transition: all 300ms ease;
+            font-weight: 600;
+        }
+        .order-type-btn:hover {
+            border-color: #bc0008;
+            background: #fff5f5;
+        }
+        .order-type-btn.active {
+            border-color: #bc0008;
+            background: #bc0008;
+            color: white;
+        }
+        .order-type-btn span {
+            display: block;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+        .form-group input, 
+        .form-group textarea, 
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.75rem;
+            font-size: 0.875rem;
+            transition: all 300ms ease;
+        }
+        .form-group input:focus, 
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #bc0008;
+            ring: 2px;
+            box-shadow: 0 0 0 3px rgba(188, 0, 8, 0.1);
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        /* Special styling for address dropdown */
+        #addressSelect {
+            min-height: 60px;
+            padding: 1rem;
+            line-height: 1.5;
+            word-wrap: break-word;
+            white-space: normal;
+        }
+        #addressSelect option {
+            padding: 0.75rem;
+            line-height: 1.5;
+            white-space: normal;
+            word-wrap: break-word;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        .quick-time-btn {
+            cursor: pointer;
+        }
+        .quick-time-btn:active {
+            transform: scale(0.95);
+        }
+        .loading-spinner {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        @media (max-width: 640px) {
+            .checkout-modal {
+                width: 95%;
+            }
+            .order-type-buttons {
+                grid-template-columns: 1fr;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
         .mobile-sidebar,
         #mobileSidebar {
             position: fixed !important;
@@ -143,6 +313,21 @@
         .hamburger input:checked + svg .line-top-bottom {
             stroke-dasharray: 20 300;
             stroke-dashoffset: -32.42;
+
+        
+        /* Enhanced mobile responsive styles for cart page */
+        @media (max-width: 768px) {
+            main {
+                padding-top: 6rem;
+                padding-bottom: 1rem;
+            }
+            section {
+                padding: 1rem;
+                border-radius: 1.5rem;
+            }
+            .space-y-6 > * + * {
+                margin-top: 1.5rem;
+            }
         }
     </style>
 </head>
@@ -281,16 +466,10 @@
 <section class="max-w-6xl mx-auto px-6 py-16 rounded-[3rem] bg-surface shadow-2xl shadow-black/10">
 <div class="flex flex-col lg:flex-row gap-10">
 <div class="lg:w-2/3">
-<div class="flex items-center justify-between mb-10">
-<div>
-<p class="text-sm uppercase tracking-[0.4em] text-primary font-bold">Your Cart</p>
-<h1 class="text-4xl font-headline font-extrabold mt-4">Review items before checkout</h1>
-<p class="text-zinc-600 mt-4 max-w-2xl">Update quantities, remove items, and place your order in one smooth flow.</p>
+<div class="flex flex-col items-center justify-between mb-10 md:items-center md:flex-row">
+<div class="text-center md:text-left">
+<p class="text-3xl font-extrabold uppercase tracking-[0.4em] text-primary">Review items</p>
 </div>
-<a href="menu.html" class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-white font-bold hover:bg-red-700 transition-all">
-<span class="material-symbols-outlined">arrow_back</span>
-Continue Shopping
-</a>
 </div>
 <div id="cartItems" class="space-y-6"></div>
 </div>
@@ -298,16 +477,11 @@ Continue Shopping
 <div class="mb-8">
 <p class="text-sm uppercase tracking-[0.4em] text-zinc-500 font-bold">Order Summary</p>
 <h2 class="text-3xl font-extrabold mt-4">Ready to checkout</h2>
-<p class="text-zinc-500 mt-3">Sign in to complete your order and track it under Orders.</p>
 </div>
 <div class="space-y-4">
 <div class="flex justify-between text-zinc-600">
 <span>Items total</span>
 <span id="itemsTotal">₹0.00</span>
-</div>
-<div class="flex justify-between text-zinc-600">
-<span>Delivery fee</span>
-<span id="deliveryFee">₹30</span>
 </div>
 <div class="flex justify-between text-zinc-900 font-black text-xl">
 <span>Total</span>
@@ -319,13 +493,139 @@ Continue Shopping
 </div>
 </section>
 </main>
+
+<!-- Checkout Modal -->
+<div id="checkoutModalBackdrop" class="checkout-modal-backdrop" onclick="closeCheckoutModal()"></div>
+<div id="checkoutModal" class="checkout-modal">
+    <div class="checkout-modal-header">
+        <h2 id="checkoutTitle">Select Order Type</h2>
+        <button onclick="closeCheckoutModal()" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+    </div>
+    
+    <div class="checkout-modal-body">
+        <!-- Step 1: Order Type Selection -->
+        <div id="orderTypeStep" class="step-content">
+            <p class="text-gray-600 mb-4">Choose how you'd like to receive your order:</p>
+            <div class="order-type-buttons">
+                <button class="order-type-btn" data-type="delivery" onclick="selectOrderType('delivery')">
+                    <span class="material-symbols-outlined">local_shipping</span>
+                    <div>Delivery</div>
+                </button>
+                <button class="order-type-btn" data-type="dinein" onclick="selectOrderType('dinein')">
+                    <span class="material-symbols-outlined">restaurant</span>
+                    <div>Dine-in</div>
+                </button>
+                <button class="order-type-btn" data-type="preorder" onclick="selectOrderType('preorder')">
+                    <span class="material-symbols-outlined">schedule</span>
+                    <div>Pre-order</div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 2: Delivery Form -->
+        <div id="deliveryStep" class="step-content" style="display: none;">
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="deliveryName" placeholder="Your full name" required/>
+            </div>
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="tel" id="deliveryPhone" placeholder="10-digit phone number" required/>
+            </div>
+            <div class="form-group">
+                <label>Delivery Address</label>
+                <select id="addressSelect" onchange="handleAddressSelection()">
+                    <option value="">-- Select saved address or enter new --</option>
+                </select>
+            </div>
+            <div class="form-group" id="newAddressGroup" style="display: none;">
+                <label>Enter New Address</label>
+                <textarea id="deliveryAddress" placeholder="Street address, city, postal code" required></textarea>
+            </div>
+            <div class="form-group">
+                <label>Delivery Notes (Optional)</label>
+                <textarea id="deliveryNotes" placeholder="Any special instructions for delivery"></textarea>
+            </div>
+        </div>
+
+        <!-- Step 3: Dine-in Form -->
+        <div id="dineinStep" class="step-content" style="display: none;">
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="dineinName" placeholder="Your full name" required/>
+            </div>
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="tel" id="dineinPhone" placeholder="10-digit phone number" required/>
+            </div>
+            <div class="form-group">
+                <label>Table Number</label>
+                <input type="number" id="tableNumber" placeholder="Table number" min="1" required/>
+            </div>
+            <div class="form-group">
+                <label>Special Requests (Optional)</label>
+                <textarea id="dineinNotes" placeholder="Any special requests or preferences"></textarea>
+            </div>
+        </div>
+
+        <!-- Step 4: Pre-order Form -->
+        <div id="preorderStep" class="step-content" style="display: none;">
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="preorderName" placeholder="Your full name" required/>
+            </div>
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="tel" id="preorderPhone" placeholder="10-digit phone number" required/>
+            </div>
+            <div class="form-group">
+                <label>Preferred Pickup/Delivery Time</label>
+                <div class="space-y-3">
+                    <!-- Quick Select Buttons -->
+                    <div class="grid grid-cols-3 gap-2">
+                        <button type="button" class="quick-time-btn px-3 py-2 border border-zinc-300 rounded-lg text-sm font-medium hover:border-primary hover:bg-primary/5 transition-all" data-preset="today">Today</button>
+                        <button type="button" class="quick-time-btn px-3 py-2 border border-zinc-300 rounded-lg text-sm font-medium hover:border-primary hover:bg-primary/5 transition-all" data-preset="tomorrow">Tomorrow</button>
+                        <button type="button" class="quick-time-btn px-3 py-2 border border-zinc-300 rounded-lg text-sm font-medium hover:border-primary hover:bg-primary/5 transition-all" data-preset="next-day">In 2 Days</button>
+                    </div>
+                    <!-- Time Picker -->
+                    <div class="flex gap-2">
+                        <div class="flex-1">
+                            <label class="block text-xs text-zinc-500 mb-1">Date</label>
+                            <input type="date" id="preorderDate" required/>
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-xs text-zinc-500 mb-1">Time</label>
+                            <input type="time" id="preorderTimeOnly" value="12:00" required/>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" id="preorderTime" />
+            </div>
+            <div class="form-group">
+                <label>Special Requests (Optional)</label>
+                <textarea id="preorderNotes" placeholder="Any special preparation instructions"></textarea>
+            </div>
+        </div>
+    </div>
+    
+    <div class="checkout-modal-footer">
+        <button id="backBtn" type="button" onclick="goBackToOrderType()" style="display: none;" class="flex-1 px-4 py-3 bg-gray-200 text-gray-700 rounded-full font-bold hover:bg-gray-300 transition-all">
+            Back
+        </button>
+        <button id="proceedBtn" type="button" onclick="proceedToCheckout()" class="flex-1 px-4 py-3 bg-primary text-white rounded-full font-bold hover:bg-red-700 transition-all">
+            Continue
+        </button>
+    </div>
+</div>
+
 <script>
 const dbUrl = 'https://vrindavan-website-default-rtdb.firebaseio.com';
 const toastRoot = document.getElementById('toastRoot');
 const cartItemsEl = document.getElementById('cartItems');
 const cartTotalEl = document.getElementById('cartTotal');
 const itemsTotalEl = document.getElementById('itemsTotal');
-const deliveryFeeEl = document.getElementById('deliveryFee');
 const checkoutButton = document.getElementById('checkoutButton');
 const openCartButton = document.getElementById('openCartButton');
 const closeCartButton = document.getElementById('closeCartButton');
@@ -514,23 +814,25 @@ function renderCartSidebar() {
   cart.forEach(item => {
     total += item.price * item.quantity;
     const itemEl = document.createElement('div');
-    itemEl.className = 'cart-item-card';
+    itemEl.className = 'rounded-2xl border border-zinc-200 bg-white p-3 shadow-sm hover:shadow-md transition-shadow';
     itemEl.innerHTML = `
-      <img src="${item.image}" alt="${item.name}" class="rounded-3xl" />
-      <div class="space-y-3">
-        <div class="flex items-center justify-between gap-4">
+      <div class="flex gap-3 items-start">
+        <img src="${item.image}" alt="${item.name}" class="w-16 h-16 rounded-lg object-cover flex-shrink-0" />
+        <div class="flex-1 min-w-0 flex flex-col justify-between">
           <div>
-            <p class="font-semibold text-zinc-900">${item.name}</p>
-            <p class="text-sm text-zinc-500">₹${item.price.toFixed(2)} each</p>
+            <p class="font-semibold text-sm text-zinc-900 line-clamp-2">${item.name}</p>
+            <p class="text-xs text-zinc-600 mt-1">₹${item.price.toFixed(2)} each</p>
           </div>
-          <p class="font-black text-zinc-900">₹${(item.quantity * item.price).toFixed(2)}</p>
+          <p class="text-sm font-black text-primary mt-1">₹${(item.quantity * item.price).toFixed(2)}</p>
         </div>
-        <div class="flex flex-wrap items-center gap-2">
-          <button type="button" class="px-3 py-1 rounded-full border border-zinc-300 bg-white text-sm" data-action="decrease">-</button>
-          <span class="font-semibold">${item.quantity}</span>
-          <button type="button" class="px-3 py-1 rounded-full border border-zinc-300 bg-white text-sm" data-action="increase">+</button>
-          <button type="button" class="ml-auto text-red-600 font-semibold" data-action="remove">Remove</button>
+      </div>
+      <div class="flex items-center justify-between gap-2 mt-3 pt-2 border-t border-zinc-200">
+        <div class="flex items-center gap-1 bg-zinc-100 rounded-full px-2 py-1">
+          <button type="button" class="w-5 h-5 flex items-center justify-center text-zinc-700 hover:text-primary text-sm font-bold" data-action="decrease">−</button>
+          <span class="font-semibold text-xs text-center w-4">${item.quantity}</span>
+          <button type="button" class="w-5 h-5 flex items-center justify-center text-zinc-700 hover:text-primary text-sm font-bold" data-action="increase">+</button>
         </div>
+        <button type="button" class="text-red-600 hover:text-red-700 text-xs font-semibold" data-action="remove">Remove</button>
       </div>
     `;
     itemEl.querySelector('[data-action="increase"]')?.addEventListener('click', () => {
@@ -596,22 +898,32 @@ function renderCart() {
     const itemTotal = item.price * item.quantity;
     itemsTotal += itemTotal;
     const card = document.createElement('div');
-    card.className = 'rounded-[2rem] border border-zinc-200 bg-surface p-6';
+    card.className = 'rounded-[2rem] border border-zinc-200 bg-surface p-4 md:p-6 shadow-sm hover:shadow-md transition-shadow';
     card.innerHTML = `
-      <div class="flex items-center gap-4">
-        <img src="${item.image}" alt="${item.name}" class="w-24 h-24 rounded-3xl object-cover" />
-        <div class="flex-1">
-          <h3 class="font-bold text-zinc-900">${item.name}</h3>
-          <p class="text-zinc-500 text-sm">₹${item.price.toFixed(2)} each</p>
-          <div class="mt-4 flex items-center gap-2">
-            <button class="px-3 py-1 bg-zinc-100 rounded-full text-zinc-800" data-action="decrease">-</button>
-            <span class="font-semibold">${item.quantity}</span>
-            <button class="px-3 py-1 bg-zinc-100 rounded-full text-zinc-800" data-action="increase">+</button>
-            <button class="ml-4 text-red-600 font-semibold" data-action="remove">Remove</button>
+      <div class="flex flex-col gap-4">
+        <div class="flex gap-4 items-start">
+          <img src="${item.image}" alt="${item.name}" class="w-28 h-28 md:w-32 md:h-32 rounded-2xl object-cover flex-shrink-0 shadow-sm" />
+          <div class="flex-1 min-w-0 flex flex-col justify-between">
+            <div>
+              <h3 class="font-bold text-lg md:text-xl text-zinc-900 line-clamp-2">${item.name}</h3>
+              <p class="text-zinc-600 text-sm md:text-base mt-1">₹${item.price.toFixed(2)} each</p>
+            </div>
+            <div class="text-right mt-2">
+              <p class="text-xs text-zinc-500 mb-1">Total</p>
+              <p class="font-black text-lg md:text-xl text-primary">₹${itemTotal.toFixed(2)}</p>
+            </div>
           </div>
         </div>
-        <div class="text-right">
-          <p class="font-black text-zinc-900">₹${itemTotal.toFixed(2)}</p>
+        <div class="flex items-center justify-between gap-3 pt-3 border-t border-zinc-300">
+          <div class="flex items-center gap-2 bg-white rounded-full px-3 py-2 border-2 border-zinc-300">
+            <button class="w-7 h-7 flex items-center justify-center text-zinc-700 hover:text-primary hover:bg-primary/10 font-bold text-lg transition-colors rounded-full" data-action="decrease">−</button>
+            <span class="font-semibold text-center w-6 text-zinc-900">${item.quantity}</span>
+            <button class="w-7 h-7 flex items-center justify-center text-zinc-700 hover:text-primary hover:bg-primary/10 font-bold text-lg transition-colors rounded-full" data-action="increase">+</button>
+          </div>
+          <button class="text-red-600 hover:text-red-700 font-semibold text-sm md:text-base transition-colors flex items-center gap-2 px-3 py-2" data-action="remove">
+            <span class="material-symbols-outlined text-lg">delete</span>
+            <span class="hidden sm:inline">Remove</span>
+          </button>
         </div>
       </div>
     `;
@@ -634,10 +946,8 @@ function renderCart() {
     });
     cartItemsEl.appendChild(card);
   });
-  const deliveryFee = cart.length ? 2.99 : 0;
   itemsTotalEl.textContent = formatCurrency(itemsTotal);
-  deliveryFeeEl.textContent = formatCurrency(deliveryFee);
-  cartTotalEl.textContent = formatCurrency(itemsTotal + deliveryFee);
+  cartTotalEl.textContent = formatCurrency(itemsTotal);
 }
 
 checkoutButton.addEventListener('click', async () => {
@@ -658,58 +968,8 @@ checkoutButton.addEventListener('click', async () => {
     return;
   }
   
-  checkoutButton.disabled = true;
-  checkoutButton.textContent = 'Placing order...';
-  try {
-    const sequenceNumber = await getNextOrderSequence();
-    const orderId = generateOrderId(sequenceNumber);
-    const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0) + 2.99;
-    const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-    
-    const order = {
-      orderId: orderId,
-      userId: currentUser.uid,
-      consumer_name: currentUser.name || currentUser.email || 'Guest',
-      consumer_phone: currentUser.mobile || '',
-      consumer_email: currentUser.email || '',
-      items: cart,
-      itemCount: itemCount,
-      total: total,
-      status: 'pending',
-      timestamp: Date.now(),
-      createdAt: new Date().toISOString(),
-      userInfo: {
-        name: currentUser.name || currentUser.email || 'Guest',
-        mobile: currentUser.mobile || '',
-        email: currentUser.email || ''
-      }
-    };
-    
-    await fetchJson(`/orders/${orderId}`, {
-      method: 'PUT',
-      body: JSON.stringify(order)
-    });
-    
-    // Also store under user's orders
-    await fetchJson(`/users/${currentUser.uid}/orders/${orderId}`, {
-      method: 'PUT',
-      body: JSON.stringify({ orderId: orderId, status: 'pending' })
-    });
-    
-    localStorage.removeItem('vrindavanCart');
-    renderCart();
-    renderCartSidebar();
-    showToast('Order placed successfully!', 'success');
-    setTimeout(() => {
-      window.location.href = 'orders.html';
-    }, 500);
-  } catch (error) {
-    console.error('Checkout error:', error);
-    showToast('Could not place order, try again', 'error');
-  } finally {
-    checkoutButton.disabled = false;
-    checkoutButton.textContent = 'Checkout';
-  }
+  // Open checkout modal instead of direct checkout
+  openCheckoutModal();
 });
 
 const currentUser = getCurrentUser();
@@ -717,9 +977,499 @@ setNavAuthLinks(currentUser);
 renderCart();
 updateCartCount();
 
-// Global variables for search
-let allMenuData = [];
-let isMenuDataLoaded = false;
+// ========== CHECKOUT MODAL FUNCTIONS ==========
+
+let selectedOrderType = null;
+
+// Validate Indian phone number (10 digits)
+function isValidPhone(phone) {
+  const phoneRegex = /^[6-9]\d{9}$/;
+  return phoneRegex.test(phone.replace(/\D/g, ''));
+}
+
+// Set minimum date/time for pre-order (at least 30 minutes from now)
+function setMinPreorderTime() {
+  const now = new Date();
+  now.setMinutes(now.getMinutes() + 30);
+  
+  // Set today's date as default
+  const today = new Date();
+  const dateStr = today.toISOString().split('T')[0];
+  const timeStr = now.toTimeString().slice(0, 5);
+  
+  document.getElementById('preorderDate').value = dateStr;
+  document.getElementById('preorderDate').min = dateStr;
+  document.getElementById('preorderTimeOnly').value = timeStr;
+  
+  // Set up quick select buttons
+  setupQuickTimeButtons();
+}
+
+// Setup quick select buttons for pre-order
+function setupQuickTimeButtons() {
+  const buttons = document.querySelectorAll('.quick-time-btn');
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  buttons.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const preset = btn.dataset.preset;
+      let selectedDate = new Date(today);
+      
+      if (preset === 'today') {
+        selectedDate = new Date(today);
+      } else if (preset === 'tomorrow') {
+        selectedDate = new Date(today);
+        selectedDate.setDate(selectedDate.getDate() + 1);
+      } else if (preset === 'next-day') {
+        selectedDate = new Date(today);
+        selectedDate.setDate(selectedDate.getDate() + 2);
+      }
+      
+      const dateStr = selectedDate.toISOString().split('T')[0];
+      document.getElementById('preorderDate').value = dateStr;
+      
+      // Update button styles
+      buttons.forEach(b => b.classList.remove('border-primary', 'bg-primary/10', 'text-primary'));
+      btn.classList.add('border-primary', 'bg-primary/10', 'text-primary');
+      
+      // Focus on time input
+      document.getElementById('preorderTimeOnly').focus();
+    });
+  });
+}
+
+function openCheckoutModal() {
+  const backdrop = document.getElementById('checkoutModalBackdrop');
+  const modal = document.getElementById('checkoutModal');
+  backdrop.classList.add('show');
+  modal.classList.add('show');
+  document.body.style.overflow = 'hidden';
+  
+  // Load user data and populate fields
+  const user = getCurrentUser();
+  if (user) {
+    const userName = user.fullName || user.name || '';
+    document.getElementById('deliveryName').value = userName;
+    document.getElementById('deliveryPhone').value = user.mobile || '';
+    document.getElementById('dineinName').value = userName;
+    document.getElementById('dineinPhone').value = user.mobile || '';
+    document.getElementById('preorderName').value = userName;
+    document.getElementById('preorderPhone').value = user.mobile || '';
+    
+    // Load saved addresses for delivery
+    loadSavedAddresses();
+    
+    // Auto-fill table number from URL if present
+    const urlParams = new URLSearchParams(window.location.search);
+    const tableNum = urlParams.get('table');
+    if (tableNum) {
+      document.getElementById('tableNumber').value = tableNum;
+    }
+  }
+  
+  // Set minimum date/time for pre-order
+  setMinPreorderTime();
+}
+
+function closeCheckoutModal() {
+  const backdrop = document.getElementById('checkoutModalBackdrop');
+  const modal = document.getElementById('checkoutModal');
+  backdrop.classList.remove('show');
+  modal.classList.remove('show');
+  document.body.style.overflow = '';
+  selectedOrderType = null;
+  
+  // Reset form fields
+  document.getElementById('orderTypeStep').style.display = 'block';
+  document.querySelectorAll('.step-content:not(#orderTypeStep)').forEach(step => {
+    step.style.display = 'none';
+  });
+  document.getElementById('backBtn').style.display = 'none';
+  document.getElementById('proceedBtn').textContent = 'Continue';
+  document.querySelectorAll('.order-type-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+}
+
+function selectOrderType(type) {
+  selectedOrderType = type;
+  
+  // Update button styles
+  document.querySelectorAll('.order-type-btn').forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.dataset.type === type) {
+      btn.classList.add('active');
+    }
+  });
+  
+  // Hide all steps and show the selected one
+  document.querySelectorAll('.step-content').forEach(step => {
+    step.style.display = 'none';
+  });
+  
+  document.getElementById('orderTypeStep').style.display = 'block';
+  
+  // Show the appropriate form
+  setTimeout(() => {
+    document.getElementById('orderTypeStep').style.display = 'none';
+    document.getElementById(`${type}Step`).style.display = 'block';
+    document.getElementById('backBtn').style.display = 'block';
+    document.getElementById('proceedBtn').textContent = 'Place Order';
+  }, 300);
+}
+
+function goBackToOrderType() {
+  document.querySelectorAll('.step-content').forEach(step => {
+    step.style.display = 'none';
+  });
+  document.getElementById('orderTypeStep').style.display = 'block';
+  document.getElementById('backBtn').style.display = 'none';
+  document.getElementById('proceedBtn').textContent = 'Continue';
+  selectedOrderType = null;
+  
+  // Remove active state from buttons
+  document.querySelectorAll('.order-type-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+}
+
+function loadSavedAddresses() {
+  const user = getCurrentUser();
+  if (!user || !user.uid) return;
+  
+  // Fetch addresses from the addresses endpoint
+  fetchJson(`/addresses/${user.uid}`, {}).then(addressesData => {
+    const select = document.getElementById('addressSelect');
+    const addresses = addressesData && typeof addressesData === 'object' 
+      ? Object.entries(addressesData).map(([id, addr]) => ({ id, ...addr })) 
+      : [];
+    
+    select.innerHTML = '<option value="">-- Select saved address or enter new --</option>';
+    
+    if (addresses.length > 0) {
+      addresses.forEach((addr) => {
+        const option = document.createElement('option');
+        option.value = JSON.stringify(addr);
+        
+        // Build complete address from all available fields
+        let addressParts = [];
+        
+        // Add name if available
+        if (addr.name) {
+          addressParts.push(addr.name);
+        }
+        
+        // Add street, city, zipcode
+        const locationParts = [];
+        if (addr.street) locationParts.push(addr.street);
+        if (addr.city) locationParts.push(addr.city);
+        if (addr.zipcode) locationParts.push(addr.zipcode);
+        
+        if (locationParts.length > 0) {
+          addressParts.push(locationParts.join(' '));
+        }
+        
+        const fullAddress = addressParts.filter(Boolean).join(' - ');
+        option.text = fullAddress || 'Address';
+        select.appendChild(option);
+      });
+      
+      // Auto-select first saved address
+      select.value = JSON.stringify(addresses[0]);
+      handleAddressSelection();
+    }
+    
+    const option = document.createElement('option');
+    option.value = 'new';
+    option.text = addresses.length === 0 ? '+ Add First Address' : '+ Add New Address';
+    select.appendChild(option);
+    
+    // If no addresses exist, show the input by default
+    if (addresses.length === 0) {
+      select.value = 'new';
+      handleAddressSelection();
+    }
+  }).catch(err => {
+    console.log('Could not load addresses:', err);
+    const select = document.getElementById('addressSelect');
+    select.innerHTML = '<option value="">-- Enter delivery address --</option>';
+    const option = document.createElement('option');
+    option.value = 'new';
+    option.text = '+ Add New Address';
+    select.appendChild(option);
+  });
+}
+
+function handleAddressSelection() {
+  const select = document.getElementById('addressSelect');
+  const newAddressGroup = document.getElementById('newAddressGroup');
+  
+  if (select.value === 'new') {
+    newAddressGroup.style.display = 'block';
+    document.getElementById('deliveryAddress').value = '';
+    document.getElementById('deliveryAddress').focus();
+  } else if (select.value) {
+    newAddressGroup.style.display = 'none';
+    const addr = JSON.parse(select.value);
+    
+    // Build complete address from all available fields
+    let addressParts = [];
+    
+    // Add name if available
+    if (addr.name) {
+      addressParts.push(addr.name);
+    }
+    
+    // Add street, city, zipcode
+    const locationParts = [];
+    if (addr.street) locationParts.push(addr.street);
+    if (addr.city) locationParts.push(addr.city);
+    if (addr.zipcode) locationParts.push(addr.zipcode);
+    
+    if (locationParts.length > 0) {
+      addressParts.push(locationParts.join(' '));
+    }
+    
+    const fullAddress = addressParts.filter(Boolean).join(' - ');
+    document.getElementById('deliveryAddress').value = fullAddress || '';
+  } else {
+    newAddressGroup.style.display = 'none';
+  }
+}
+
+async function proceedToCheckout() {
+  if (!selectedOrderType) {
+    showToast('Please select an order type', 'error');
+    return;
+  }
+  
+  const proceedBtn = document.getElementById('proceedBtn');
+  proceedBtn.disabled = true;
+  proceedBtn.innerHTML = '<span class="loading-spinner"></span> Processing...';
+  
+  try {
+    let orderData = {
+      type: selectedOrderType,
+      customer: {},
+      items: getCart()
+    };
+    
+    // Collect data based on order type
+    if (selectedOrderType === 'delivery') {
+      const name = document.getElementById('deliveryName').value.trim();
+      const phone = document.getElementById('deliveryPhone').value.trim();
+      const addressSelect = document.getElementById('addressSelect').value;
+      const notes = document.getElementById('deliveryNotes').value.trim();
+      
+      if (!name || !phone) {
+        showToast('Please enter name and phone', 'error');
+        proceedBtn.disabled = false;
+        proceedBtn.innerHTML = 'Place Order';
+        return;
+      }
+      
+      // Validate phone number
+      if (!isValidPhone(phone)) {
+        showToast('Please enter a valid 10-digit phone number', 'error');
+        proceedBtn.disabled = false;
+        proceedBtn.innerHTML = 'Place Order';
+        return;
+      }
+      
+      let address = '';
+      if (addressSelect === 'new') {
+        address = document.getElementById('deliveryAddress').value.trim();
+        if (!address) {
+          showToast('Please enter delivery address', 'error');
+          proceedBtn.disabled = false;
+          proceedBtn.innerHTML = 'Place Order';
+          return;
+        }
+      } else if (addressSelect) {
+        address = JSON.parse(addressSelect).address;
+      } else {
+        showToast('Please select or enter an address', 'error');
+        proceedBtn.disabled = false;
+        proceedBtn.innerHTML = 'Place Order';
+        return;
+      }
+      
+      orderData.customer = { name, phone };
+      orderData.delivery = { address };
+      orderData.notes = notes;
+      
+      // Save address to user profile if new
+      if (addressSelect === 'new') {
+        await saveAddressToUser(address, name);
+      }
+    } else if (selectedOrderType === 'dinein') {
+      const name = document.getElementById('dineinName').value.trim();
+      const phone = document.getElementById('dineinPhone').value.trim();
+      const table = document.getElementById('tableNumber').value.trim();
+      const notes = document.getElementById('dineinNotes').value.trim();
+      
+      if (!name || !phone || !table) {
+        showToast('Please enter name, phone, and table number', 'error');
+        proceedBtn.disabled = false;
+        proceedBtn.innerHTML = 'Place Order';
+        return;
+      }
+      
+      // Validate phone number
+      if (!isValidPhone(phone)) {
+        showToast('Please enter a valid 10-digit phone number', 'error');
+        proceedBtn.disabled = false;
+        proceedBtn.innerHTML = 'Place Order';
+        return;
+      }
+      
+      // Validate table number
+      const tableNum = parseInt(table);
+      if (isNaN(tableNum) || tableNum < 1) {
+        showToast('Please enter a valid table number', 'error');
+        proceedBtn.disabled = false;
+        proceedBtn.innerHTML = 'Place Order';
+        return;
+      }
+      
+      orderData.customer = { name, phone };
+      orderData.dinein = { table };
+      orderData.notes = notes;
+    } else if (selectedOrderType === 'preorder') {
+      const name = document.getElementById('preorderName').value.trim();
+      const phone = document.getElementById('preorderPhone').value.trim();
+      const date = document.getElementById('preorderDate').value;
+      const time = document.getElementById('preorderTimeOnly').value;
+      const notes = document.getElementById('preorderNotes').value.trim();
+      
+      if (!name || !phone || !date || !time) {
+        showToast('Please enter name, phone, date, and time', 'error');
+        proceedBtn.disabled = false;
+        proceedBtn.innerHTML = 'Place Order';
+        return;
+      }
+      
+      // Validate phone number
+      if (!isValidPhone(phone)) {
+        showToast('Please enter a valid 10-digit phone number', 'error');
+        proceedBtn.disabled = false;
+        proceedBtn.innerHTML = 'Place Order';
+        return;
+      }
+      
+      // Combine date and time into datetime
+      const datetime = `${date}T${time}`;
+      const selectedTime = new Date(datetime);
+      const now = new Date();
+      
+      // Check if time is at least 30 minutes in future
+      const minTime = new Date(now.getTime() + 30 * 60000);
+      if (selectedTime < minTime) {
+        showToast('Please select a time at least 30 minutes from now', 'error');
+        proceedBtn.disabled = false;
+        proceedBtn.innerHTML = 'Place Order';
+        return;
+      }
+      
+      orderData.customer = { name, phone };
+      orderData.preorder = { time: datetime };
+      orderData.notes = notes;
+    }
+    
+    // Create the order
+    await createOrder(orderData);
+    
+    closeCheckoutModal();
+    localStorage.removeItem('vrindavanCart');
+    renderCart();
+    renderCartSidebar();
+    showToast('Order placed successfully!', 'success');
+    setTimeout(() => {
+      window.location.href = 'orders.html';
+    }, 1000);
+  } catch (error) {
+    console.error('Checkout error:', error);
+    showToast('Could not place order, try again', 'error');
+  } finally {
+    proceedBtn.disabled = false;
+    proceedBtn.innerHTML = 'Place Order';
+  }
+}
+
+async function saveAddressToUser(fullAddress, addressName) {
+  const user = getCurrentUser();
+  if (!user || !user.uid) return;
+  
+  try {
+    // Save with full address in name field (same as account page)
+    const addressObject = {
+      name: fullAddress,
+      street: '',
+      city: '',
+      zipcode: '',
+      details: '',
+      createdAt: new Date().getTime()
+    };
+    
+    // Save to addresses endpoint (same as account page)
+    const addressId = Date.now();
+    await fetchJson(`/addresses/${user.uid}/${addressId}`, {
+      method: 'PUT',
+      body: JSON.stringify(addressObject)
+    });
+  } catch (error) {
+    console.error('Error saving address:', error);
+  }
+}
+
+async function createOrder(orderData) {
+  const user = getCurrentUser();
+  const sequenceNumber = await getNextOrderSequence();
+  const orderId = generateOrderId(sequenceNumber);
+  
+  // Calculate delivery fee based on order type
+  let deliveryFee = 0;
+  if (orderData.type === 'delivery') {
+    deliveryFee = 30; // Delivery fee for delivery orders
+  }
+  // Dine-in and pre-order have no delivery fee
+  
+  const total = orderData.items.reduce((sum, item) => sum + item.price * item.quantity, 0) + deliveryFee;
+  const itemCount = orderData.items.reduce((sum, item) => sum + item.quantity, 0);
+  
+  const order = {
+    orderId: orderId,
+    userId: user.uid,
+    type: orderData.type,
+    customer: orderData.customer,
+    delivery: orderData.delivery || null,
+    dinein: orderData.dinein || null,
+    preorder: orderData.preorder || null,
+    items: orderData.items,
+    notes: orderData.notes || '',
+    itemCount: itemCount,
+    total: total,
+    deliveryFee: deliveryFee,
+    status: 'pending',
+    timestamp: Date.now(),
+    createdAt: new Date().toISOString()
+  };
+  
+  await fetchJson(`/orders/${orderId}`, {
+    method: 'PUT',
+    body: JSON.stringify(order)
+  });
+  
+  // Also store under user's orders
+  await fetchJson(`/users/${user.uid}/orders/${orderId}`, {
+    method: 'PUT',
+    body: JSON.stringify({ orderId: orderId, status: 'pending', type: orderData.type })
+  });
+}
+
+
 
 // Fuzzy match algorithm with bonus for prefix matches
 function fuzzyMatch(searchStr, targetStr) {
@@ -1102,6 +1852,41 @@ window.closeMobileMenuAfterDelay = closeMobileMenuAfterDelay;
 
 // Load global menu data
 loadGlobalMenuData();
+
+// Setup checkout modal keyboard support
+document.addEventListener('DOMContentLoaded', () => {
+  // Allow pressing Enter to close modal backdrop click
+  const checkoutModalBackdrop = document.getElementById('checkoutModalBackdrop');
+  const checkoutModal = document.getElementById('checkoutModal');
+  
+  // Close modal when clicking backdrop
+  if (checkoutModalBackdrop) {
+    checkoutModalBackdrop.addEventListener('click', (e) => {
+      if (e.target === checkoutModalBackdrop) {
+        closeCheckoutModal();
+      }
+    });
+  }
+  
+  // Close modal with Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && checkoutModal?.classList.contains('show')) {
+      closeCheckoutModal();
+    }
+  });
+  
+  // Setup form submission with keyboard
+  ['deliveryName', 'deliveryPhone', 'deliveryAddress', 'dineinName', 'dineinPhone', 'tableNumber', 'preorderName', 'preorderPhone', 'preorderTime'].forEach(fieldId => {
+    const field = document.getElementById(fieldId);
+    if (field) {
+      field.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && document.getElementById('proceedBtn').textContent !== 'Continue') {
+          proceedToCheckout();
+        }
+      });
+    }
+  });
+});
 
 // Load mobile categories after a brief delay to ensure DOM is ready
 setTimeout(() => {

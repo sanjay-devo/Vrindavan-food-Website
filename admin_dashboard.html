@@ -1365,7 +1365,16 @@
         <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
             <div class="p-8 flex justify-between items-center border-b border-surface-container">
                 <h4 class="font-headline text-lg font-bold text-on-surface">All Orders</h4>
-                <div class="flex gap-3 items-center">
+                <div class="flex gap-3 items-center flex-wrap">
+                    <div class="relative">
+                        <select id="typeFilter" class="appearance-none px-5 py-2.5 pr-10 text-sm font-bold bg-gradient-to-r from-primary/5 to-primary/10 text-on-surface border-2 border-primary/20 hover:border-primary/40 focus:border-primary rounded-xl focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer">
+                            <option value="">📦 All Types</option>
+                            <option value="delivery">🚚 Delivery</option>
+                            <option value="dinein">🍽️ Dine-in</option>
+                            <option value="preorder">⏰ Pre-order</option>
+                        </select>
+                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-lg">expand_more</span>
+                    </div>
                     <div class="relative">
                         <select id="statusFilter" class="appearance-none px-5 py-2.5 pr-10 text-sm font-bold bg-gradient-to-r from-primary/5 to-primary/10 text-on-surface border-2 border-primary/20 hover:border-primary/40 focus:border-primary rounded-xl focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer">
                             <option value="">📊 All Statuses</option>
@@ -1378,6 +1387,10 @@
                         <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-lg">expand_more</span>
                     </div>
                     <span id="orderCountBadge" class="px-3 py-1.5 text-sm font-bold bg-primary/10 text-primary rounded-lg">0 orders</span>
+                    <button onclick="refreshOrdersData()" class="px-4 py-2.5 text-sm font-bold bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-xl transition-all flex items-center gap-2" title="Refresh orders data">
+                        <span class="material-symbols-outlined text-lg">refresh</span>
+                        Refresh
+                    </button>
                 </div>
             </div>
             <div class="overflow-x-auto">
@@ -1385,6 +1398,7 @@
                     <thead>
                         <tr class="text-on-surface-variant/60 border-b border-surface-container">
                             <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider">Order ID</th>
+                            <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider">Type</th>
                             <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider">Customer</th>
                             <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider">Items</th>
                             <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider">Status</th>
@@ -1552,8 +1566,20 @@
                 <input id="editOrderCustomer" type="text" disabled />
             </div>
             <div class="form-group">
-                <label>Order Status</label>
-                <select id="editOrderStatus">
+                <label>Order Type</label>
+                <input id="editOrderType" type="text" disabled />
+            </div>
+            <div class="form-group">
+                <label>Order Details</label>
+                <textarea id="editOrderDetails" type="text" disabled style="resize: vertical; min-height: 80px;"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Current Status</label>
+                <input id="editOrderStatus" type="text" disabled />
+            </div>
+            <div class="form-group">
+                <label>Update Status To</label>
+                <select id="editOrderStatusSelect" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem;">
                     <option value="pending">⏳ Pending</option>
                     <option value="preparing">👨‍🍳 Preparing</option>
                     <option value="ready">✅ Ready</option>
@@ -2022,8 +2048,25 @@ async function loadRecentOrders() {
             };
 
             const statusClass = statusColors[order.status] || 'bg-gray-100 text-gray-700';
-            const customerPhone = order.consumer_phone || order.userInfo?.mobile || 'No Data';
-            const customerName = order.consumer_name || order.userInfo?.name || 'Unknown';
+            
+            // Extract customer phone from nested structure (same as in loadAllOrders)
+            let customerPhone = 'N/A';
+            let customerName = 'Unknown';
+            
+            if (order.delivery && order.delivery.phone) {
+                customerPhone = order.delivery.phone;
+                customerName = order.delivery.name || order.consumer_name || 'Unknown';
+            } else if (order.dinein && order.dinein.phone) {
+                customerPhone = order.dinein.phone;
+                customerName = order.dinein.name || order.consumer_name || 'Unknown';
+            } else if (order.preorder && order.preorder.phone) {
+                customerPhone = order.preorder.phone;
+                customerName = order.preorder.name || order.consumer_name || 'Unknown';
+            } else {
+                customerPhone = order.consumer_phone || order.userInfo?.mobile || order.customer?.phone || 'N/A';
+                customerName = order.consumer_name || order.userInfo?.name || order.customer?.name || 'Unknown';
+            }
+            
             const escapedPhone = customerPhone.replace(/'/g, "\\'");
             const escapedName = customerName.replace(/'/g, "\\'");
 
@@ -2079,28 +2122,88 @@ function showSection(sectionName) {
     }
 }
 
+// Refresh orders data (manual refresh button)
+async function refreshOrdersData() {
+    const refreshBtn = event?.target?.closest('button');
+    if (refreshBtn) {
+        refreshBtn.disabled = true;
+        refreshBtn.innerHTML = '<span class="material-symbols-outlined text-lg animate-spin">refresh</span> Loading...';
+    }
+    
+    try {
+        // Clear cache and reload
+        window.allOrdersForFilter = [];
+        window.allOrdersEntries = [];
+        await loadAllOrders();
+        showToast('Orders refreshed successfully', 'success');
+    } catch (error) {
+        console.error('Error refreshing orders:', error);
+        showToast('Error refreshing orders', 'error');
+    } finally {
+        if (refreshBtn) {
+            refreshBtn.disabled = false;
+            refreshBtn.innerHTML = '<span class="material-symbols-outlined text-lg">refresh</span> Refresh';
+        }
+    }
+}
+
 // Load all orders
 async function loadAllOrders() {
     try {
+        // Reset filters to 'All' state
+        const typeFilter = document.getElementById('typeFilter');
+        const statusFilter = document.getElementById('statusFilter');
+        if (typeFilter) typeFilter.value = '';
+        if (statusFilter) statusFilter.value = '';
+
         const ordersData = await fetchJson('/orders');
         const ordersEntries = ordersData ? Object.entries(ordersData) : [];
 
+        // Enhance orders with extracted customer phone
+        const enhancedOrders = ordersEntries.map(([id, data]) => {
+            let customerPhone = 'N/A';
+            let customerName = 'Unknown';
+            
+            // Extract phone from nested structure
+            if (data.delivery && data.delivery.phone) {
+                customerPhone = data.delivery.phone;
+                customerName = data.delivery.name || data.consumer_name || 'Unknown';
+            } else if (data.dinein && data.dinein.phone) {
+                customerPhone = data.dinein.phone;
+                customerName = data.dinein.name || data.consumer_name || 'Unknown';
+            } else if (data.preorder && data.preorder.phone) {
+                customerPhone = data.preorder.phone;
+                customerName = data.preorder.name || data.consumer_name || 'Unknown';
+            } else {
+                customerPhone = data.consumer_phone || data.userInfo?.mobile || data.customer?.phone || 'N/A';
+                customerName = data.consumer_name || data.userInfo?.name || data.customer?.name || 'Unknown';
+            }
+            
+            return { 
+                id, 
+                ...data,
+                _customerPhone: customerPhone,
+                _customerName: customerName
+            };
+        });
+
         // Store all orders globally for filtering
-        window.allOrdersForFilter = ordersEntries.map(([id, data]) => ({ id, ...data }));
+        window.allOrdersForFilter = enhancedOrders;
+        window.allOrdersEntries = ordersEntries;
 
         const allOrdersBody = document.getElementById('allOrdersBody');
         allOrdersBody.innerHTML = '';
 
         if (ordersEntries.length === 0) {
-            allOrdersBody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-on-surface-variant">No orders found</td></tr>';
+            allOrdersBody.innerHTML = '<tr><td colspan="8" class="px-6 py-8 text-center text-on-surface-variant">No orders found</td></tr>';
             updateOrderCountBadge(0);
             return;
         }
 
-        renderOrdersTable(ordersEntries);
+        renderOrdersTable(enhancedOrders);
         updateOrderCountBadge(ordersEntries.length);
         
-        // Setup filter listener
+        // Setup filter listener after data is loaded
         setupStatusFilter();
     } catch (error) {
         console.error('Error loading all orders:', error);
@@ -2114,11 +2217,14 @@ function renderOrdersTable(ordersEntries) {
     allOrdersBody.innerHTML = '';
 
     if (ordersEntries.length === 0) {
-        allOrdersBody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-on-surface-variant"><span class="material-symbols-outlined text-4xl opacity-30 block mb-2">inbox</span>No orders found</td></tr>';
+        allOrdersBody.innerHTML = '<tr><td colspan="8" class="px-6 py-8 text-center text-on-surface-variant"><span class="material-symbols-outlined text-4xl opacity-30 block mb-2">inbox</span>No orders found</td></tr>';
         return;
     }
 
-    ordersEntries.forEach(([orderId, order], index) => {
+    ordersEntries.forEach((order, index) => {
+        // Handle both array format [id, data] and enhanced object format
+        const orderId = order.id || (Array.isArray(order) ? order[0] : 'N/A');
+        const orderData = order.id ? order : (Array.isArray(order) ? order[1] : order);
         const statusColors = {
             pending: 'bg-red-100 text-red-700',
             preparing: 'bg-orange-100 text-orange-700',
@@ -2135,29 +2241,61 @@ function renderOrdersTable(ordersEntries) {
             cancelled: '❌'
         };
 
-        const statusClass = statusColors[order.status] || 'bg-gray-100 text-gray-700';
-        const statusEmoji = statusEmojis[order.status] || '📋';
-        const formattedDateTime = formatDateTime(order.timestamp);
-        const customerPhone = order.consumer_phone || order.userInfo?.mobile || 'No Data';
-        const customerName = order.consumer_name || order.userInfo?.name || 'Unknown';
+        const typeEmojis = {
+            delivery: '🚚',
+            dinein: '🍽️',
+            preorder: '⏰'
+        };
+
+        const typeLabels = {
+            delivery: 'Delivery',
+            dinein: 'Dine-in',
+            preorder: 'Pre-order'
+        };
+
+        const statusClass = statusColors[orderData.status] || 'bg-gray-100 text-gray-700';
+        const statusEmoji = statusEmojis[orderData.status] || '📋';
+        const typeEmoji = typeEmojis[orderData.type] || '📦';
+        const typeLabel = typeLabels[orderData.type] || 'Unknown';
+        const formattedDateTime = formatDateTime(orderData.timestamp);
+        
+        // Use pre-extracted customer data or fallback
+        let customerPhone = orderData._customerPhone || 'N/A';
+        let customerName = orderData._customerName || 'Unknown';
+        
+        // Fallback extraction if not pre-extracted
+        if (customerPhone === 'N/A') {
+            if (orderData.delivery && orderData.delivery.phone) {
+                customerPhone = orderData.delivery.phone;
+                customerName = orderData.delivery.name || orderData.consumer_name || 'Unknown';
+            } else if (orderData.dinein && orderData.dinein.phone) {
+                customerPhone = orderData.dinein.phone;
+                customerName = orderData.dinein.name || orderData.consumer_name || 'Unknown';
+            } else if (orderData.preorder && orderData.preorder.phone) {
+                customerPhone = orderData.preorder.phone;
+                customerName = orderData.preorder.name || orderData.consumer_name || 'Unknown';
+            }
+        }
+        
         const escapedPhone = customerPhone.replace(/'/g, "\\'");
         const escapedName = customerName.replace(/'/g, "\\'");
 
         const row = document.createElement('tr');
         row.className = 'border-b border-surface-container hover:bg-surface-container-low transition-colors';
         row.innerHTML = `
-            <td class="px-6 py-4"><span class="text-sm font-bold font-mono">${orderId || 'N/A'}</span></td>
+            <td class="px-6 py-4"><span class="text-sm font-bold font-mono">${orderId}</span></td>
+            <td class="px-6 py-4"><span class="text-sm font-bold">${typeEmoji} ${typeLabel}</span></td>
             <td class="px-6 py-4">
                 <button onclick="openCustomerProfileModal('${escapedPhone}', '${escapedName}')" class="text-sm font-bold text-primary hover:underline cursor-pointer">
                     📞 ${customerPhone}
                 </button>
             </td>
-            <td class="px-6 py-4"><span class="text-sm text-on-surface-variant">${order.itemCount || order.items?.length || 0} items</span></td>
-            <td class="px-6 py-4"><span class="px-3 py-1.5 text-xs font-bold uppercase rounded-full ${statusClass}">${statusEmoji} ${order.status || 'pending'}</span></td>
-            <td class="px-6 py-4"><span class="text-sm font-bold text-primary">${formatCurrency(order.total || 0)}</span></td>
+            <td class="px-6 py-4"><span class="text-sm text-on-surface-variant">${orderData.itemCount || orderData.items?.length || 0} items</span></td>
+            <td class="px-6 py-4"><span class="px-3 py-1.5 text-xs font-bold uppercase rounded-full ${statusClass}">${statusEmoji} ${orderData.status || 'pending'}</span></td>
+            <td class="px-6 py-4"><span class="text-sm font-bold text-primary">${formatCurrency(orderData.total || 0)}</span></td>
             <td class="px-6 py-4"><span class="text-sm text-on-surface-variant">${formattedDateTime}</span></td>
             <td class="px-6 py-4 text-right">
-                <button onclick="openEditOrderModal('${orderId}', '${escapedName}', '${order.status || 'pending'}')" class="text-primary hover:text-primary-container transition-colors hover:scale-110" title="Edit order">
+                <button onclick="openEditOrderModal('${orderId}', '${escapedName}', '${orderData.status || 'pending'}')" class="text-primary hover:text-primary-container transition-colors hover:scale-110" title="Edit order">
                     <span class="material-symbols-outlined">edit</span>
                 </button>
             </td>
@@ -2175,32 +2313,60 @@ function updateOrderCountBadge(count) {
     }
 }
 
-// Filter orders by status
+// Filter orders by status and type
 function filterOrdersByStatus(status) {
-    if (!window.allOrdersForFilter) return;
-
-    let filtered = window.allOrdersForFilter;
+    if (!window.allOrdersForFilter || window.allOrdersForFilter.length === 0) return;
     
-    // Filter by status if selected
-    if (status && status.trim() !== '') {
-        filtered = filtered.filter(order => order.status === status);
-    }
-
-    // Convert to entries format for renderOrdersTable
-    const entries = filtered.map(order => [order.id, order]);
-    renderOrdersTable(entries);
+    const typeFilter = document.getElementById('typeFilter')?.value || '';
+    const filtered = window.allOrdersForFilter.filter(order => {
+        const statusMatch = !status || order.status === status;
+        const typeMatch = !typeFilter || order.type === typeFilter;
+        return statusMatch && typeMatch;
+    });
+    
+    renderOrdersTable(filtered);
     updateOrderCountBadge(filtered.length);
 }
 
-// Setup status filter event listener
+function filterOrdersByType(type) {
+    if (!window.allOrdersForFilter || window.allOrdersForFilter.length === 0) return;
+    
+    const statusFilter = document.getElementById('statusFilter')?.value || '';
+    const filtered = window.allOrdersForFilter.filter(order => {
+        const statusMatch = !statusFilter || order.status === statusFilter;
+        const typeMatch = !type || order.type === type;
+        return statusMatch && typeMatch;
+    });
+    
+    renderOrdersTable(filtered);
+    updateOrderCountBadge(filtered.length);
+}
+
+// Setup status and type filter event listeners
 function setupStatusFilter() {
     const statusFilter = document.getElementById('statusFilter');
-    if (!statusFilter) return;
-
-    statusFilter.addEventListener('change', (e) => {
-        const selectedStatus = e.target.value;
-        filterOrdersByStatus(selectedStatus);
-    });
+    const typeFilter = document.getElementById('typeFilter');
+    
+    // Remove old listeners to prevent duplicates
+    if (statusFilter) {
+        const newStatusFilter = statusFilter.cloneNode(true);
+        statusFilter.parentNode.replaceChild(newStatusFilter, statusFilter);
+        
+        newStatusFilter.addEventListener('change', (e) => {
+            const selectedStatus = e.target.value;
+            filterOrdersByStatus(selectedStatus);
+        });
+    }
+    
+    if (typeFilter) {
+        const newTypeFilter = typeFilter.cloneNode(true);
+        typeFilter.parentNode.replaceChild(newTypeFilter, typeFilter);
+        
+        newTypeFilter.addEventListener('change', (e) => {
+            const selectedType = e.target.value;
+            filterOrdersByType(selectedType);
+        });
+    }
 }
 
 // Open customer profile modal with detailed information
@@ -2212,27 +2378,76 @@ async function openCustomerProfileModal(customerPhone, customerName) {
 
         // Fetch all orders to get customer data and order history
         const ordersData = await fetchJson('/orders');
-        console.log('All orders data:', ordersData);
+        console.log('[openCustomerProfileModal] All orders data:', ordersData);
         
         const orders = ordersData ? Object.entries(ordersData).map(([id, order]) => ({id, ...order})) : [];
-        console.log('Parsed orders:', orders);
+        console.log('[openCustomerProfileModal] Parsed orders:', orders);
 
-        // Filter orders by phone (primary) or name  
+        // Filter orders by phone (check nested structures + old locations)
         const customerOrders = orders.filter(order => {
-            const phoneMatch = order.consumer_phone === customerPhone;
-            const nameMatch = order.consumer_name === customerName;
-            console.log(`Order ${order.orderId}: phone="${order.consumer_phone}" (match: ${phoneMatch}), name="${order.consumer_name}" (match: ${nameMatch})`);
-            return phoneMatch || nameMatch;
+            let phoneMatches = false;
+            let nameMatches = false;
+            
+            // Check nested structures
+            if (order.delivery && order.delivery.phone === customerPhone) {
+                phoneMatches = true;
+                nameMatches = true;
+            } else if (order.dinein && order.dinein.phone === customerPhone) {
+                phoneMatches = true;
+                nameMatches = true;
+            } else if (order.preorder && order.preorder.phone === customerPhone) {
+                phoneMatches = true;
+                nameMatches = true;
+            }
+            
+            // Check old/backup locations
+            if (!phoneMatches) {
+                phoneMatches = order.consumer_phone === customerPhone || 
+                               order.userInfo?.mobile === customerPhone ||
+                               order.customer?.phone === customerPhone;
+            }
+            
+            // Check name match
+            if (order.delivery?.name === customerName || 
+                order.dinein?.name === customerName || 
+                order.preorder?.name === customerName ||
+                order.consumer_name === customerName) {
+                nameMatches = true;
+            }
+            
+            console.log(`[openCustomerProfileModal] Order ${order.id}: phone_match=${phoneMatches}, name_match=${nameMatches}`);
+            return phoneMatches;
         });
 
-        console.log('Filtered customer orders:', customerOrders);
+        console.log('[openCustomerProfileModal] Filtered customer orders:', customerOrders);
 
-        // Get customer email from orders
-        const customerEmail = customerOrders.length > 0 ? 
-            (customerOrders[0].consumer_email || customerOrders[0].userInfo?.email || '-') : 
-            '-';
+        // Try to get customer email from users data
+        let customerEmail = '-';
+        try {
+            const usersData = await fetchJson('/users');
+            if (usersData) {
+                // Search for user with matching phone
+                for (const [userId, userData] of Object.entries(usersData)) {
+                    if (userData.mobile === customerPhone || userData.phone === customerPhone) {
+                        customerEmail = userData.email || userData.userEmail || '-';
+                        console.log('[openCustomerProfileModal] Found user email:', customerEmail);
+                        break;
+                    }
+                }
+            }
+        } catch (e) {
+            console.log('[openCustomerProfileModal] Could not fetch users data:', e);
+        }
         
-        console.log('Customer email:', customerEmail);
+        // Fallback: get email from orders if not found
+        if (customerEmail === '-' && customerOrders.length > 0) {
+            customerEmail = customerOrders[0].consumer_email || 
+                           customerOrders[0].userInfo?.email || 
+                           customerOrders[0].userEmail ||
+                           '-';
+        }
+        
+        console.log('[openCustomerProfileModal] Customer email:', customerEmail);
         document.getElementById('customerProfileEmail').textContent = customerEmail;
 
         // Calculate analytics
@@ -2242,7 +2457,7 @@ async function openCustomerProfileModal(customerPhone, customerName) {
             formatDate(customerOrders[customerOrders.length - 1].timestamp) :
             'N/A';
 
-        console.log('Analytics - Total Orders:', totalOrders, 'Total Spent:', totalSpent);
+        console.log('[openCustomerProfileModal] Analytics - Total Orders:', totalOrders, 'Total Spent:', totalSpent);
 
         document.getElementById('customerProfileTotalOrders').textContent = totalOrders;
         document.getElementById('customerProfileTotalSpent').textContent = formatCurrency(totalSpent);
@@ -2264,7 +2479,7 @@ async function openCustomerProfileModal(customerPhone, customerName) {
                 const orderDate = formatDate(order.timestamp);
                 const orderAmount = formatCurrency(order.total || 0);
                 const orderStatus = order.status || 'pending';
-                const orderId = order.orderId || order.id || 'N/A';
+                const orderId = order.id || 'N/A';
                 
                 orderEl.innerHTML = `
                     <div class="flex justify-between items-start mb-2">
@@ -2282,8 +2497,8 @@ async function openCustomerProfileModal(customerPhone, customerName) {
 
         openModal('customerProfileModal');
     } catch (error) {
-        console.error('Error loading customer profile:', error);
-        showToast('Error loading customer profile', 'error');
+        console.error('[openCustomerProfileModal] Error:', error);
+        showToast('Error loading customer profile: ' + error.message, 'error');
     }
 }
 
@@ -2664,19 +2879,64 @@ async function saveUserRole() {
 
 // ========== Order Status Management ==========
 let currentEditOrderId = null;
+let currentEditOrder = null;
 
 function openEditOrderModal(orderId, customerName, orderStatus) {
     currentEditOrderId = orderId;
     document.getElementById('editOrderId').value = orderId;
     document.getElementById('editOrderCustomer').value = customerName;
     document.getElementById('editOrderStatus').value = orderStatus;
+    document.getElementById('editOrderStatusSelect').value = orderStatus;
+    
+    // Fetch full order data to get type and details
+    fetchJson(`/orders/${orderId}`, {}).then(order => {
+        currentEditOrder = order;
+        
+        const typeEmojis = {
+            'delivery': '🚚',
+            'dinein': '🍽️',
+            'preorder': '⏰'
+        };
+        
+        const typeLabels = {
+            'delivery': 'Delivery',
+            'dinein': 'Dine-in',
+            'preorder': 'Pre-order'
+        };
+        
+        const typeEmoji = typeEmojis[order.type] || '📦';
+        const typeLabel = typeLabels[order.type] || 'Unknown';
+        document.getElementById('editOrderType').value = `${typeEmoji} ${typeLabel}`;
+        
+        // Build order details text
+        let detailsText = '';
+        if (order.type === 'delivery' && order.delivery) {
+            detailsText = `📍 Delivery Address: ${order.delivery.address}`;
+        } else if (order.type === 'dinein' && order.dinein) {
+            detailsText = `🪑 Table Number: ${order.dinein.table}`;
+        } else if (order.type === 'preorder' && order.preorder) {
+            const preorderTime = new Date(order.preorder.time).toLocaleString();
+            detailsText = `⏰ Pickup/Delivery Time: ${preorderTime}`;
+        }
+        
+        if (order.notes) {
+            detailsText += `\n📝 Notes: ${order.notes}`;
+        }
+        
+        document.getElementById('editOrderDetails').value = detailsText || 'No additional details';
+    }).catch(err => {
+        console.log('Could not load full order data:', err);
+        document.getElementById('editOrderType').value = 'Unknown';
+        document.getElementById('editOrderDetails').value = 'Could not load order details';
+    });
+    
     openModal('editOrderModal');
 }
 
 async function saveOrderStatus() {
     if (!currentEditOrderId) return;
 
-    const newStatus = document.getElementById('editOrderStatus').value;
+    const newStatus = document.getElementById('editOrderStatusSelect').value;
     const dbRef = `${dbUrl}/orders/${currentEditOrderId}.json`;
 
     try {

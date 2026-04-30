@@ -34,6 +34,7 @@
         .toast.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
         .toast-success { background: linear-gradient(135deg,#22c55e,#16a34a); }
         .toast-error { background: linear-gradient(135deg,#ef4444,#b91c1c); }
+        .toast-info { background: linear-gradient(135deg,#0ea5e9,#0284c7); }
         .cart-backdrop {
             position: fixed !important;
             inset: 0;
@@ -583,23 +584,25 @@ function renderCartSidebar() {
   cart.forEach(item => {
     total += item.price * item.quantity;
     const itemEl = document.createElement('div');
-    itemEl.className = 'cart-item-card';
+    itemEl.className = 'rounded-2xl border border-zinc-200 bg-white p-3 shadow-sm hover:shadow-md transition-shadow';
     itemEl.innerHTML = `
-      <img src="${item.image}" alt="${item.name}" class="rounded-3xl" />
-      <div class="space-y-3">
-        <div class="flex items-center justify-between gap-4">
+      <div class="flex gap-3 items-start">
+        <img src="${item.image}" alt="${item.name}" class="w-16 h-16 rounded-lg object-cover flex-shrink-0" />
+        <div class="flex-1 min-w-0 flex flex-col justify-between">
           <div>
-            <p class="font-semibold text-zinc-900">${item.name}</p>
-            <p class="text-sm text-zinc-500">₹${item.price.toFixed(2)} each</p>
+            <p class="font-semibold text-sm text-zinc-900 line-clamp-2">${item.name}</p>
+            <p class="text-xs text-zinc-600 mt-1">₹${item.price.toFixed(2)} each</p>
           </div>
-          <p class="font-black text-zinc-900">₹${(item.quantity * item.price).toFixed(2)}</p>
+          <p class="text-sm font-black text-primary mt-1">₹${(item.quantity * item.price).toFixed(2)}</p>
         </div>
-        <div class="flex flex-wrap items-center gap-2">
-          <button type="button" class="px-3 py-1 rounded-full border border-zinc-300 bg-white text-sm" data-action="decrease">-</button>
-          <span class="font-semibold">${item.quantity}</span>
-          <button type="button" class="px-3 py-1 rounded-full border border-zinc-300 bg-white text-sm" data-action="increase">+</button>
-          <button type="button" class="ml-auto text-red-600 font-semibold" data-action="remove">Remove</button>
+      </div>
+      <div class="flex items-center justify-between gap-2 mt-3 pt-2 border-t border-zinc-200">
+        <div class="flex items-center gap-1 bg-zinc-100 rounded-full px-2 py-1">
+          <button type="button" class="w-5 h-5 flex items-center justify-center text-zinc-700 hover:text-primary text-sm font-bold" data-action="decrease">−</button>
+          <span class="font-semibold text-xs text-center w-4">${item.quantity}</span>
+          <button type="button" class="w-5 h-5 flex items-center justify-center text-zinc-700 hover:text-primary text-sm font-bold" data-action="increase">+</button>
         </div>
+        <button type="button" class="text-red-600 hover:text-red-700 text-xs font-semibold" data-action="remove">Remove</button>
       </div>
     `;
     itemEl.querySelector('[data-action="increase"]')?.addEventListener('click', () => {

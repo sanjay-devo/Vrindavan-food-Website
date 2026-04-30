@@ -34,6 +34,7 @@
         .toast.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
         .toast-success { background: linear-gradient(135deg,#22c55e,#16a34a); }
         .toast-error { background: linear-gradient(135deg,#ef4444,#b91c1c); }
+        .toast-info { background: linear-gradient(135deg,#0ea5e9,#0284c7); }
         .cart-backdrop {
             position: fixed !important;
             inset: 0;
@@ -454,23 +455,25 @@ function renderCartSidebar() {
   cart.forEach(item => {
     total += item.price * item.quantity;
     const itemEl = document.createElement('div');
-    itemEl.className = 'cart-item-card';
+    itemEl.className = 'rounded-2xl border border-zinc-200 bg-white p-3 shadow-sm hover:shadow-md transition-shadow';
     itemEl.innerHTML = `
-      <img src="${item.image}" alt="${item.name}" class="rounded-3xl" />
-      <div class="space-y-3">
-        <div class="flex items-center justify-between gap-4">
+      <div class="flex gap-3 items-start">
+        <img src="${item.image}" alt="${item.name}" class="w-16 h-16 rounded-lg object-cover flex-shrink-0" />
+        <div class="flex-1 min-w-0 flex flex-col justify-between">
           <div>
-            <p class="font-semibold text-zinc-900">${item.name}</p>
-            <p class="text-sm text-zinc-500">₹${item.price.toFixed(2)} each</p>
+            <p class="font-semibold text-sm text-zinc-900 line-clamp-2">${item.name}</p>
+            <p class="text-xs text-zinc-600 mt-1">₹${item.price.toFixed(2)} each</p>
           </div>
-          <p class="font-black text-zinc-900">₹${(item.quantity * item.price).toFixed(2)}</p>
+          <p class="text-sm font-black text-primary mt-1">₹${(item.quantity * item.price).toFixed(2)}</p>
         </div>
-        <div class="flex flex-wrap items-center gap-2">
-          <button type="button" class="px-3 py-1 rounded-full border border-zinc-300 bg-white text-sm" data-action="decrease">-</button>
-          <span class="font-semibold">${item.quantity}</span>
-          <button type="button" class="px-3 py-1 rounded-full border border-zinc-300 bg-white text-sm" data-action="increase">+</button>
-          <button type="button" class="ml-auto text-red-600 font-semibold" data-action="remove">Remove</button>
+      </div>
+      <div class="flex items-center justify-between gap-2 mt-3 pt-2 border-t border-zinc-200">
+        <div class="flex items-center gap-1 bg-zinc-100 rounded-full px-2 py-1">
+          <button type="button" class="w-5 h-5 flex items-center justify-center text-zinc-700 hover:text-primary text-sm font-bold" data-action="decrease">−</button>
+          <span class="font-semibold text-xs text-center w-4">${item.quantity}</span>
+          <button type="button" class="w-5 h-5 flex items-center justify-center text-zinc-700 hover:text-primary text-sm font-bold" data-action="increase">+</button>
         </div>
+        <button type="button" class="text-red-600 hover:text-red-700 text-xs font-semibold" data-action="remove">Remove</button>
       </div>
     `;
     itemEl.querySelector('[data-action="increase"]')?.addEventListener('click', () => {
@@ -574,18 +577,51 @@ function renderOrders(orders) {
     ordersContainer.innerHTML = '<div class="text-center text-zinc-500 py-12">No orders yet. Place your first order from the menu.</div>';
     return;
   }
+  
+  const typeEmojis = {
+    'delivery': '🚚',
+    'dinein': '🍽️',
+    'preorder': '⏰'
+  };
+  
+  const typeLabels = {
+    'delivery': 'Delivery',
+    'dinein': 'Dine-in',
+    'preorder': 'Pre-order'
+  };
+  
   orders.forEach(order => {
     const card = document.createElement('div');
     card.className = 'rounded-[2rem] border border-zinc-200 p-8 bg-white shadow-lg shadow-black/5';
     const orderId = order.orderId || order.id || 'N/A';
     const statusColor = getStatusBadgeColor(order.status);
+    const typeEmoji = typeEmojis[order.type] || '📦';
+    const typeLabel = typeLabels[order.type] || 'Unknown';
+    
+    // Generate order details based on type
+    let typeDetails = '';
+    if (order.type === 'delivery' && order.delivery) {
+      typeDetails = `<p class="text-sm text-zinc-600 mt-1">📍 ${order.delivery.address}</p>`;
+    } else if (order.type === 'dinein' && order.dinein) {
+      typeDetails = `<p class="text-sm text-zinc-600 mt-1">🪑 Table ${order.dinein.table}</p>`;
+    } else if (order.type === 'preorder' && order.preorder) {
+      const preorderTime = new Date(order.preorder.time).toLocaleString();
+      typeDetails = `<p class="text-sm text-zinc-600 mt-1">⏰ ${preorderTime}</p>`;
+    }
+    
     card.innerHTML = `
       <div class="mb-6">
         <p class="text-sm uppercase tracking-[0.3em] text-zinc-400">Order ID</p>
         <p class="font-bold text-zinc-900 mt-2 font-mono text-sm mb-3">${orderId}</p>
-        <div class="font-bold px-4 py-2 rounded-full text-sm ${statusColor}" style="white-space: nowrap; display: inline-block;">
-          ${getStatusIcon(order.status)} ${order.status || 'pending'}
+        <div class="flex gap-2 flex-wrap">
+          <div class="font-bold px-4 py-2 rounded-full text-sm bg-blue-100 text-blue-700" style="white-space: nowrap; display: inline-block;">
+            ${typeEmoji} ${typeLabel}
+          </div>
+          <div class="font-bold px-4 py-2 rounded-full text-sm ${statusColor}" style="white-space: nowrap; display: inline-block;">
+            ${getStatusIcon(order.status)} ${order.status || 'pending'}
+          </div>
         </div>
+        ${typeDetails}
         <p class="text-sm text-zinc-500 mt-3">${formatDate(order.timestamp || order.createdAt)}</p>
       </div>
       <div class="flex flex-col md:flex-row md:justify-between gap-6 mb-6">
