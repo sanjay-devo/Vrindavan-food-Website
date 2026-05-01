@@ -30,7 +30,7 @@
     </script>
 <style>
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-        .toast { position: fixed; right: 1rem; top: 1rem; min-width: 260px; padding: 1rem 1.25rem; border-radius: 1rem; box-shadow: 0 25px 50px rgba(15, 23, 42, 0.15); color: white; z-index: 9999 !important; transform: translateY(-20px); opacity: 0; pointer-events: none; transition: opacity 200ms ease, transform 200ms ease; }
+        .toast { position: fixed; right: 1rem; top: 1rem; min-width: 260px; padding: 1rem 1.25rem; border-radius: 1rem; box-shadow: 0 25px 50px rgba(15, 23, 42, 0.15); color: white; z-index: 11000 !important; transform: translateY(-20px); opacity: 0; pointer-events: none; transition: opacity 200ms ease, transform 200ms ease; }
         .toast.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
         .toast-success { background: linear-gradient(135deg,#22c55e,#16a34a); }
         .toast-error { background: linear-gradient(135deg,#ef4444,#b91c1c); }
@@ -872,15 +872,48 @@ function fetchJson(path, options = {}) {
   const url = path.includes('?')
     ? `${dbUrl}${path.replace('?', '.json?')}`
     : `${dbUrl}${path}.json`;
+  
+  // Log request details for PUT/PATCH operations
+  if (options.method && (options.method === 'PUT' || options.method === 'PATCH')) {
+    console.log(`\n📤 [FETCH REQUEST] ${options.method} ${url}`);
+    if (options.body) {
+      try {
+        const bodyObj = JSON.parse(options.body);
+        console.log('📤 Request body:', bodyObj);
+        if (bodyObj.delivery?.address) {
+          console.log('📤 Address in body:', bodyObj.delivery.address);
+          console.log('📤 Address length:', bodyObj.delivery.address.length);
+        }
+      } catch (e) {
+        console.log('📤 Body (raw):', options.body.substring(0, 200) + '...');
+      }
+    }
+  }
+  
   return fetch(url, {
     headers: { 'Content-Type': 'application/json' },
     ...options
   }).then(async response => {
     if (!response.ok) {
       const errorText = await response.text();
+      console.error(`❌ [FETCH ERROR] ${response.status}: ${errorText}`);
       throw new Error(errorText || 'Network error');
     }
-    return response.json();
+    const data = await response.json();
+    
+    // Log response for GET operations or important paths
+    if (!options.method || options.method === 'GET') {
+      if (path.includes('/orders/')) {
+        console.log(`\n📥 [FETCH RESPONSE] GET ${url}`);
+        console.log('📥 Response data:', data);
+        if (data.delivery?.address) {
+          console.log('📥 Address in response:', data.delivery.address);
+          console.log('📥 Address length:', data.delivery.address.length);
+        }
+      }
+    }
+    
+    return data;
   });
 }
 
@@ -987,20 +1020,19 @@ function isValidPhone(phone) {
   return phoneRegex.test(phone.replace(/\D/g, ''));
 }
 
-// Set minimum date/time for pre-order (at least 30 minutes from now)
+// Set current date/time for pre-order and allow the user to change it
 function setMinPreorderTime() {
   const now = new Date();
-  now.setMinutes(now.getMinutes() + 30);
-  
+
   // Set today's date as default
   const today = new Date();
   const dateStr = today.toISOString().split('T')[0];
   const timeStr = now.toTimeString().slice(0, 5);
-  
+
   document.getElementById('preorderDate').value = dateStr;
   document.getElementById('preorderDate').min = dateStr;
   document.getElementById('preorderTimeOnly').value = timeStr;
-  
+
   // Set up quick select buttons
   setupQuickTimeButtons();
 }
@@ -1152,27 +1184,8 @@ function loadSavedAddresses() {
       addresses.forEach((addr) => {
         const option = document.createElement('option');
         option.value = JSON.stringify(addr);
-        
-        // Build complete address from all available fields
-        let addressParts = [];
-        
-        // Add name if available
-        if (addr.name) {
-          addressParts.push(addr.name);
-        }
-        
-        // Add street, city, zipcode
-        const locationParts = [];
-        if (addr.street) locationParts.push(addr.street);
-        if (addr.city) locationParts.push(addr.city);
-        if (addr.zipcode) locationParts.push(addr.zipcode);
-        
-        if (locationParts.length > 0) {
-          addressParts.push(locationParts.join(' '));
-        }
-        
-        const fullAddress = addressParts.filter(Boolean).join(' - ');
-        option.text = fullAddress || 'Address';
+        // Use the full address from 'address' field
+        option.text = addr.address || 'Address';
         select.appendChild(option);
       });
       
@@ -1212,31 +1225,45 @@ function handleAddressSelection() {
     document.getElementById('deliveryAddress').focus();
   } else if (select.value) {
     newAddressGroup.style.display = 'none';
-    const addr = JSON.parse(select.value);
-    
-    // Build complete address from all available fields
-    let addressParts = [];
-    
-    // Add name if available
-    if (addr.name) {
-      addressParts.push(addr.name);
+    try {
+      const addr = JSON.parse(select.value);
+      // Use the full address from 'address' field
+      document.getElementById('deliveryAddress').value = addr.address || 'No address available';
+      console.log('[ADDRESS SELECT] Using full address:', addr.address);
+    } catch (e) {
+      console.error('[ADDRESS SELECT] Error parsing address:', e);
+      document.getElementById('deliveryAddress').value = 'Error loading address';
     }
-    
-    // Add street, city, zipcode
-    const locationParts = [];
-    if (addr.street) locationParts.push(addr.street);
-    if (addr.city) locationParts.push(addr.city);
-    if (addr.zipcode) locationParts.push(addr.zipcode);
-    
-    if (locationParts.length > 0) {
-      addressParts.push(locationParts.join(' '));
-    }
-    
-    const fullAddress = addressParts.filter(Boolean).join(' - ');
-    document.getElementById('deliveryAddress').value = fullAddress || '';
   } else {
     newAddressGroup.style.display = 'none';
   }
+}
+
+function parseAddressComponents(fullAddress) {
+  let street = '';
+  let city = '';
+  let zipcode = '';
+  let remaining = fullAddress.trim();
+
+  const zipcodeMatch = remaining.match(/(\d{6})\s*$/);
+  if (zipcodeMatch) {
+    zipcode = zipcodeMatch[1];
+    remaining = remaining.replace(/\s*\d{6}\s*$/, '').trim();
+  }
+
+  if (remaining.includes('-')) {
+    const parts = remaining.split('-').map(part => part.trim()).filter(Boolean);
+    city = parts.length > 1 ? parts[parts.length - 1] : '';
+    street = parts.length > 1 ? parts.slice(0, -1).join(' - ').trim() : remaining;
+  } else if (remaining.includes(',')) {
+    const parts = remaining.split(',').map(part => part.trim()).filter(Boolean);
+    city = parts.length > 1 ? parts[parts.length - 1] : '';
+    street = parts.length > 1 ? parts.slice(0, -1).join(', ').trim() : remaining;
+  } else {
+    street = remaining;
+  }
+
+  return { street, city, zipcode };
 }
 
 async function proceedToCheckout() {
@@ -1281,6 +1308,10 @@ async function proceedToCheckout() {
       let address = '';
       if (addressSelect === 'new') {
         address = document.getElementById('deliveryAddress').value.trim();
+        console.log('[CHECKOUT] NEW ADDRESS');
+        console.log('  Raw textarea value:', document.getElementById('deliveryAddress').value);
+        console.log('  Trimmed address:', address);
+        console.log('  Address length:', address.length);
         if (!address) {
           showToast('Please enter delivery address', 'error');
           proceedBtn.disabled = false;
@@ -1288,7 +1319,37 @@ async function proceedToCheckout() {
           return;
         }
       } else if (addressSelect) {
-        address = JSON.parse(addressSelect).address;
+        try {
+          const parsedAddr = JSON.parse(addressSelect);
+          // Saved addresses store the full address in the 'address' field
+          address = parsedAddr.address || '';
+          
+          // Parse address components from full address
+          const parsed = parseAddressComponents(address);
+          orderData.delivery = {
+            address,
+            street: parsed.street,
+            city: parsed.city,
+            zipcode: parsed.zipcode
+          };
+          
+          console.log('[CHECKOUT] 🔍 SAVED ADDRESS SELECTED');
+          console.log('  Full address:', address);
+          console.log('  Parsed components:', parsed);
+          console.log('  orderData.delivery:', orderData.delivery);
+          if (!address) {
+            showToast('Invalid address selected', 'error');
+            proceedBtn.disabled = false;
+            proceedBtn.innerHTML = 'Place Order';
+            return;
+          }
+        } catch (e) {
+          console.error('Error parsing address:', e);
+          showToast('Error processing address', 'error');
+          proceedBtn.disabled = false;
+          proceedBtn.innerHTML = 'Place Order';
+          return;
+        }
       } else {
         showToast('Please select or enter an address', 'error');
         proceedBtn.disabled = false;
@@ -1296,9 +1357,27 @@ async function proceedToCheckout() {
         return;
       }
       
+      if (!orderData.delivery) {
+        const parsed = parseAddressComponents(address);
+        orderData.delivery = {
+          address,
+          street: parsed.street,
+          city: parsed.city,
+          zipcode: parsed.zipcode
+        };
+      }
+      
       orderData.customer = { name, phone };
-      orderData.delivery = { address };
       orderData.notes = notes;
+      
+      console.log('[CHECKOUT] ✅✅✅ DELIVERY DATA BEING SENT ✅✅✅');
+      console.log('  address variable value:', address);
+      console.log('  address.length:', address.length);
+      console.log('  orderData.delivery:', orderData.delivery);
+      console.log('  orderData.delivery.address:', orderData.delivery.address);
+      console.log('  orderData.delivery.address.length:', orderData.delivery.address.length);
+      console.log('  Bytes in address:', new TextEncoder().encode(address).length);
+      console.log('✅✅✅');
       
       // Save address to user profile if new
       if (addressSelect === 'new') {
@@ -1363,11 +1442,10 @@ async function proceedToCheckout() {
       const datetime = `${date}T${time}`;
       const selectedTime = new Date(datetime);
       const now = new Date();
-      
-      // Check if time is at least 30 minutes in future
-      const minTime = new Date(now.getTime() + 30 * 60000);
-      if (selectedTime < minTime) {
-        showToast('Please select a time at least 30 minutes from now', 'error');
+      const fiveMinutesAgo = new Date(now.getTime() - 5 * 60000);
+
+      if (selectedTime < fiveMinutesAgo) {
+        showToast('Please do not select past time.', 'error');
         proceedBtn.disabled = false;
         proceedBtn.innerHTML = 'Place Order';
         return;
@@ -1379,6 +1457,11 @@ async function proceedToCheckout() {
     }
     
     // Create the order
+    console.log('[CHECKOUT] Final orderData before createOrder:', orderData);
+    console.log('[CHECKOUT] orderData.type:', orderData.type);
+    console.log('[CHECKOUT] orderData.delivery:', orderData.delivery);
+    console.log('[CHECKOUT] orderData.dinein:', orderData.dinein);
+    console.log('[CHECKOUT] orderData.preorder:', orderData.preorder);
     await createOrder(orderData);
     
     closeCheckoutModal();
@@ -1403,28 +1486,42 @@ async function saveAddressToUser(fullAddress, addressName) {
   if (!user || !user.uid) return;
   
   try {
-    // Save with full address in name field (same as account page)
+    console.log('\n' + '='.repeat(80));
+    console.log('📝 SAVE ADDRESS TO USER START');
+    console.log('='.repeat(80));
+    console.log('  fullAddress param:', fullAddress);
+    console.log('  fullAddress length:', fullAddress.length);
+    
+    // Save address in new simplified format
     const addressObject = {
-      name: fullAddress,
-      street: '',
-      city: '',
-      zipcode: '',
-      details: '',
+      address: fullAddress,
       createdAt: new Date().getTime()
     };
+    console.log('  addressObject to save:', JSON.stringify(addressObject, null, 2));
     
-    // Save to addresses endpoint (same as account page)
+    // Save to addresses endpoint
     const addressId = Date.now();
     await fetchJson(`/addresses/${user.uid}/${addressId}`, {
       method: 'PUT',
       body: JSON.stringify(addressObject)
     });
+    console.log('[SAVE ADDRESS] Success:', addressObject);
   } catch (error) {
     console.error('Error saving address:', error);
   }
 }
 
 async function createOrder(orderData) {
+  console.log('=== CREATE ORDER START ===');
+  console.log('orderData received:');
+  console.log('  type:', orderData.type);
+  console.log('  customer:', orderData.customer);
+  console.log('  delivery:', orderData.delivery);
+  console.log('  delivery.address:', orderData.delivery?.address);
+  console.log('  delivery.address length:', orderData.delivery?.address?.length);
+  console.log('  notes:', orderData.notes);
+  console.log('  items:', orderData.items.length, 'items');
+  
   const user = getCurrentUser();
   const sequenceNumber = await getNextOrderSequence();
   const orderId = generateOrderId(sequenceNumber);
@@ -1457,16 +1554,37 @@ async function createOrder(orderData) {
     createdAt: new Date().toISOString()
   };
   
-  await fetchJson(`/orders/${orderId}`, {
-    method: 'PUT',
-    body: JSON.stringify(order)
-  });
+  console.log('=== ORDER OBJECT TO SEND TO FIREBASE ===');
+  console.log('Order ID:', order.orderId);
+  console.log('Type:', order.type);
+  console.log('Customer:', order.customer);
+  console.log('Delivery:', order.delivery);
+  console.log('Delivery.address:', order.delivery?.address);
+  console.log('Delivery.address length:', order.delivery?.address?.length);
+  console.log('Notes:', order.notes);
+  console.log('Full order JSON:');
+  console.log(JSON.stringify(order, null, 2));
   
-  // Also store under user's orders
-  await fetchJson(`/users/${user.uid}/orders/${orderId}`, {
-    method: 'PUT',
-    body: JSON.stringify({ orderId: orderId, status: 'pending', type: orderData.type })
-  });
+  try {
+    console.log('Sending PUT request to /orders/' + orderId);
+    const response1 = await fetchJson(`/orders/${orderId}`, {
+      method: 'PUT',
+      body: JSON.stringify(order)
+    });
+    console.log('✅ Firebase response for /orders:', response1);
+    
+    // Also store under user's orders
+    console.log('Sending PUT request to /users/' + user.uid + '/orders/' + orderId);
+    const response2 = await fetchJson(`/users/${user.uid}/orders/${orderId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ orderId: orderId, status: 'pending', type: orderData.type })
+    });
+    console.log('✅ Firebase response for /users:', response2);
+    console.log('=== CREATE ORDER SUCCESS ===');
+  } catch (error) {
+    console.error('❌ ERROR in createOrder:', error);
+    throw error;
+  }
 }
 
 

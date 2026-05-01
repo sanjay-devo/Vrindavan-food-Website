@@ -291,7 +291,6 @@
 <div class="text-center mb-12">
 <span class="text-primary font-bold text-sm uppercase tracking-[0.4em]">Order History</span>
 <h1 class="text-5xl font-headline font-extrabold mt-4">Your past orders</h1>
-<p class="text-zinc-600 text-lg mt-4">All your orders are saved securely in Firebase and available anytime.</p>
 </div>
 <div id="ordersContainer" class="grid gap-8"></div>
 </section>
@@ -530,7 +529,7 @@ function formatDate(timestamp) {
     if (!timestamp) return 'N/A';
     const date = new Date(Number(timestamp));
     if (isNaN(date.getTime())) return 'N/A';
-    return date.toLocaleString('en-IN', {
+    return date.toLocaleString('en-GB', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
@@ -592,58 +591,117 @@ function renderOrders(orders) {
   
   orders.forEach(order => {
     const card = document.createElement('div');
-    card.className = 'rounded-[2rem] border border-zinc-200 p-8 bg-white shadow-lg shadow-black/5';
+    card.className = 'rounded-2xl border border-zinc-200 p-6 bg-gradient-to-br from-white to-zinc-50 hover:shadow-lg transition-all';
     const orderId = order.orderId || order.id || 'N/A';
     const statusColor = getStatusBadgeColor(order.status);
+    const statusIcon = getStatusIcon(order.status);
     const typeEmoji = typeEmojis[order.type] || '📦';
     const typeLabel = typeLabels[order.type] || 'Unknown';
     
     // Generate order details based on type
     let typeDetails = '';
     if (order.type === 'delivery' && order.delivery) {
-      typeDetails = `<p class="text-sm text-zinc-600 mt-1">📍 ${order.delivery.address}</p>`;
+      let displayAddress = '';
+      if (typeof order.delivery === 'string') {
+        displayAddress = order.delivery;
+      } else if (order.delivery.address) {
+        displayAddress = order.delivery.address;
+      } else {
+        const parts = [];
+        if (order.delivery.street) parts.push(order.delivery.street);
+        if (order.delivery.city) parts.push(order.delivery.city);
+        if (order.delivery.zipcode) parts.push(order.delivery.zipcode);
+        displayAddress = parts.filter(Boolean).join(' ');
+      }
+      typeDetails = `
+        <div class="space-y-2">
+          <div class="text-[11px] uppercase tracking-[0.25em] text-zinc-500">Delivery address</div>
+          <div class="text-sm text-zinc-700 leading-6">${displayAddress || 'Address not available'}</div>
+        </div>
+      `;
+      if (order.delivery.notes) {
+        typeDetails += `
+          <div class="text-xs text-zinc-500 pt-2 border-t border-zinc-200">📝 <strong>Notes:</strong> ${order.delivery.notes}</div>
+        `;
+      }
     } else if (order.type === 'dinein' && order.dinein) {
-      typeDetails = `<p class="text-sm text-zinc-600 mt-1">🪑 Table ${order.dinein.table}</p>`;
+      const tableInfo = order.dinein.table ? `Table ${order.dinein.table}` : 'Table N/A';
+      typeDetails = `
+        <div class="space-y-2">
+          <div class="text-[11px] uppercase tracking-[0.25em] text-zinc-500">Dine-in details</div>
+          <div class="text-sm text-zinc-700 leading-6">${tableInfo}</div>
+        </div>
+      `;
+      if (order.dinein.requests) {
+        typeDetails += `
+          <div class="text-xs text-zinc-500 pt-2 border-t border-zinc-200">📝 <strong>Notes:</strong> ${order.dinein.requests}</div>
+        `;
+      }
     } else if (order.type === 'preorder' && order.preorder) {
-      const preorderTime = new Date(order.preorder.time).toLocaleString();
-      typeDetails = `<p class="text-sm text-zinc-600 mt-1">⏰ ${preorderTime}</p>`;
+      const preorderTime = new Date(order.preorder.time).toLocaleString('en-GB', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      typeDetails = `
+        <div class="space-y-2">
+          <div class="text-[11px] uppercase tracking-[0.25em] text-zinc-500">Scheduled for</div>
+          <div class="text-sm text-zinc-700 leading-6">${preorderTime}</div>
+        </div>
+      `;
+      if (order.preorder.notes) {
+        typeDetails += `
+          <div class="text-xs text-zinc-500 pt-2 border-t border-zinc-200">📝 <strong>Notes:</strong> ${order.preorder.notes}</div>
+        `;
+      }
+    }
+
+    const orderNotes = order.notes;
+    if (orderNotes && typeDetails) {
+      typeDetails += `
+        <div class="text-xs text-zinc-500 pt-2 border-t border-zinc-200">📝 <strong>Notes:</strong> ${orderNotes}</div>
+      `;
+    } else if (orderNotes) {
+      typeDetails = `
+        <div class="space-y-2">
+          <div class="text-[11px] uppercase tracking-[0.25em] text-zinc-500">Notes</div>
+          <div class="text-sm text-zinc-700 leading-6">${orderNotes}</div>
+        </div>
+      `;
     }
     
     card.innerHTML = `
-      <div class="mb-6">
-        <p class="text-sm uppercase tracking-[0.3em] text-zinc-400">Order ID</p>
-        <p class="font-bold text-zinc-900 mt-2 font-mono text-sm mb-3">${orderId}</p>
-        <div class="flex gap-2 flex-wrap">
-          <div class="font-bold px-4 py-2 rounded-full text-sm bg-blue-100 text-blue-700" style="white-space: nowrap; display: inline-block;">
-            ${typeEmoji} ${typeLabel}
+      <div class="flex justify-between items-start mb-4 flex-wrap gap-2">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 mb-2 flex-wrap">
+            <h3 class="font-bold text-lg break-all">Order #${orderId}</h3>
+            <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-blue-100 text-blue-800 whitespace-nowrap">${typeEmoji} ${typeLabel}</span>
           </div>
-          <div class="font-bold px-4 py-2 rounded-full text-sm ${statusColor}" style="white-space: nowrap; display: inline-block;">
-            ${getStatusIcon(order.status)} ${order.status || 'pending'}
-          </div>
+          <p class="text-xs text-zinc-500">${formatDate(order.timestamp || order.createdAt)}</p>
         </div>
-        ${typeDetails}
-        <p class="text-sm text-zinc-500 mt-3">${formatDate(order.timestamp || order.createdAt)}</p>
+        <span class="px-3 py-1.5 text-xs font-bold rounded-full ${statusColor} whitespace-nowrap">
+          ${statusIcon} ${order.status || 'pending'}
+        </span>
       </div>
-      <div class="flex flex-col md:flex-row md:justify-between gap-6 mb-6">
-        <div>
-          <p class="text-sm uppercase tracking-[0.3em] text-zinc-400">Total</p>
-          <p class="font-bold mt-2 text-zinc-900 text-lg">${formatCurrency(order.total || order.totalAmount || 0)}</p>
-        </div>
-        <div>
-          <p class="text-sm uppercase tracking-[0.3em] text-zinc-400">Date</p>
-          <p class="font-bold mt-2 text-zinc-900">${formatDate(order.timestamp || order.createdAt)}</p>
-        </div>
-      </div>
-      <div class="grid gap-4">
+      ${typeDetails ? `<div class="text-sm text-zinc-700 mb-4 p-4 bg-zinc-100/50 rounded-2xl shadow-sm">${typeDetails}</div>` : ''}
+      <div class="space-y-2 mb-4">
         ${order.items && Array.isArray(order.items) ? order.items.map(item => `
-          <div class="flex items-center gap-4">
-            <img src="${item.image || 'https://via.placeholder.com/80'}" alt="${item.name}" class="w-20 h-20 rounded-3xl object-cover" />
-            <div class="flex-1">
-              <p class="font-bold text-zinc-900">${item.name}</p>
-              <p class="text-zinc-500 text-sm">Qty ${item.quantity} · ${formatCurrency(item.price * item.quantity)}</p>
-            </div>
+          <div class="flex justify-between items-center text-xs md:text-sm gap-2">
+            <span class="text-zinc-600 flex-1 min-w-0">${item.name || 'Item'} <span class="text-zinc-500">×${item.quantity}</span></span>
+            <span class="font-semibold text-zinc-900 whitespace-nowrap">${formatCurrency((item.price || 0) * (item.quantity || 1))}</span>
           </div>
         `).join('') : ''}
+      </div>
+      <div class="space-y-1.5 text-xs text-zinc-600 border-t border-zinc-200 pt-2.5 mb-3">
+        ${order.subtotal ? `<div class="flex justify-between"><span>Subtotal</span><span>${formatCurrency(order.subtotal)}</span></div>` : ''}
+        ${order.deliveryFee && order.deliveryFee > 0 ? `<div class="flex justify-between"><span>Delivery Fee</span><span>${formatCurrency(order.deliveryFee)}</span></div>` : ''}
+        ${order.tax && order.tax > 0 ? `<div class="flex justify-between"><span>Tax</span><span>${formatCurrency(order.tax)}</span></div>` : ''}
+      </div>
+      <div class="flex justify-between font-bold text-base pt-2.5 border-t border-zinc-200">
+        <span class="text-zinc-700">Total</span>
+        <span class="text-primary">${formatCurrency(order.total || order.totalAmount || 0)}</span>
       </div>
     `;
     ordersContainer.appendChild(card);

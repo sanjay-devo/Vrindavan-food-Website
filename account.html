@@ -441,6 +441,27 @@
                 gap: 0.75rem;
             }
 
+            #addressesTab > .flex {
+                flex-direction: row !important;
+                align-items: center;
+                justify-content: space-between;
+                gap: 0.75rem;
+            }
+
+            #addressesTab > .flex h2 {
+                font-size: 1.4rem;
+                line-height: 1.2;
+                margin-bottom: 0;
+            }
+
+            #addressesTab > .flex button {
+                width: auto;
+                min-width: 100px;
+                padding: 0.6rem 0.9rem;
+                font-size: 0.92rem;
+                line-height: 1.2;
+            }
+
             #addressesTab button {
                 width: 100%;
             }
@@ -463,19 +484,6 @@
                 font-size: 0.875rem;
             }
 
-            .address-card .flex {
-                gap: 0.75rem;
-            }
-
-            .address-card button {
-                padding: 0.75rem;
-                gap: 0.5rem;
-            }
-
-            .address-card button span {
-                font-size: 1rem;
-            }
-
             #addressFormContainer {
                 margin-bottom: 1.5rem !important;
                 padding: 1rem !important;
@@ -496,11 +504,33 @@
             }
 
             /* Mobile Responsive for Payments Tab */
+            #paymentsTab > .flex {
+                flex-direction: row !important;
+                align-items: center;
+                justify-content: space-between;
+                gap: 0.75rem;
+            }
+
+            #paymentsTab > .flex h2 {
+                font-size: 1.4rem;
+                line-height: 1.2;
+                margin-bottom: 0;
+            }
+
+            #paymentsTab > .flex button {
+                width: auto;
+                min-width: 100px;
+                padding: 0.6rem 0.9rem;
+                font-size: 0.92rem;
+                line-height: 1.2;
+            }
+
             #paymentsTab .flex.flex-col {
                 gap: 0.75rem;
             }
 
-            #paymentsTab button {
+            #paymentsTab > div.flex.flex-col button,
+            #paymentFormContainer button {
                 width: 100%;
             }
 
@@ -531,6 +561,19 @@
             #paymentForm .flex.gap-3 button {
                 width: 100%;
             }
+        }
+
+        .payment-card-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            justify-content: space-between;
+        }
+
+        .payment-card-actions button {
+            flex: 1 1 45%;
+            min-width: 0;
+            max-width: calc(50% - 0.75rem);
         }
 
         .profile-header {
@@ -619,6 +662,17 @@
                 flex-direction: column;
             }
 
+            /* Keep address card buttons side by side */
+            .address-card .flex {
+                flex-direction: row !important;
+            }
+
+            /* Keep payment icon and details side by side on mobile */
+            #paymentsTab .payment-card > .flex {
+                flex-direction: row !important;
+                align-items: flex-start;
+            }
+
             .inline-flex {
                 display: inline-flex;
                 align-items: center;
@@ -650,6 +704,17 @@
             #ordersTab .flex.md\:flex-row {
                 flex-direction: column;
                 gap: 1rem;
+            }
+
+            /* Order cards mobile optimization */
+            #ordersTab > div {
+                gap: 0.75rem !important;
+            }
+
+            #ordersTab .border.rounded-2xl {
+                margin: 0 -0.5rem;
+                margin-bottom: 0.75rem;
+                max-width: calc(100% + 1rem);
             }
         }
 
@@ -1022,17 +1087,12 @@
 
                         <!-- Address Form -->
                         <div id="addressFormContainer" class="hidden bg-zinc-50 rounded-2xl p-6 mb-8 fade-in">
-                            <h3 class="font-bold text-lg mb-4">Add New Address</h3>
+                            <h3 id="addressFormHeading" class="font-bold text-lg mb-4">Add New Address</h3>
                             <form id="addressForm" class="space-y-4">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <input type="text" id="addressName" placeholder="Address Name (e.g., Home)" class="border border-zinc-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/30 outline-none" required/>
-                                    <input type="text" id="addressStreet" placeholder="Street Address" class="border border-zinc-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/30 outline-none" required/>
-                                    <input type="text" id="addressCity" placeholder="City" class="border border-zinc-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/30 outline-none" required/>
-                                    <input type="text" id="addressZipcode" placeholder="Zipcode" class="border border-zinc-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/30 outline-none" required/>
-                                </div>
-                                <textarea id="addressDetails" placeholder="Additional details (apartment, floor, etc.)" class="w-full border border-zinc-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/30 outline-none" rows="3"></textarea>
+                                <input type="hidden" id="editingAddressId" value="">
+                                <textarea id="fullAddress" placeholder="Enter complete address: Street name, Area/Locality, City, State Pincode (e.g., 123 Bakery Street, Sector 5, Indore, Madhya Pradesh 452001)" class="w-full border border-zinc-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/30 outline-none" rows="4" required></textarea>
                                 <div class="flex gap-3">
-                                    <button type="submit" class="px-6 py-3 bg-primary text-white rounded-full font-bold hover:bg-red-700 transition-all">
+                                    <button type="submit" id="addressSubmitBtn" class="px-6 py-3 bg-primary text-white rounded-full font-bold hover:bg-red-700 transition-all">
                                         Save Address
                                     </button>
                                     <button type="button" onclick="toggleAddressForm()" class="px-6 py-3 bg-zinc-200 text-zinc-700 rounded-full font-bold hover:bg-zinc-300 transition-all">
@@ -1063,8 +1123,9 @@
 
                         <!-- Payment Form -->
                         <div id="paymentFormContainer" class="hidden bg-zinc-50 rounded-2xl p-6 mb-8 fade-in">
-                            <h3 class="font-bold text-lg mb-4">Add New Payment Method</h3>
+                            <h3 id="paymentFormHeading" class="font-bold text-lg mb-4">Add New Payment Method</h3>
                             <form id="paymentForm" class="space-y-4">
+                                <input type="hidden" id="editingPaymentId" value="">
                                 <div>
                                     <label class="block text-sm font-semibold mb-2">Card Holder Name</label>
                                     <input type="text" id="paymentCardName" placeholder="Name on card" class="w-full border border-zinc-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/30 outline-none" required/>
@@ -1623,6 +1684,9 @@
                 const typeEmoji = typeEmojis[orderType] || '📦';
                 const typeLabel = typeLabels[orderType] || 'Unknown';
                 
+                // Use full orderId (format: DDMMYYYY-HHMMSS-SEQNO) or fallback to id
+                const orderIdDisplay = order.orderId || order.id.slice(-5).toUpperCase();
+                
                 const orderDate = new Date(order.timestamp || 0).toLocaleDateString('en-IN', { 
                     year: 'numeric', 
                     month: 'short', 
@@ -1634,11 +1698,30 @@
                 // Get type-specific details
                 let typeDetails = '';
                 if (orderType === 'delivery' && order.delivery) {
-                    typeDetails = `📍 <strong>Delivery:</strong> ${order.delivery.address || 'N/A'}`;
-                    if (order.delivery.notes) typeDetails += `<br>📝 ${order.delivery.notes}`;
+                    const deliveryAddress = order.delivery.address || 'N/A';
+                    typeDetails = `
+                        <div class="space-y-2">
+                            <div class="text-[11px] uppercase tracking-[0.25em] text-zinc-500">Delivery address</div>
+                            <div class="text-sm text-zinc-700 leading-6">${deliveryAddress}</div>
+                        </div>
+                    `;
+                    if (order.delivery.notes) {
+                        typeDetails += `
+                            <div class="text-xs text-zinc-500 pt-2 border-t border-zinc-200">📝 <strong>Notes:</strong> ${order.delivery.notes}</div>
+                        `;
+                    }
                 } else if (orderType === 'dinein' && order.dinein) {
-                    typeDetails = `🪑 <strong>Table:</strong> ${order.dinein.table || 'N/A'}`;
-                    if (order.dinein.requests) typeDetails += `<br>📝 ${order.dinein.requests}`;
+                    typeDetails = `
+                        <div class="space-y-2">
+                            <div class="text-[11px] uppercase tracking-[0.25em] text-zinc-500">Dine-in details</div>
+                            <div class="text-sm text-zinc-700 leading-6">Table ${order.dinein.table || 'N/A'}</div>
+                        </div>
+                    `;
+                    if (order.dinein.requests) {
+                        typeDetails += `
+                            <div class="text-xs text-zinc-500 pt-2 border-t border-zinc-200">📝 <strong>Notes:</strong> ${order.dinein.requests}</div>
+                        `;
+                    }
                 } else if (orderType === 'preorder' && order.preorder) {
                     const preorderTime = new Date(order.preorder.time).toLocaleString('en-IN', {
                         year: 'numeric',
@@ -1647,56 +1730,71 @@
                         hour: '2-digit',
                         minute: '2-digit'
                     });
-                    typeDetails = `⏰ <strong>Scheduled:</strong> ${preorderTime}`;
-                    if (order.preorder.notes) typeDetails += `<br>📝 ${order.preorder.notes}`;
+                    typeDetails = `
+                        <div class="space-y-2">
+                            <div class="text-[11px] uppercase tracking-[0.25em] text-zinc-500">Scheduled for</div>
+                            <div class="text-sm text-zinc-700 leading-6">${preorderTime}</div>
+                        </div>
+                    `;
+                    if (order.preorder.notes) {
+                        typeDetails += `
+                            <div class="text-xs text-zinc-500 pt-2 border-t border-zinc-200">📝 <strong>Notes:</strong> ${order.preorder.notes}</div>
+                        `;
+                    }
+                }
+
+                if (order.notes && order.notes.trim()) {
+                    typeDetails += `
+                        <div class="text-xs text-zinc-500 pt-2 border-t border-zinc-200">📝 <strong>Notes:</strong> ${order.notes}</div>
+                    `;
                 }
 
                 return `
-                    <div class="border border-zinc-200 rounded-2xl p-6 bg-gradient-to-br from-white to-zinc-50 hover:shadow-lg transition-all">
+                    <div class="border border-zinc-200 rounded-2xl md:rounded-2xl rounded-xl p-6 md:p-6 p-4 bg-gradient-to-br from-white to-zinc-50 hover:shadow-lg transition-all">
                         <!-- Order Header -->
-                        <div class="flex justify-between items-start mb-4 flex-wrap gap-3">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-3 mb-2">
-                                    <h3 class="font-bold text-lg">Order #${order.id.slice(0, 12).toUpperCase()}</h3>
-                                    <span class="px-3 py-1 text-xs font-bold rounded-full bg-blue-100 text-blue-800">${typeEmoji} ${typeLabel}</span>
+                        <div class="flex justify-between items-start mb-4 md:mb-4 mb-3 flex-wrap gap-2 md:gap-3">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 md:gap-3 mb-2 flex-wrap">
+                                    <h3 class="font-bold text-lg md:text-lg text-base break-all">Order #${orderIdDisplay}</h3>
+                                    <span class="px-2.5 md:px-3 py-1 text-xs font-bold rounded-full bg-blue-100 text-blue-800 whitespace-nowrap">${typeEmoji} ${typeLabel}</span>
                                 </div>
-                                <p class="text-sm text-zinc-500">${orderDate}</p>
+                                <p class="text-xs md:text-sm text-zinc-500">${orderDate}</p>
                             </div>
-                            <span class="px-4 py-2 text-sm font-bold rounded-full ${statusClass}">
+                            <span class="px-3 md:px-4 py-1.5 md:py-2 text-xs md:text-sm font-bold rounded-full ${statusClass} whitespace-nowrap">
                                 ${statusIcon} ${status.charAt(0).toUpperCase() + status.slice(1)}
                             </span>
                         </div>
 
                         <!-- Type-specific Details -->
-                        ${typeDetails ? `<div class="text-sm text-zinc-600 mb-4 p-3 bg-zinc-100/50 rounded-lg">${typeDetails}</div>` : ''}
+                        ${typeDetails ? `<div class="text-xs md:text-sm text-zinc-600 mb-4 md:mb-4 mb-3 p-3 md:p-3 p-2.5 bg-zinc-100/50 rounded-lg">${typeDetails}</div>` : ''}
 
                         <!-- Items List -->
-                        <div class="border-t border-zinc-200 pt-4">
-                            <div class="space-y-2 mb-4">
+                        <div class="border-t border-zinc-200 pt-3 md:pt-4">
+                            <div class="space-y-2 md:space-y-2 space-y-1.5 mb-3 md:mb-4">
                                 ${(order.items || []).map(item => `
-                                    <div class="flex justify-between items-center text-sm">
-                                        <span class="text-zinc-600 flex-1">${item.name || item.productName || 'Item'} <span class="text-zinc-500">×${item.quantity}</span></span>
-                                        <span class="font-semibold text-zinc-900 whitespace-nowrap ml-2">₹${((item.price || 0) * (item.quantity || 1)).toFixed(2)}</span>
+                                    <div class="flex justify-between items-center text-xs md:text-sm gap-2">
+                                        <span class="text-zinc-600 flex-1 min-w-0">${item.name || item.productName || 'Item'} <span class="text-zinc-500">×${item.quantity}</span></span>
+                                        <span class="font-semibold text-zinc-900 whitespace-nowrap">₹${((item.price || 0) * (item.quantity || 1)).toFixed(2)}</span>
                                     </div>
                                 `).join('')}
                             </div>
 
                             <!-- Price Breakdown -->
-                            <div class="space-y-2 text-sm text-zinc-600 border-t border-zinc-200 pt-3 mb-3">
+                            <div class="space-y-1.5 md:space-y-2 text-xs md:text-sm text-zinc-600 border-t border-zinc-200 pt-2.5 md:pt-3 mb-2.5 md:mb-3">
                                 ${order.subtotal ? `<div class="flex justify-between"><span>Subtotal</span><span>₹${(order.subtotal).toFixed(2)}</span></div>` : ''}
                                 ${order.deliveryFee && order.deliveryFee > 0 ? `<div class="flex justify-between"><span>Delivery Fee</span><span>₹${(order.deliveryFee).toFixed(2)}</span></div>` : ''}
                                 ${order.tax && order.tax > 0 ? `<div class="flex justify-between"><span>Tax</span><span>₹${(order.tax).toFixed(2)}</span></div>` : ''}
                             </div>
 
                             <!-- Total -->
-                            <div class="flex justify-between font-bold text-lg pt-3 border-t border-zinc-200">
+                            <div class="flex justify-between font-bold text-base md:text-lg pt-2.5 md:pt-3 border-t border-zinc-200">
                                 <span class="text-zinc-700">Total</span>
                                 <span class="text-primary">₹${(order.total || 0).toFixed(2)}</span>
                             </div>
                         </div>
 
                         <!-- Order Notes -->
-                        ${order.notes && !typeDetails.includes(order.notes) ? `<div class="mt-4 text-xs text-zinc-500 p-3 bg-zinc-100/50 rounded-lg">📝 <strong>Notes:</strong> ${order.notes}</div>` : ''}
+                        ${order.notes && !typeDetails.includes(order.notes) ? `<div class="mt-3 md:mt-4 text-xs text-zinc-500 p-2.5 md:p-3 bg-zinc-100/50 rounded-lg">📝 <strong>Notes:</strong> ${order.notes}</div>` : ''}
                     </div>
                 `;
             }).join('');
@@ -1734,30 +1832,23 @@
             }
 
             container.innerHTML = addresses.map(addr => `
-                <div class="address-card border border-zinc-200 rounded-2xl p-6 bg-gradient-to-br from-white to-zinc-50 hover:shadow-md transition-all">
-                    <div class="mb-4">
-                        <div class="flex items-start gap-3 mb-3">
-                            <span class="material-symbols-outlined text-primary text-2xl mt-1">location_on</span>
-                            <div class="flex-1">
-                                <h3 class="font-bold text-lg text-zinc-900">${addr.name || 'Address'}</h3>
-                                <p class="text-sm text-zinc-600 mt-1">${addr.street || ''}</p>
-                                <p class="text-sm text-zinc-500 mt-1">${addr.city || ''} ${addr.zipcode || ''}</p>
-                            </div>
-                        </div>
-                        ${addr.details ? `<p class="text-sm text-zinc-600 bg-zinc-100 rounded-lg px-3 py-2 mt-3">${addr.details}</p>` : ''}
+                <div class="address-card border border-zinc-200 rounded-3xl p-6 bg-white hover:shadow-xl hover:border-primary/40 transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="flex items-center gap-4 mb-6">
+                        <span class="material-symbols-outlined text-primary text-3xl flex-shrink-0">location_on</span>
+                        <p class="text-sm font-medium text-zinc-900 leading-relaxed whitespace-pre-wrap break-words">${addr.address || 'No address'}</p>
                     </div>
-                    <div class="flex gap-2 pt-4 border-t border-zinc-100">
-                        <button onclick="editAddress('${addr.id}')" class="flex-1 p-3 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center gap-2 text-blue-600 hover:text-blue-700 font-medium text-sm">
-                            <span class="material-symbols-outlined text-lg">edit</span>
+                    <div class="flex flex-row gap-2 md:gap-3 pt-5 border-t border-zinc-150">
+                        <button onclick="editAddress('${addr.id}')" class="flex-1 px-3 md:px-4 py-2 md:py-2.5 hover:bg-blue-50 active:bg-blue-100 rounded-xl transition-all duration-150 flex items-center justify-center gap-1 md:gap-2 text-blue-600 hover:text-blue-700 font-semibold text-xs md:text-sm">
+                            <span class="material-symbols-outlined text-sm md:text-base">edit</span>
                             <span>Edit</span>
                         </button>
-                        <button onclick="deleteAddress('${addr.id}')" class="flex-1 p-3 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center gap-2 text-red-600 hover:text-red-700 font-medium text-sm">
-                            <span class="material-symbols-outlined text-lg">delete</span>
+                        <button onclick="deleteAddress('${addr.id}')" class="flex-1 px-3 md:px-4 py-2 md:py-2.5 hover:bg-red-50 active:bg-red-100 rounded-xl transition-all duration-150 flex items-center justify-center gap-1 md:gap-2 text-red-600 hover:text-red-700 font-semibold text-xs md:text-sm">
+                            <span class="material-symbols-outlined text-sm md:text-base">delete</span>
                             <span>Delete</span>
                         </button>
                     </div>
                 </div>
-            `).join('');
+            `).join('').trim() || '<div class="col-span-full text-center py-12"><span class="material-symbols-outlined text-6xl text-zinc-300 block mb-4">location_on</span><p class="text-zinc-500 font-semibold">No addresses saved yet</p></div>';
         }
 
         async function saveAddress(e) {
@@ -1769,30 +1860,64 @@
             }
             
             const userId = currentUser.uid || currentUser.userId;
+            const fullAddressText = document.getElementById('fullAddress').value.trim();
+            const editingAddressId = document.getElementById('editingAddressId').value;
+            
             const address = {
-                name: document.getElementById('addressName').value,
-                street: document.getElementById('addressStreet').value,
-                city: document.getElementById('addressCity').value,
-                zipcode: document.getElementById('addressZipcode').value,
-                details: document.getElementById('addressDetails').value,
+                address: fullAddressText,
                 createdAt: new Date().getTime()
             };
 
             try {
-                const addressId = Date.now();
-                console.log('Saving address:', address);
+                // If editing, use existing ID; otherwise create new one
+                const addressId = editingAddressId || Date.now();
+                console.log('Saving address:', address, 'ID:', addressId, 'Editing:', !!editingAddressId);
                 await fetchJson(`/addresses/${userId}/${addressId}`, {
                     method: 'PUT',
                     body: JSON.stringify(address),
                     headers: { 'Content-Type': 'application/json' }
                 });
-                showToast('Address saved successfully', 'success');
+                showToast(editingAddressId ? 'Address updated successfully' : 'Address saved successfully', 'success');
                 document.getElementById('addressForm').reset();
+                document.getElementById('editingAddressId').value = '';
                 toggleAddressForm();
                 loadUserAddresses();
             } catch (error) {
                 console.error('Error saving address:', error);
                 showToast('Failed to save address', 'error');
+            }
+        }
+
+        async function editAddress(addressId) {
+            if (!currentUser) {
+                showToast('User not found', 'error');
+                return;
+            }
+            
+            const userId = currentUser.uid || currentUser.userId;
+            try {
+                console.log('Loading address to edit:', addressId);
+                const addressesData = await fetchJson(`/addresses/${userId}`);
+                const address = addressesData ? addressesData[addressId] : null;
+                
+                if (!address) {
+                    showToast('Address not found', 'error');
+                    return;
+                }
+                
+                // Populate form with existing address data
+                document.getElementById('fullAddress').value = address.address || '';
+                document.getElementById('editingAddressId').value = addressId;
+                document.getElementById('addressFormHeading').textContent = 'Edit Address';
+                document.getElementById('addressSubmitBtn').textContent = 'Update Address';
+                
+                // Show the form
+                document.getElementById('addressFormContainer').classList.remove('hidden');
+                // Scroll to form
+                document.getElementById('addressFormContainer').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } catch (error) {
+                console.error('Error loading address to edit:', error);
+                showToast('Failed to load address', 'error');
             }
         }
 
@@ -1846,20 +1971,34 @@
                 return;
             }
 
-            container.innerHTML = payments.map(payment => `
-                <div class="border border-zinc-200 rounded-2xl p-6 bg-gradient-to-br from-zinc-50 to-white">
-                    <div class="flex items-center justify-between mb-4">
-                        <div>
-                            <h3 class="font-bold text-lg">${payment.cardName || 'Card'}</h3>
-                            <p class="text-sm text-zinc-600">•••• •••• •••• ${(payment.cardNumber || '0000').slice(-4)}</p>
+            container.innerHTML = payments.map(payment => {
+                return `
+                <div class="payment-card border border-zinc-200 rounded-3xl p-6 bg-gradient-to-br from-primary/10 to-white shadow-sm hover:shadow-lg transition-all duration-300">
+                    <div class="flex items-start gap-4 mb-5">
+                        <div class="min-w-[50px] min-h-[50px] rounded-3xl bg-primary/10 text-primary grid place-items-center">
+                            <span class="material-symbols-outlined text-3xl">credit_card</span>
                         </div>
-                        <button onclick="deletePayment('${payment.id}')" class="p-2 hover:bg-red-100 rounded-lg transition-colors">
-                            <span class="material-symbols-outlined text-sm text-red-600">delete</span>
+                        <div class="flex-1">
+                            <div class="flex flex-col gap-3">
+                                <h3 class="font-bold text-lg">${payment.cardName || 'Card Holder'}</h3>
+                                <p class="text-sm text-zinc-600 mt-1">•••• •••• •••• ${(payment.cardNumber || '0000').slice(-4)}</p>
+                            </div>
+                            <p class="mt-3 text-sm text-zinc-500">Expires ${payment.expiry || 'N/A'}</p>
+                        </div>
+                    </div>
+                    <div class="payment-card-actions">
+                        <button type="button" onclick="editPayment('${payment.id}')" class="px-4 py-3 bg-zinc-100 text-zinc-900 rounded-2xl font-semibold hover:bg-zinc-200 transition-all flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined">edit</span>
+                            Edit
+                        </button>
+                        <button type="button" onclick="deletePayment('${payment.id}')" class="px-4 py-3 bg-red-50 text-red-700 rounded-2xl font-semibold hover:bg-red-100 transition-all flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined">delete</span>
+                            Delete
                         </button>
                     </div>
-                    <p class="text-xs text-zinc-500">Expires ${payment.expiry || 'N/A'}</p>
                 </div>
-            `).join('');
+            `;
+            }).join('');
         }
 
         async function savePayment(e) {
@@ -1871,29 +2010,61 @@
             }
             
             const userId = currentUser.uid || currentUser.userId;
-            const cardNumber = document.getElementById('paymentCardNumber').value.replace(/\s/g, '');
+            const editingPaymentId = document.getElementById('editingPaymentId').value;
+            const cardNumber = document.getElementById('paymentCardNumber').value.replace(/\D/g, '');
             const payment = {
                 cardName: document.getElementById('paymentCardName').value,
                 cardNumber,
                 expiry: document.getElementById('paymentExpiry').value,
-                createdAt: new Date().getTime()
+                updatedAt: new Date().getTime()
             };
 
             try {
-                const paymentId = Date.now();
-                console.log('Saving payment:', payment);
+                const paymentId = editingPaymentId || Date.now();
+                console.log('Saving payment:', payment, 'ID:', paymentId, 'Editing:', !!editingPaymentId);
                 await fetchJson(`/payments/${userId}/${paymentId}`, {
                     method: 'PUT',
                     body: JSON.stringify(payment),
                     headers: { 'Content-Type': 'application/json' }
                 });
-                showToast('Payment method saved', 'success');
+                showToast(editingPaymentId ? 'Payment method updated' : 'Payment method saved', 'success');
                 document.getElementById('paymentForm').reset();
+                document.getElementById('editingPaymentId').value = '';
                 togglePaymentForm();
                 loadUserPayments();
             } catch (error) {
                 console.error('Error saving payment:', error);
                 showToast('Failed to save payment method', 'error');
+            }
+        }
+
+        async function editPayment(paymentId) {
+            if (!currentUser) {
+                showToast('User not found', 'error');
+                return;
+            }
+
+            const userId = currentUser.uid || currentUser.userId;
+            try {
+                console.log('Loading payment to edit:', paymentId);
+                const paymentsData = await fetchJson(`/payments/${userId}`);
+                const payment = paymentsData ? paymentsData[paymentId] : null;
+                if (!payment) {
+                    showToast('Payment method not found', 'error');
+                    return;
+                }
+
+                document.getElementById('paymentCardName').value = payment.cardName || '';
+                document.getElementById('paymentCardNumber').value = payment.cardNumber || '';
+                document.getElementById('paymentExpiry').value = payment.expiry || '';
+                document.getElementById('editingPaymentId').value = paymentId;
+                document.getElementById('paymentFormHeading').textContent = 'Edit Payment Method';
+                document.querySelector('#paymentForm button[type="submit"]').textContent = 'Update Card';
+                document.getElementById('paymentFormContainer').classList.remove('hidden');
+                document.getElementById('paymentFormContainer').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } catch (error) {
+                console.error('Error loading payment for edit:', error);
+                showToast('Failed to load payment method', 'error');
             }
         }
 
@@ -1939,11 +2110,28 @@
 
         // ========== FORM HANDLERS ==========
         function toggleAddressForm() {
-            document.getElementById('addressFormContainer').classList.toggle('hidden');
+            const container = document.getElementById('addressFormContainer');
+            container.classList.toggle('hidden');
+            
+            // If closing the form, reset it
+            if (container.classList.contains('hidden')) {
+                document.getElementById('addressForm').reset();
+                document.getElementById('editingAddressId').value = '';
+                document.getElementById('addressFormHeading').textContent = 'Add New Address';
+                document.getElementById('addressSubmitBtn').textContent = 'Save Address';
+            }
         }
 
         function togglePaymentForm() {
-            document.getElementById('paymentFormContainer').classList.toggle('hidden');
+            const container = document.getElementById('paymentFormContainer');
+            container.classList.toggle('hidden');
+
+            if (container.classList.contains('hidden')) {
+                document.getElementById('paymentForm').reset();
+                document.getElementById('editingPaymentId').value = '';
+                document.getElementById('paymentFormHeading').textContent = 'Add New Payment Method';
+                document.querySelector('#paymentForm button[type="submit"]').textContent = 'Save Card';
+            }
         }
 
         function resetProfileForm() {
@@ -2130,7 +2318,9 @@
         window.handleDesktopLogout = handleDesktopLogout;
         window.deleteAccount = deleteAccount;
         window.toggleAddressForm = toggleAddressForm;
+        window.editAddress = editAddress;
         window.togglePaymentForm = togglePaymentForm;
+        window.editPayment = editPayment;
         window.resetProfileForm = resetProfileForm;
         window.saveAddress = saveAddress;
         window.deleteAddress = deleteAddress;
@@ -2140,7 +2330,6 @@
         window.closePasswordModal = closePasswordModal;
         window.handleChangePassword = handleChangePassword;
         window.checkPasswordStrength = checkPasswordStrength;
-        window.editAddress = (id) => { showToast('Edit address feature coming soon', 'success'); };
 
         // Fuzzy search algorithm - allows typos
         function fuzzyMatch(searchStr, targetStr) {

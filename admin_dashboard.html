@@ -1570,6 +1570,14 @@
                 <input id="editOrderType" type="text" disabled />
             </div>
             <div class="form-group">
+                <label>Delivery Address</label>
+                <textarea id="editOrderDeliveryAddress" style="resize: vertical; min-height: 80px;" placeholder="No address information"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Delivery Notes</label>
+                <textarea id="editOrderDeliveryNotes" style="resize: vertical; min-height: 60px;" placeholder="No notes"></textarea>
+            </div>
+            <div class="form-group">
                 <label>Order Details</label>
                 <textarea id="editOrderDetails" type="text" disabled style="resize: vertical; min-height: 80px;"></textarea>
             </div>
@@ -1842,14 +1850,45 @@ function getCurrentUser() {
 // Fetch JSON from Firebase
 function fetchJson(path, options = {}) {
     const url = dbUrl + path + '.json';
+    
+    // Check if body is already a string (already JSON stringified)
+    let body = options.body;
+    if (body && typeof body === 'object') {
+        body = JSON.stringify(body);
+    }
+    
+    // Log requests for /orders paths
+    if (path.includes('/orders/')) {
+        console.log(`\n📤 [ADMIN FETCH] ${options.method || 'GET'} ${url}`);
+        if (body) {
+            try {
+                const bodyObj = JSON.parse(body);
+                console.log('📤 Request body:', bodyObj);
+            } catch (e) {
+                console.log('📤 Body (raw):', body.substring(0, 200));
+            }
+        }
+    }
+    
     return fetch(url, {
         method: options.method || 'GET',
         headers: { 'Content-Type': 'application/json', ...options.headers },
-        body: options.body ? JSON.stringify(options.body) : null
+        body: body || null
     })
     .then(r => r.json())
+    .then(data => {
+        if (path.includes('/orders/') && (!options.method || options.method === 'GET')) {
+            console.log(`\n📥 [ADMIN FETCH RESPONSE] ${url}`);
+            console.log('📥 Response:', data);
+            if (data.delivery?.address) {
+                console.log('📥 Address:', data.delivery.address);
+                console.log('📥 Address length:', data.delivery.address.length);
+            }
+        }
+        return data;
+    })
     .catch(err => {
-        console.error('Fetch error:', err);
+        console.error('❌ Fetch error:', err);
         return null;
     });
 }
@@ -2888,9 +2927,37 @@ function openEditOrderModal(orderId, customerName, orderStatus) {
     document.getElementById('editOrderStatus').value = orderStatus;
     document.getElementById('editOrderStatusSelect').value = orderStatus;
     
+    // Clear address and notes fields
+    document.getElementById('editOrderDeliveryAddress').value = '';
+    document.getElementById('editOrderDeliveryNotes').value = '';
+    
     // Fetch full order data to get type and details
     fetchJson(`/orders/${orderId}`, {}).then(order => {
         currentEditOrder = order;
+        
+        console.log('\n\n' + '='.repeat(80));
+        console.log('=== CRITICAL: ADMIN FETCHED ORDER FROM FIREBASE ===');
+        console.log('='.repeat(80));
+        console.log('Order ID:', orderId);
+        console.log('Order Type:', order.type);
+        
+        // CRITICAL: Log the entire delivery object
+        console.log('\n🔍 CHECKING DELIVERY OBJECT:');
+        console.log('  order.delivery:', order.delivery);
+        console.log('  typeof order.delivery:', typeof order.delivery);
+        
+        if (order.delivery && typeof order.delivery === 'object') {
+            console.log('  order.delivery.address:', order.delivery.address);
+            console.log('  typeof order.delivery.address:', typeof order.delivery.address);
+            console.log('  order.delivery.address length:', order.delivery.address?.length);
+            console.log('  order.delivery.address bytes:', new TextEncoder().encode(order.delivery.address).length);
+            console.log('  Full address string:', JSON.stringify(order.delivery.address));
+        }
+        
+        // Log full order for inspection
+        console.log('\n📦 Full Order Object:');
+        console.log(JSON.stringify(order, null, 2));
+        console.log('='.repeat(80) + '\n');
         
         const typeEmojis = {
             'delivery': '🚚',
@@ -2908,26 +2975,80 @@ function openEditOrderModal(orderId, customerName, orderStatus) {
         const typeLabel = typeLabels[order.type] || 'Unknown';
         document.getElementById('editOrderType').value = `${typeEmoji} ${typeLabel}`;
         
-        // Build order details text
-        let detailsText = '';
+        // Extract and display delivery address
         if (order.type === 'delivery' && order.delivery) {
-            detailsText = `📍 Delivery Address: ${order.delivery.address}`;
+            let displayAddress = '';
+            
+            console.log('\n[ADMIN ADDRESS EXTRACTION]');
+            console.log('  order.delivery is string?', typeof order.delivery === 'string');
+            console.log('  order.delivery type:', typeof order.delivery);
+            console.log('  order.delivery value:', order.delivery);
+            
+            // Try to get full address string first
+            if (typeof order.delivery === 'string') {
+                displayAddress = order.delivery;
+                console.log('  → Using delivery as string:', displayAddress);
+            } else if (order.delivery.address) {
+                displayAddress = order.delivery.address;
+                console.log('  → Using delivery.address:', displayAddress);
+                console.log('  → address length:', displayAddress.length);
+                console.log('  → checking for special chars or encoding issues...');
+                // Check for any null bytes or special characters
+                for (let i = 0; i < displayAddress.length; i++) {
+                    if (displayAddress.charCodeAt(i) === 0) {
+                        console.warn('  ⚠️ NULL BYTE FOUND AT POSITION', i);
+                    }
+                }
+            } else {
+                // Reconstruct from components if available
+                console.log('  → Reconstructing from components');
+                console.log('    street:', order.delivery.street);
+                console.log('    city:', order.delivery.city);
+                console.log('    zipcode:', order.delivery.zipcode);
+                const parts = [];
+                if (order.delivery.street) parts.push(order.delivery.street);
+                if (order.delivery.city) parts.push(order.delivery.city);
+                if (order.delivery.zipcode) parts.push(order.delivery.zipcode);
+                displayAddress = parts.filter(Boolean).join(' ');
+                console.log('  → Reconstructed:', displayAddress);
+            }
+            
+            console.log('\n  ✅ FINAL displayAddress:', displayAddress);
+            console.log('  ✅ FINAL displayAddress length:', displayAddress.length);
+            const textarea = document.getElementById('editOrderDeliveryAddress');
+            textarea.value = displayAddress || 'No address information';
+            console.log('  ✅ Set textarea.value to:', textarea.value);
+            console.log('  ✅ textarea.value length:', textarea.value.length);
+            console.log('  ✅ Verify textarea has full content:', textarea.value === displayAddress);
         } else if (order.type === 'dinein' && order.dinein) {
-            detailsText = `🪑 Table Number: ${order.dinein.table}`;
+            const tableValue = typeof order.dinein === 'string' ? order.dinein : order.dinein.table;
+            document.getElementById('editOrderDeliveryAddress').value = `Table: ${tableValue}`;
         } else if (order.type === 'preorder' && order.preorder) {
-            const preorderTime = new Date(order.preorder.time).toLocaleString();
-            detailsText = `⏰ Pickup/Delivery Time: ${preorderTime}`;
+            const timeValue = typeof order.preorder === 'string' ? order.preorder : order.preorder.time;
+            const preorderTime = new Date(timeValue).toLocaleString();
+            document.getElementById('editOrderDeliveryAddress').value = `Pickup/Delivery Time: ${preorderTime}`;
+        } else {
+            document.getElementById('editOrderDeliveryAddress').value = 'No address information';
         }
         
-        if (order.notes) {
-            detailsText += `\n📝 Notes: ${order.notes}`;
+        // Extract and display notes
+        document.getElementById('editOrderDeliveryNotes').value = order.notes || '';
+        
+        // Build order details text (items list only)
+        let detailsText = '';
+        if (order.items && Array.isArray(order.items)) {
+            detailsText = order.items.map(item => 
+                `${item.name} x${item.quantity} (₹${(item.price * item.quantity).toFixed(2)})`
+            ).join('\n');
         }
         
-        document.getElementById('editOrderDetails').value = detailsText || 'No additional details';
+        document.getElementById('editOrderDetails').value = detailsText || 'No items';
     }).catch(err => {
         console.log('Could not load full order data:', err);
         document.getElementById('editOrderType').value = 'Unknown';
         document.getElementById('editOrderDetails').value = 'Could not load order details';
+        document.getElementById('editOrderDeliveryAddress').value = 'No address information';
+        document.getElementById('editOrderDeliveryNotes').value = '';
     });
     
     openModal('editOrderModal');
@@ -2937,13 +3058,28 @@ async function saveOrderStatus() {
     if (!currentEditOrderId) return;
 
     const newStatus = document.getElementById('editOrderStatusSelect').value;
+    const deliveryAddress = document.getElementById('editOrderDeliveryAddress').value.trim();
+    const deliveryNotes = document.getElementById('editOrderDeliveryNotes').value.trim();
     const dbRef = `${dbUrl}/orders/${currentEditOrderId}.json`;
 
     try {
+        // Build update object with status and address info
+        const updateData = { status: newStatus };
+        
+        // Update address if order type is delivery
+        if (currentEditOrder && currentEditOrder.type === 'delivery') {
+            updateData.delivery = { address: deliveryAddress };
+        }
+        
+        // Always update notes
+        updateData.notes = deliveryNotes;
+        
+        console.log('Updating order with data:', updateData);
+        
         const response = await fetch(dbRef, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status: newStatus })
+            body: JSON.stringify(updateData)
         });
 
         if (!response.ok) throw new Error('Failed to update order status');
