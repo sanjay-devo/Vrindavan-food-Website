@@ -272,7 +272,84 @@
             border-color: #bc0008;
             box-shadow: 0 0 0 3px rgba(188, 0, 8, 0.1);
         }
-        
+
+        /* Dietary Type Radio Button Styling */
+        .modal-body .grid.grid-cols-3 label {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100px;
+            padding: 1rem 0.75rem !important;
+        }
+
+        .modal-body .grid.grid-cols-3 label input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            margin: 0;
+        }
+
+        .modal-body .grid.grid-cols-3 label input[type="radio"]:checked {
+            accent-color: #bc0008;
+        }
+
+        .modal-body .grid.grid-cols-3 label:has(input[type="radio"]:checked) {
+            border-color: #bc0008 !important;
+            border-width: 2px !important;
+            background: linear-gradient(135deg, rgba(188, 0, 8, 0.1), rgba(188, 0, 8, 0.05)) !important;
+            box-shadow: 0 0 0 3px rgba(188, 0, 8, 0.15), inset 0 0 16px rgba(188, 0, 8, 0.1) !important;
+        }
+
+        .modal-body .grid.grid-cols-3 label:has(input[type="radio"]:checked) span:nth-child(2) {
+            color: #bc0008;
+            font-size: 1.75rem !important;
+        }
+
+        .modal-body .grid.grid-cols-3 label:has(input[type="radio"]:checked) span:nth-child(3) {
+            color: #bc0008;
+            font-weight: 700;
+        }
+
+        .modal-body .grid.grid-cols-3 label span {
+            position: relative;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .modal-body .grid.grid-cols-3 label span:nth-child(2) {
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Size input field styling */
+        .modal-body .flex.gap-3.items-end input[type="text"],
+        .modal-body .flex.gap-3.items-end input[type="number"] {
+            padding: 0.6rem;
+            border: 1px solid #e1e2e5;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .modal-body .flex.gap-3.items-end input[type="text"]:focus,
+        .modal-body .flex.gap-3.items-end input[type="number"]:focus {
+            outline: none;
+            border-color: #bc0008;
+            box-shadow: 0 0 0 3px rgba(188, 0, 8, 0.1);
+        }
+
+        /* Size labels positioning */
+        .modal-body .flex-1.min-w-0 > label,
+        .modal-body .flex-shrink-0 > label {
+            font-weight: 500;
+            color: #191c1e;
+        }
+
         
         /* Mobile responsiveness */
         @media (max-width: 768px) {
@@ -1620,25 +1697,41 @@
                 <input id="editMenuCategory" type="text" />
             </div>
             <div class="form-group">
-                <label>Dietary Type</label>
-                <div class="flex gap-3">
-                    <label class="flex items-center gap-2 px-4 py-2 bg-surface-container rounded-lg cursor-pointer hover:bg-surface-container-high transition-colors">
+                <label class="font-semibold text-sm text-slate-700">Dietary Type *</label>
+                <p class="text-xs text-slate-500 mb-2">Select whether the dish is vegetarian, non-vegetarian, or both.</p>
+                <div class="grid grid-cols-3 gap-3">
+                    <label class="flex flex-col items-center justify-center gap-2 p-3 border-2 border-slate-200 rounded-3xl bg-white shadow-sm cursor-pointer transition hover:border-primary/40">
                         <input type="radio" name="editDietary" value="veg" id="editDietaryVeg" />
-                        <span class="text-sm font-bold">🥬 Vegetarian</span>
+                        <span class="text-2xl">🥬</span>
+                        <span class="text-sm font-semibold">Vegetarian</span>
                     </label>
-                    <label class="flex items-center gap-2 px-4 py-2 bg-surface-container rounded-lg cursor-pointer hover:bg-surface-container-high transition-colors">
+                    <label class="flex flex-col items-center justify-center gap-2 p-3 border-2 border-slate-200 rounded-3xl bg-white shadow-sm cursor-pointer transition hover:border-primary/40">
                         <input type="radio" name="editDietary" value="non-veg" id="editDietaryNonVeg" />
-                        <span class="text-sm font-bold">🍗 Non-Vegetarian</span>
+                        <span class="text-2xl">🍗</span>
+                        <span class="text-sm font-semibold">Non-Vegetarian</span>
                     </label>
-                    <label class="flex items-center gap-2 px-4 py-2 bg-surface-container rounded-lg cursor-pointer hover:bg-surface-container-high transition-colors">
+                    <label class="flex flex-col items-center justify-center gap-2 p-3 border-2 border-slate-200 rounded-3xl bg-white shadow-sm cursor-pointer transition hover:border-primary/40">
                         <input type="radio" name="editDietary" value="both" id="editDietaryBoth" />
-                        <span class="text-sm font-bold">🌿 Both</span>
+                        <span class="text-2xl">🌿</span>
+                        <span class="text-sm font-semibold">Both</span>
                     </label>
                 </div>
             </div>
-            <div class="form-group">
-                <label>Price</label>
+            <div id="editMenuPriceGroup" class="form-group">
+                <label>Single Price *</label>
                 <input id="editMenuPrice" type="number" step="0.01" />
+            </div>
+            <div class="form-group">
+                <label class="font-semibold text-sm text-slate-700">Pricing Type *</label>
+                <p class="text-xs text-slate-500 mb-2">Choose a pricing style for this item.</p>
+                <select id="editMenuPricingType">
+                    <option value="single">Single Price</option>
+                    <option value="half_full">Half / Full</option>
+                    <option value="multi">Multiple Sizes</option>
+                </select>
+            </div>
+            <div id="editMenuDynamicFields">
+                <!-- Dynamic fields will be inserted here -->
             </div>
             <div class="form-group">
                 <label>Image URL</label>
@@ -1687,25 +1780,41 @@
                 <input id="addMenuCategoryNew" type="text" placeholder="New category name..." class="w-full mt-2 hidden" />
             </div>
             <div class="form-group">
-                <label>Dietary Type *</label>
-                <div class="flex gap-3">
-                    <label class="flex items-center gap-2 px-4 py-2 bg-surface-container rounded-lg cursor-pointer hover:bg-surface-container-high transition-colors">
+                <label class="font-semibold text-sm text-slate-700">Dietary Type *</label>
+                <p class="text-xs text-slate-500 mb-2">Select whether the dish is vegetarian, non-vegetarian, or both.</p>
+                <div class="grid grid-cols-3 gap-3">
+                    <label class="flex flex-col items-center justify-center gap-2 p-3 border-2 border-slate-200 rounded-3xl bg-white shadow-sm cursor-pointer transition hover:border-primary/40">
                         <input type="radio" name="dietary" value="veg" id="dietaryVeg" />
-                        <span class="text-sm font-bold">🥬 Vegetarian</span>
+                        <span class="text-2xl">🥬</span>
+                        <span class="text-sm font-semibold">Vegetarian</span>
                     </label>
-                    <label class="flex items-center gap-2 px-4 py-2 bg-surface-container rounded-lg cursor-pointer hover:bg-surface-container-high transition-colors">
+                    <label class="flex flex-col items-center justify-center gap-2 p-3 border-2 border-slate-200 rounded-3xl bg-white shadow-sm cursor-pointer transition hover:border-primary/40">
                         <input type="radio" name="dietary" value="non-veg" id="dietaryNonVeg" />
-                        <span class="text-sm font-bold">🍗 Non-Vegetarian</span>
+                        <span class="text-2xl">🍗</span>
+                        <span class="text-sm font-semibold">Non-Vegetarian</span>
                     </label>
-                    <label class="flex items-center gap-2 px-4 py-2 bg-surface-container rounded-lg cursor-pointer hover:bg-surface-container-high transition-colors">
+                    <label class="flex flex-col items-center justify-center gap-2 p-3 border-2 border-slate-200 rounded-3xl bg-white shadow-sm cursor-pointer transition hover:border-primary/40">
                         <input type="radio" name="dietary" value="both" id="dietaryBoth" />
-                        <span class="text-sm font-bold">🌿 Both</span>
+                        <span class="text-2xl">🌿</span>
+                        <span class="text-sm font-semibold">Both</span>
                     </label>
                 </div>
             </div>
-            <div class="form-group">
-                <label>Price *</label>
+            <div id="addMenuPriceGroup" class="form-group">
+                <label>Single Price *</label>
                 <input id="addMenuPrice" type="number" step="0.01" required />
+            </div>
+            <div class="form-group">
+                <label class="font-semibold text-sm text-slate-700">Pricing Type *</label>
+                <p class="text-xs text-slate-500 mb-2">Choose a pricing style for this item.</p>
+                <select id="addMenuPricingType" required>
+                    <option value="single">Single Price</option>
+                    <option value="half_full">Half / Full</option>
+                    <option value="multi">Multiple Sizes</option>
+                </select>
+            </div>
+            <div id="addMenuDynamicFields">
+                <!-- Dynamic fields will be inserted here -->
             </div>
             <div class="form-group">
                 <label>Image URL</label>
@@ -3037,9 +3146,10 @@ function openEditOrderModal(orderId, customerName, orderStatus) {
         // Build order details text (items list only)
         let detailsText = '';
         if (order.items && Array.isArray(order.items)) {
-            detailsText = order.items.map(item => 
-                `${item.name} x${item.quantity} (₹${(item.price * item.quantity).toFixed(2)})`
-            ).join('\n');
+            detailsText = order.items.map(item => {
+                const displayName = item.type && item.type !== 'single' ? `${item.name} (${item.type})` : item.name;
+                return `${displayName} x${item.quantity} (₹${(item.price * item.quantity).toFixed(2)})`;
+            }).join('\n');
         }
         
         document.getElementById('editOrderDetails').value = detailsText || 'No items';
@@ -3112,6 +3222,42 @@ function openEditMenuModal(menuId, dishName, category, price, description, image
         if (radios.length > 0) radios[0].checked = true;
     }
     
+    // Load full item data to get pricing info
+    fetch(`${dbUrl}/menu/${menuId}.json`)
+        .then(response => response.json())
+        .then(item => {
+            const pricingType = item.pricingType || 'single';
+            document.getElementById('editMenuPricingType').value = pricingType;
+            updateEditMenuDynamicFields();
+            
+            // Populate dynamic fields
+            setTimeout(() => {
+                if (pricingType === 'half_full') {
+                    document.getElementById('editMenuHalfPrice').value = item.halfPrice || '';
+                    document.getElementById('editMenuFullPrice').value = item.fullPrice || '';
+                } else if (pricingType === 'multi' && item.sizes) {
+                    const container = document.getElementById('editMenuSizes');
+                    container.innerHTML = '';
+                    Object.entries(item.sizes).forEach(([sizeName, sizePrice]) => {
+                        const div = document.createElement('div');
+                        div.className = 'flex gap-2 items-center';
+                        div.innerHTML = `
+                            <input type="text" value="${sizeName}" class="flex-1" />
+                            <input type="number" step="0.01" value="${sizePrice}" class="w-24" />
+                            <button type="button" onclick="removeSizeField(this)" class="text-red-500">×</button>
+                        `;
+                        container.appendChild(div);
+                    });
+                }
+            }, 100);
+        })
+        .catch(error => {
+            console.error('Error loading item data:', error);
+            // Fallback to single pricing
+            document.getElementById('editMenuPricingType').value = 'single';
+            updateEditMenuDynamicFields();
+        });
+    
     openModal('editMenuModal');
 }
 
@@ -3120,33 +3266,63 @@ async function saveMenuItem() {
 
     const name = document.getElementById('editMenuName').value.trim();
     const category = document.getElementById('editMenuCategory').value.trim();
-    const priceValue = document.getElementById('editMenuPrice').value.trim();
+    const pricingType = document.getElementById('editMenuPricingType').value;
     const image = document.getElementById('editMenuImage').value.trim();
     const description = document.getElementById('editMenuDescription').value.trim();
     const dietaryType = document.querySelector('input[name="editDietary"]:checked')?.value;
-    const price = parseFloat(priceValue);
 
     // Validate required fields
-    if (!name || !category || !priceValue || !dietaryType) {
-        showToast('Please fill in all required fields (Name, Category, Price, Dietary Type)', 'error');
+    if (!name || !category || !dietaryType) {
+        showToast('Please fill in all required fields (Name, Category, Dietary Type)', 'error');
         return;
     }
 
-    // Validate price is a positive number
-    if (isNaN(price) || price <= 0) {
-        showToast('Price must be a positive number', 'error');
-        return;
-    }
-
-    const updatedItem = {
+    let updatedItem = {
         name,
         category,
-        price,
+        pricingType,
         image,
         description,
         dietaryType: dietaryType || 'veg',
         isVeg: dietaryType === 'veg' || dietaryType === 'both'
     };
+
+    // Add pricing data based on type
+    if (pricingType === 'single') {
+        const price = parseFloat(document.getElementById('editMenuPrice').value);
+        if (isNaN(price) || price <= 0) {
+            showToast('Price must be a positive number', 'error');
+            return;
+        }
+        updatedItem.price = price;
+    } else if (pricingType === 'half_full') {
+        const halfPrice = parseFloat(document.getElementById('editMenuHalfPrice').value);
+        const fullPrice = parseFloat(document.getElementById('editMenuFullPrice').value);
+        if (isNaN(halfPrice) || halfPrice <= 0 || isNaN(fullPrice) || fullPrice <= 0) {
+            showToast('Both half and full prices must be positive numbers', 'error');
+            return;
+        }
+        updatedItem.halfPrice = halfPrice;
+        updatedItem.fullPrice = fullPrice;
+        updatedItem.price = fullPrice; // For backward compatibility
+    } else if (pricingType === 'multi') {
+        const sizes = {};
+        const sizeFields = document.querySelectorAll('#editMenuSizes > div');
+        for (const field of sizeFields) {
+            const inputs = field.querySelectorAll('input');
+            const sizeName = inputs[0].value.trim();
+            const sizePrice = parseFloat(inputs[1].value);
+            if (sizeName && !isNaN(sizePrice) && sizePrice > 0) {
+                sizes[sizeName] = sizePrice;
+            }
+        }
+        if (Object.keys(sizes).length === 0) {
+            showToast('Please add at least one size with a valid price', 'error');
+            return;
+        }
+        updatedItem.sizes = sizes;
+        updatedItem.price = Math.min(...Object.values(sizes)); // For backward compatibility
+    }
 
     const dbRef = `${dbUrl}/menu/${currentEditMenuId}.json`;
 
@@ -3193,7 +3369,15 @@ async function deleteMenuItem() {
 function openAddMenuModal() {
     document.getElementById('addMenuName').value = '';
     document.getElementById('addMenuCategory').value = '';
+    document.getElementById('addMenuCategoryNew').value = '';
+    document.getElementById('addMenuCategoryNew').classList.add('hidden');
+    document.getElementById('dietaryVeg').checked = false;
+    document.getElementById('dietaryNonVeg').checked = false;
+    document.getElementById('dietaryBoth').checked = false;
     document.getElementById('addMenuPrice').value = '';
+    document.getElementById('addMenuPricingType').value = 'single';
+    document.getElementById('addMenuDynamicFields').innerHTML = '';
+    updateAddMenuDynamicFields();
     document.getElementById('addMenuImage').value = '';
     document.getElementById('addMenuDescription').value = '';
     openModal('addMenuModal');
@@ -3204,36 +3388,66 @@ async function saveNewMenuItem() {
     const name = document.getElementById('addMenuName').value.trim();
     const categorySelect = document.getElementById('addMenuCategory').value;
     const categoryNew = document.getElementById('addMenuCategoryNew').value.trim();
-    const priceValue = document.getElementById('addMenuPrice').value.trim();
+    const pricingType = document.getElementById('addMenuPricingType').value;
     const image = document.getElementById('addMenuImage').value.trim();
     const description = document.getElementById('addMenuDescription').value.trim();
     const dietaryType = document.querySelector('input[name="dietary"]:checked')?.value;
-    const price = parseFloat(priceValue);
-
+    
     // Determine final category
     let category = categorySelect === '__new__' ? categoryNew : categorySelect;
 
-    if (!name || !category || !priceValue || !dietaryType) {
-        showToast('Please fill in all required fields (Name, Category, Price, Dietary Type)', 'error');
+    if (!name || !category || !dietaryType) {
+        showToast('Please fill in all required fields (Name, Category, Dietary Type)', 'error');
         return;
     }
 
-    // Validate price is a positive number
-    if (isNaN(price) || price <= 0) {
-        showToast('Price must be a positive number', 'error');
-        return;
-    }
-
-    const newItem = {
+    let newItem = {
         name,
         category,
-        price,
+        pricingType,
         image,
         description,
-        dietaryType: dietaryType,  // Add dietary type (veg, non-veg, both)
+        dietaryType: dietaryType,
         isVeg: dietaryType === 'veg' || dietaryType === 'both',
         createdAt: new Date().toISOString()
     };
+
+    // Add pricing data based on type
+    if (pricingType === 'single') {
+        const price = parseFloat(document.getElementById('addMenuPrice').value);
+        if (isNaN(price) || price <= 0) {
+            showToast('Price must be a positive number', 'error');
+            return;
+        }
+        newItem.price = price;
+    } else if (pricingType === 'half_full') {
+        const halfPrice = parseFloat(document.getElementById('addMenuHalfPrice').value);
+        const fullPrice = parseFloat(document.getElementById('addMenuFullPrice').value);
+        if (isNaN(halfPrice) || halfPrice <= 0 || isNaN(fullPrice) || fullPrice <= 0) {
+            showToast('Both half and full prices must be positive numbers', 'error');
+            return;
+        }
+        newItem.halfPrice = halfPrice;
+        newItem.fullPrice = fullPrice;
+        newItem.price = fullPrice; // For backward compatibility
+    } else if (pricingType === 'multi') {
+        const sizes = {};
+        const sizeFields = document.querySelectorAll('#addMenuSizes > div');
+        for (const field of sizeFields) {
+            const inputs = field.querySelectorAll('input');
+            const sizeName = inputs[0].value.trim();
+            const sizePrice = parseFloat(inputs[1].value);
+            if (sizeName && !isNaN(sizePrice) && sizePrice > 0) {
+                sizes[sizeName] = sizePrice;
+            }
+        }
+        if (Object.keys(sizes).length === 0) {
+            showToast('Please add at least one size with a valid price', 'error');
+            return;
+        }
+        newItem.sizes = sizes;
+        newItem.price = Math.min(...Object.values(sizes)); // For backward compatibility
+    }
 
     try {
         const response = await fetch(`${dbUrl}/menu.json`, {
@@ -3253,6 +3467,7 @@ async function saveNewMenuItem() {
         document.getElementById('addMenuPrice').value = '';
         document.getElementById('addMenuImage').value = '';
         document.getElementById('addMenuDescription').value = '';
+        document.getElementById('addMenuDynamicFields').innerHTML = '';
         document.querySelectorAll('input[name="dietary"]').forEach(r => r.checked = false);
 
         showToast('Menu item added successfully! ✅', 'success');
@@ -3276,7 +3491,154 @@ document.addEventListener('change', (e) => {
             categoryNewInput.value = '';
         }
     }
+    if (e.target.id === 'addMenuPricingType') {
+        updateAddMenuDynamicFields();
+    }
 });
+
+// Handle pricing type change for Edit Menu Modal
+document.addEventListener('change', (e) => {
+    if (e.target.id === 'editMenuPricingType') {
+        updateEditMenuDynamicFields();
+    }
+});
+
+// Update dynamic fields for Add Menu Modal
+function updateAddMenuDynamicFields() {
+    const pricingType = document.getElementById('addMenuPricingType').value;
+    const dynamicFields = document.getElementById('addMenuDynamicFields');
+    const priceGroup = document.getElementById('addMenuPriceGroup');
+    const priceInput = document.getElementById('addMenuPrice');
+
+    if (priceGroup) {
+        priceGroup.style.display = pricingType === 'single' ? 'block' : 'none';
+    }
+    if (priceInput) {
+        priceInput.required = pricingType === 'single';
+    }
+
+    let html = '';
+    if (pricingType === 'half_full') {
+        html = `
+            <div class="form-group">
+                <label>Half Price *</label>
+                <input id="addMenuHalfPrice" type="number" step="0.01" required />
+            </div>
+            <div class="form-group">
+                <label>Full Price *</label>
+                <input id="addMenuFullPrice" type="number" step="0.01" required />
+            </div>
+        `;
+    } else if (pricingType === 'multi') {
+        html = `
+            <div class="form-group">
+                <label>Sizes (Add at least one)</label>
+                <div id="addMenuSizes" class="space-y-2">
+                    <div class="flex gap-3 items-end">
+                        <div class="flex-1 min-w-0">
+                            <label class="text-xs text-slate-600 block mb-1">Size Name</label>
+                            <input type="text" placeholder="e.g., Regular" class="w-full" />
+                        </div>
+                        <div class="flex-shrink-0">
+                            <label class="text-xs text-slate-600 block mb-1">Price</label>
+                            <div class="flex gap-1">
+                                <input type="number" step="0.01" placeholder="₹" class="w-20" />
+                                <button type="button" onclick="removeSizeField(this)" class="text-red-500 hover:text-red-700 font-bold text-2xl leading-none border-none bg-transparent cursor-pointer p-1">×</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" onclick="addSizeField('addMenuSizes')" class="mt-3 text-primary font-semibold text-sm">+ Add Size</button>
+            </div>
+        `;
+    }
+    dynamicFields.innerHTML = html;
+}
+
+// Update dynamic fields for Edit Menu Modal
+function updateEditMenuDynamicFields() {
+    const pricingType = document.getElementById('editMenuPricingType').value;
+    const dynamicFields = document.getElementById('editMenuDynamicFields');
+    const priceGroup = document.getElementById('editMenuPriceGroup');
+    const priceInput = document.getElementById('editMenuPrice');
+
+    if (priceGroup) {
+        priceGroup.style.display = pricingType === 'single' ? 'block' : 'none';
+    }
+    if (priceInput) {
+        priceInput.required = pricingType === 'single';
+    }
+
+    let html = '';
+    if (pricingType === 'half_full') {
+        html = `
+            <div class="form-group">
+                <label>Half Price *</label>
+                <input id="editMenuHalfPrice" type="number" step="0.01" required />
+            </div>
+            <div class="form-group">
+                <label>Full Price *</label>
+                <input id="editMenuFullPrice" type="number" step="0.01" required />
+            </div>
+        `;
+    } else if (pricingType === 'multi') {
+        html = `
+            <div class="form-group">
+                <label>Sizes (Add at least one)</label>
+                <div id="editMenuSizes" class="space-y-2">
+                    <div class="flex gap-3 items-end">
+                        <div class="flex-1 min-w-0">
+                            <label class="text-xs text-slate-600 block mb-1">Size Name</label>
+                            <input type="text" placeholder="e.g., Regular" class="w-full" />
+                        </div>
+                        <div class="flex-shrink-0">
+                            <label class="text-xs text-slate-600 block mb-1">Price</label>
+                            <div class="flex gap-1">
+                                <input type="number" step="0.01" placeholder="₹" class="w-20" />
+                                <button type="button" onclick="removeSizeField(this)" class="text-red-500 hover:text-red-700 font-bold text-2xl leading-none border-none bg-transparent cursor-pointer p-1">×</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" onclick="addSizeField('editMenuSizes')" class="mt-3 text-primary font-semibold text-sm">+ Add Size</button>
+            </div>
+        `;
+    }
+    dynamicFields.innerHTML = html;
+}
+
+// Add size field
+function addSizeField(containerId) {
+    const container = document.getElementById(containerId);
+    const div = document.createElement('div');
+    div.className = 'flex gap-3 items-end';
+    div.innerHTML = `
+        <div class="flex-1 min-w-0">
+            <label class="text-xs text-slate-600 block mb-1">Size Name</label>
+            <input type="text" placeholder="e.g., Regular" class="w-full" />
+        </div>
+        <div class="flex-shrink-0">
+            <label class="text-xs text-slate-600 block mb-1">Price</label>
+            <div class="flex gap-1">
+                <input type="number" step="0.01" placeholder="₹" class="w-20" />
+                <button type="button" onclick="removeSizeField(this)" class="text-red-500 hover:text-red-700 font-bold text-2xl leading-none border-none bg-transparent cursor-pointer p-1">×</button>
+            </div>
+        </div>
+    `;
+    container.appendChild(div);
+}
+
+// Remove size field
+function removeSizeField(button) {
+    // Navigate up to the flex gap-3 items-end div and remove it
+    let element = button;
+    while (element && !element.classList.contains('flex')) {
+        element = element.parentElement;
+    }
+    if (element && element.classList.contains('gap-3')) {
+        element.remove();
+    }
+}
 
 // Logout
 document.getElementById('logoutBtn').addEventListener('click', () => {

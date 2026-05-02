@@ -939,6 +939,31 @@ function addToCart(item) {
   showToast('Added to cart', 'success');
 }
 
+function addToCartWithOption(item, selectedType, selectedPrice) {
+  const cart = getCart();
+  const cartKey = `${item.id}_${selectedType}`;
+  const existing = cart.find(entry => entry.cartKey === cartKey);
+  
+  if (existing) {
+    existing.quantity += 1;
+  } else {
+    cart.push({
+      cartKey: cartKey,
+      productId: item.id,
+      name: item.name,
+      type: selectedType,
+      price: selectedPrice,
+      quantity: 1,
+      image: item.image
+    });
+  }
+  
+  saveCart(cart);
+  renderCartCount();
+  renderCartSidebar();
+  showToast('Added to cart', 'success');
+}
+
 function createMenuCard(item) {
   const card = document.createElement('div');
   card.className = 'group relative bg-surface-container-lowest p-6 rounded-xl transition-all duration-300 hover:shadow-2xl hover:shadow-black/5';
@@ -966,7 +991,67 @@ function createMenuCard(item) {
   const itemImage = item.image || 'https://via.placeholder.com/300?text=' + encodeURIComponent(item.name || 'Menu Item');
   const itemName = item.name || 'Unknown Item';
   const itemCategory = item.category || 'Uncategorized';
-  const itemPrice = item.price || 0;
+  
+  // Determine pricing type and render appropriate UI
+  const pricingType = item.pricingType || 'single';
+  let priceDisplay = '';
+  let buttonsHtml = '';
+  
+  if (pricingType === 'single') {
+    const price = item.price || 0;
+    priceDisplay = `<p class="text-2xl font-black text-primary mt-4">${formatCurrency(price)}</p>`;
+    buttonsHtml = `
+      <button type="button" class="mt-6 w-full group relative overflow-hidden rounded-full bg-secondary-container text-zinc-900 font-bold transition-all duration-300 hover:shadow-lg hover:shadow-secondary-container/40 active:scale-95 py-4 flex items-center justify-center gap-3 hover:bg-opacity-90" data-add="${item.id}" data-type="single" data-price="${price}">
+        <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+        <span class="material-symbols-outlined text-xl group-hover:scale-110 transition-transform duration-300 relative z-10" style="font-variation-settings: 'FILL' 1;">shopping_basket</span>
+        <span class="relative z-10 tracking-wide">Add to Cart</span>
+      </button>
+    `;
+  } else if (pricingType === 'half_full') {
+    const halfPrice = item.halfPrice || 0;
+    const fullPrice = item.fullPrice || 0;
+    priceDisplay = `<p class="text-sm text-zinc-600 mt-4">Half ${formatCurrency(halfPrice)} | Full ${formatCurrency(fullPrice)}</p>`;
+    buttonsHtml = `
+      <div class="mt-6 flex gap-3">
+        <button type="button" class="flex-1 group relative overflow-hidden rounded-full bg-secondary-container text-zinc-900 font-bold transition-all duration-300 hover:shadow-lg hover:shadow-secondary-container/40 active:scale-95 py-4 flex items-center justify-center gap-2 hover:bg-opacity-90 pricing-option" data-add="${item.id}" data-type="half" data-price="${halfPrice}">
+          <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+          <span class="relative z-10">Half</span>
+        </button>
+        <button type="button" class="flex-1 group relative overflow-hidden rounded-full bg-primary text-white font-bold transition-all duration-300 hover:shadow-lg hover:shadow-primary/40 active:scale-95 py-4 flex items-center justify-center gap-2 pricing-option selected" data-add="${item.id}" data-type="full" data-price="${fullPrice}">
+          <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+          <span class="relative z-10">Full</span>
+        </button>
+      </div>
+    `;
+  } else if (pricingType === 'multi') {
+    const sizes = item.sizes || {};
+    const sizeEntries = Object.entries(sizes);
+    if (sizeEntries.length > 0) {
+      const firstSize = sizeEntries[0][0];
+      const firstPrice = sizeEntries[0][1];
+      priceDisplay = `<p class="text-sm text-zinc-600 mt-4">${sizeEntries.map(([size, price]) => `${size} ${formatCurrency(price)}`).join(' | ')}</p>`;
+      buttonsHtml = `
+        <div class="mt-6 flex flex-wrap gap-2">
+          ${sizeEntries.map(([size, price], index) => `
+            <button type="button" class="group relative overflow-hidden rounded-full ${index === 0 ? 'bg-primary text-white' : 'bg-secondary-container text-zinc-900'} font-bold transition-all duration-300 hover:shadow-lg active:scale-95 py-3 px-4 flex items-center justify-center gap-2 pricing-option ${index === 0 ? 'selected' : ''}" data-add="${item.id}" data-type="${size}" data-price="${price}">
+              <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+              <span class="relative z-10 text-sm">${size}</span>
+            </button>
+          `).join('')}
+        </div>
+      `;
+    } else {
+      // Fallback if no sizes
+      priceDisplay = `<p class="text-2xl font-black text-primary mt-4">${formatCurrency(item.price || 0)}</p>`;
+      buttonsHtml = `
+        <button type="button" class="mt-6 w-full group relative overflow-hidden rounded-full bg-secondary-container text-zinc-900 font-bold transition-all duration-300 hover:shadow-lg hover:shadow-secondary-container/40 active:scale-95 py-4 flex items-center justify-center gap-3 hover:bg-opacity-90" data-add="${item.id}" data-type="single" data-price="${item.price || 0}">
+          <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+          <span class="material-symbols-outlined text-xl group-hover:scale-110 transition-transform duration-300 relative z-10" style="font-variation-settings: 'FILL' 1;">shopping_basket</span>
+          <span class="relative z-10 tracking-wide">Add to Cart</span>
+        </button>
+      `;
+    }
+  }
   
   card.innerHTML = `
     <div class="relative mb-6">
@@ -985,20 +1070,43 @@ function createMenuCard(item) {
       </div>
       <h3 class="text-xl font-bold text-zinc-900 group-hover:text-primary transition-colors">${itemName}</h3>
       <p class="text-zinc-500 text-sm mt-2 line-clamp-2">${itemCategory}</p>
-      <p class="text-2xl font-black text-primary mt-4">${formatCurrency(itemPrice)}</p>
+      ${priceDisplay}
     </div>
-    <button type="button" class="mt-6 w-full group relative overflow-hidden rounded-full bg-secondary-container text-zinc-900 font-bold transition-all duration-300 hover:shadow-lg hover:shadow-secondary-container/40 active:scale-95 py-4 flex items-center justify-center gap-3 hover:bg-opacity-90" data-add="${item.id}">
-      <!-- Background animation overlay -->
-      <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
-      
-      <!-- Icon -->
-      <span class="material-symbols-outlined text-xl group-hover:scale-110 transition-transform duration-300 relative z-10" style="font-variation-settings: 'FILL' 1;">shopping_basket</span>
-      
-      <!-- Text -->
-      <span class="relative z-10 tracking-wide">Add to Cart</span>
-    </button>
+    ${buttonsHtml}
   `;
-  card.querySelector('[data-add]')?.addEventListener('click', () => addToCart(item));
+  
+  // Add event listeners for pricing options
+  card.querySelectorAll('.pricing-option').forEach(button => {
+    button.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      // Remove selected class from siblings
+      card.querySelectorAll('.pricing-option').forEach(btn => {
+        btn.classList.remove('selected');
+        if (btn.dataset.type === 'full' || Object.keys(item.sizes || {}).includes(btn.dataset.type)) {
+          btn.classList.remove('bg-primary', 'text-white');
+          btn.classList.add('bg-secondary-container', 'text-zinc-900');
+        }
+      });
+      
+      // Add selected class to clicked button
+      button.classList.add('selected');
+      button.classList.remove('bg-secondary-container', 'text-zinc-900');
+      button.classList.add('bg-primary', 'text-white');
+    });
+  });
+  
+  // Add to cart functionality
+  card.querySelectorAll('[data-add]').forEach(button => {
+    button.addEventListener('click', () => {
+      const selectedButton = card.querySelector('.pricing-option.selected') || button;
+      const type = selectedButton.dataset.type;
+      const price = parseFloat(selectedButton.dataset.price);
+      addToCartWithOption(item, type, price);
+    });
+  });
+  
   return card;
 }
 
